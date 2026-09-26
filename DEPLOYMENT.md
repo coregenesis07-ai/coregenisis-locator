@@ -27,7 +27,9 @@ The old MailChannels no-key path is obsolete. V2 expects:
 - Secret: `RESEND_API_KEY`
 - Variable: `ALERT_FROM_EMAIL` (must use a verified sender/domain)
 
-Until both are configured, `POST /api/track` deliberately returns 503 and does not collect a subscriber email address.
+Until `RESEND_API_KEY`, `ALERT_FROM_EMAIL`, and `PUBLIC_SITE_URL` are configured, `POST /api/track` deliberately returns 503 and does not collect a subscriber email address.
+
+Alert enrollment uses double opt-in: the record remains inactive until the recipient clicks the verification link. Every alert email includes a tokenized unsubscribe link.
 
 ## 5. Cron
 The template includes:
