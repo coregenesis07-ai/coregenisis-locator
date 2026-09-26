@@ -12,7 +12,9 @@ def test_fresh_schema():
 
     expected_tables = {
         "tracked_inmates", "alert_events", "facilities",
-        "regulatory_documents", "bop_policies"
+        "regulatory_documents", "bop_policies", "service_plans",
+        "customer_accounts", "account_entitlements",
+        "family_profiles_private", "reentry_plans_private", "payment_events"
     }
     tables = {r[0] for r in conn.execute(
         "SELECT name FROM sqlite_master WHERE type='table'"
@@ -67,6 +69,12 @@ def test_fresh_schema():
         ORDER BY name LIMIT 10
     """, (like, like, like, like)).fetchall()
     assert rows and rows[0][0] == "BCK"
+
+    plans = conn.execute("""
+        SELECT plan_code, monthly_price_cents
+        FROM service_plans ORDER BY monthly_price_cents
+    """).fetchall()
+    assert plans == [("free", 0), ("family_plus", 999), ("reentry_planner", 1499)]
 
     # Updates feed query shape.
     rows = conn.execute("""
@@ -137,7 +145,9 @@ def test_legacy_migration():
     tables = {r[0] for r in conn.execute(
         "SELECT name FROM sqlite_master WHERE type='table'"
     )}
-    for name in ("alert_events", "regulatory_documents", "bop_policies"):
+    for name in ("alert_events", "regulatory_documents", "bop_policies",
+                 "service_plans", "customer_accounts", "account_entitlements",
+                 "family_profiles_private", "reentry_plans_private", "payment_events"):
         assert name in tables, f"migration missing {name}"
 
 if __name__ == "__main__":
