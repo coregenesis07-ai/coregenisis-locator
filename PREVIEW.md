@@ -54,3 +54,7 @@ After those pass, manually test:
 - legal/privacy pages
 
 Only after the preview passes should production migration be considered.
+
+
+## Preview indexing protection
+The preview config sets `PREVIEW_MODE=1` and routes preview page requests through the Worker. Static preview responses receive `X-Robots-Tag: noindex, nofollow, noarchive` so the temporary Workers preview hostname is not intended for search indexing. Production does not use `PREVIEW_MODE`.
