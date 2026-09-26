@@ -1,0 +1,9 @@
+<!doctype html><meta charset="utf-8"><title>BOP CORS test</title><pre id="out">testing...</pre>
+<script>
+(async()=>{try{
+ const u='https://www.bop.gov/PublicInfo/execute/inmateloc?todo=query&output=json&nameFirst=John&nameLast=Smith';
+ const r=await fetch(u,{headers:{Accept:'application/json'}});
+ const t=await r.text();
+ document.querySelector('#out').textContent='status='+r.status+'\n'+t.slice(0,500);
+}catch(e){document.querySelector('#out').textContent='ERROR: '+e.name+': '+e.message}})();
+</script>
