@@ -46,6 +46,7 @@ The Worker deliberately refuses to collect alert email addresses when the email 
 - Searchable BOP facility directory with scheduled official-source refresh
 - Searchable BOP policy index sourced from the official BOP policy search endpoint
 - Federal Register / BOP regulatory feed with official PDF links
+- Regulatory deadline tracker for indexed effective dates and comment deadlines
 - Unified knowledge search across facilities, BOP policies, and regulatory documents
 - Public data freshness/status endpoint
 - Double-opt-in email alert design with tokenized unsubscribe
@@ -60,6 +61,7 @@ The Worker deliberately refuses to collect alert email addresses when the email 
 - `GET /api/facilities?q=...`
 - `GET /api/policies?q=...&series=...&type=...`
 - `GET /api/rules`
+- `GET /api/deadlines`
 - `POST /api/track`
 - `GET /api/verify?token=...`
 - `GET /api/unsubscribe?token=...`
