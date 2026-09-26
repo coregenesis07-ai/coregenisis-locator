@@ -906,11 +906,11 @@ async function doSearch(e){
    if(parts.length>2)params.set('nameMiddle',parts.slice(1,-1).join(' '));
  }
  try{
-   const url='https://www.bop.gov/PublicInfo/execute/inmateloc?'+params.toString();
+   const searchValue=digits.length===8 ? (digits.slice(0,5)+'-'+digits.slice(5)) : q;
+   const url='https://federalcustodyguide-search.coregenesis07.workers.dev/api/bop-search?'+new URLSearchParams({q:searchValue}).toString();
    const res=await fetch(url,{headers:{Accept:'application/json'}});
-   if(!res.ok)throw new Error('BOP HTTP '+res.status);
    const data=await res.json();
-   if(data?.Captcha===true)throw new Error(state.lang==='es'?'BOP requiere verificación adicional en este momento.':'BOP requires additional verification right now.');
+   if(!res.ok)throw new Error(data.error||('Search service HTTP '+res.status));
    const rows=normalizeResults(data);
    state.lastResults=rows;
    renderResults(rows);
