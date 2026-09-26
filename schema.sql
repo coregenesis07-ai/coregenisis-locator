@@ -120,3 +120,82 @@ CREATE TABLE IF NOT EXISTS bop_policies (
 CREATE INDEX IF NOT EXISTS idx_bop_policies_number ON bop_policies(policy_number);
 CREATE INDEX IF NOT EXISTS idx_bop_policies_series ON bop_policies(series);
 CREATE INDEX IF NOT EXISTS idx_bop_policies_issue_date ON bop_policies(issue_date);
+
+
+CREATE TABLE IF NOT EXISTS service_plans (
+  plan_code TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  monthly_price_cents INTEGER NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0,1)),
+  public_search INTEGER NOT NULL DEFAULT 1 CHECK (public_search IN (0,1)),
+  family_profiles INTEGER NOT NULL DEFAULT 0 CHECK (family_profiles IN (0,1)),
+  verified_alerts INTEGER NOT NULL DEFAULT 0 CHECK (verified_alerts IN (0,1)),
+  reentry_planner INTEGER NOT NULL DEFAULT 0 CHECK (reentry_planner IN (0,1)),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT OR IGNORE INTO service_plans
+(plan_code,name,monthly_price_cents,active,public_search,family_profiles,verified_alerts,reentry_planner)
+VALUES
+('free','Free',0,1,1,0,0,0),
+('family_plus','Family Plus',999,1,1,1,1,0),
+('reentry_planner','Reentry Planner',1499,1,1,1,1,1);
+
+CREATE TABLE IF NOT EXISTS customer_accounts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  auth_subject TEXT NOT NULL UNIQUE,
+  email TEXT,
+  preferred_lang TEXT NOT NULL DEFAULT 'en' CHECK (preferred_lang IN ('en','es')),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS account_entitlements (
+  customer_account_id INTEGER PRIMARY KEY,
+  plan_code TEXT NOT NULL DEFAULT 'free',
+  status TEXT NOT NULL DEFAULT 'active',
+  valid_until DATETIME,
+  provider_customer_id TEXT,
+  provider_subscription_id TEXT,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_account_id) REFERENCES customer_accounts(id) ON DELETE CASCADE,
+  FOREIGN KEY (plan_code) REFERENCES service_plans(plan_code)
+);
+
+CREATE TABLE IF NOT EXISTS family_profiles_private (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_account_id INTEGER NOT NULL,
+  display_name TEXT NOT NULL,
+  register_number TEXT,
+  note TEXT,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_account_id) REFERENCES customer_accounts(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_family_profiles_account ON family_profiles_private(customer_account_id);
+
+CREATE TABLE IF NOT EXISTS reentry_plans_private (
+  customer_account_id INTEGER PRIMARY KEY,
+  target_date TEXT,
+  checklist_json TEXT NOT NULL DEFAULT '{}',
+  housing_notes TEXT,
+  employment_notes TEXT,
+  next_steps TEXT,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_account_id) REFERENCES customer_accounts(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS payment_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  provider TEXT NOT NULL,
+  provider_event_id TEXT NOT NULL UNIQUE,
+  event_type TEXT NOT NULL,
+  customer_account_id INTEGER,
+  processed_at DATETIME,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_account_id) REFERENCES customer_accounts(id) ON DELETE SET NULL
+);
