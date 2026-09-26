@@ -769,7 +769,7 @@ async function cleanupStalePendingAlerts(env) {
     `SELECT id FROM tracked_inmates
       WHERE active=0
         AND notification_status IN ('pending_verification','delivery_error')
-        AND created_at < datetime('now','-7 days')
+        AND updated_at < datetime('now','-7 days')
       LIMIT 1000`
   ).all();
 
