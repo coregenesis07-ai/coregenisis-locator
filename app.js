@@ -543,8 +543,8 @@ function app(){
 }
 
 function bind(){
- $('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route;const m=$('#mobileNav');if(m)m.classList.add('hidden');const tgl=$('#menuToggle');if(tgl)tgl.setAttribute('aria-expanded','false')});
- $('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
+ $$('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route;const m=$('#mobileNav');if(m)m.classList.add('hidden');const tgl=$('#menuToggle');if(tgl)tgl.setAttribute('aria-expanded','false')});
+ $$('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
  const mt=$('#menuToggle'); if(mt) mt.addEventListener('click',()=>{const m=$('#mobileNav');if(!m)return;const opening=m.classList.contains('hidden');m.classList.toggle('hidden');mt.setAttribute('aria-expanded',String(opening));});
  const sf=$('#searchForm'); if(sf) sf.addEventListener('submit',doSearch);
  const kf=$('#knowledgeForm'); if(kf) kf.addEventListener('submit',doKnowledgeSearch);
