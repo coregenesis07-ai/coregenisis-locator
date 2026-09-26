@@ -123,6 +123,8 @@ function ruleCard(){
 function rulesPage(){
  return `<main id="main">${pageHeader(t('rules'),t('rulesDesc'))}<section class="section"><div class="container">
    <div class="banner"><strong>Source-first:</strong> Coregenisis summaries are explanatory. Use the linked official publication for the controlling text.</div>
+   <div style="height:1rem"></div>
+   <div class="card"><div class="rule-head"><div><h3>${state.lang==='es'?'Fechas y plazos publicados':'Published dates & deadlines'}</h3><p>${state.lang==='es'?'Seguimiento neutral de fechas de vigencia y períodos de comentarios que aparecen en los registros indexados.':'Neutral tracking of effective dates and comment deadlines appearing in indexed records.'}</p></div></div><div id="deadlineStatus" class="helper"></div><div id="deadlineFeed" class="results"></div></div>
    <div id="ruleStatus" class="helper" style="margin:.8rem 0"></div>
    <div id="ruleFeed" class="grid grid-2">${ruleCard()}${sourceLinks()}</div>
  </div></section></main>`;
@@ -241,7 +243,7 @@ function bind(){
  const ff=$('#facilityForm'); if(ff) ff.addEventListener('submit',e=>{e.preventDefault();loadFacilities($('#facilityQuery')?.value||'')});
  const pf=$('#policyForm'); if(pf) pf.addEventListener('submit',e=>{e.preventDefault();loadPolicies()});
  if(state.route==='facilities') loadFacilities('');
- if(state.route==='rules') loadRules();
+ if(state.route==='rules'){ loadRules(); loadDeadlines(); }
  if(state.route==='policies') loadPolicies();
  if(state.route==='resources') loadDataStatus();
 }
@@ -364,6 +366,39 @@ function renderFacilityCard(f){
  return `<article class="card"><div class="rule-head"><div><span class="status-chip status-blue">${esc(f.type||'BOP')}</span><h3>${esc(f.name||f.code||'Federal facility')}</h3><p>${esc(f.security_level||'Security level not listed')}${camp}</p></div></div><div class="result-meta">${contact}</div><p class="notice">Region: ${esc(f.region||'Not listed')} • Last verified: ${esc(formatDateTime(f.last_verified_at))}</p><a class="btn btn-light" href="${href}" target="_blank" rel="noopener">Official BOP page ↗</a></article>`;
 }
 
+async function loadDeadlines(){
+ const status=$('#deadlineStatus'), out=$('#deadlineFeed');
+ if(!status||!out) return;
+ status.textContent=state.lang==='es'?'Cargando fechas…':'Loading dates…';
+ try{
+   const res=await fetch('/api/deadlines',{headers:{Accept:'application/json'}});
+   const data=await res.json();
+   if(!res.ok) throw new Error(data.error||'Unable to load deadlines');
+   const rows=Array.isArray(data.results)?data.results:[];
+   const items=[];
+   rows.forEach(r=>{
+     if(r.comment_deadline) items.push({kind:state.lang==='es'?'Fin de comentarios':'Comment deadline',date:r.comment_deadline,title:r.title,url:r.source_url});
+     if(r.effective_date) items.push({kind:state.lang==='es'?'Fecha de vigencia':'Effective date',date:r.effective_date,title:r.title,url:r.source_url});
+   });
+   items.sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+   status.textContent=items.length?(state.lang==='es'?`${items.length} fecha(s) futura(s) indexada(s).`:`${items.length} indexed future date(s).`):(state.lang==='es'?'No hay fechas futuras indexadas.':'No future indexed dates.');
+   out.innerHTML=items.length?items.map(renderDeadline).join(''):'<div class="empty-state">No future indexed dates.</div>';
+ }catch(err){
+   status.textContent=err.message||'Deadline tracker unavailable.';
+ }
+}
+function renderDeadline(item){
+ const href=safeHref(item.url,'https://www.federalregister.gov/');
+ const days=daysUntil(item.date);
+ const timing=days===0?(state.lang==='es'?'Hoy':'Today'):(days>0?(state.lang==='es'?`En ${days} día(s)`:`In ${days} day(s)`):'');
+ return `<div class="result-card"><div><b>${esc(item.kind)}</b><div class="result-meta">${esc(item.title||'Federal document')}</div></div><div><b>${esc(formatDate(item.date))}</b><div class="result-meta">${esc(timing)}</div></div><a class="btn btn-light" href="${href}" target="_blank" rel="noopener">Source ↗</a></div>`;
+}
+function daysUntil(v){
+ if(!v)return NaN;
+ const target=new Date(v+'T00:00:00');
+ const today=new Date(); today.setHours(0,0,0,0);
+ return Math.round((target.getTime()-today.getTime())/86400000);
+}
 async function loadRules(){
  const status=$('#ruleStatus'), out=$('#ruleFeed');
  if(!status||!out) return;
