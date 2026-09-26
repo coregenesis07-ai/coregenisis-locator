@@ -11,8 +11,11 @@ CREATE TABLE IF NOT EXISTS tracked_inmates (
   last_release_date TEXT,
   last_checked DATETIME,
   last_alerted_at DATETIME,
-  active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0,1)),
-  notification_status TEXT NOT NULL DEFAULT 'active',
+  active INTEGER NOT NULL DEFAULT 0 CHECK (active IN (0,1)),
+  notification_status TEXT NOT NULL DEFAULT 'pending_verification',
+  verification_token TEXT,
+  unsubscribe_token TEXT,
+  verified_at DATETIME,
   failure_count INTEGER NOT NULL DEFAULT 0,
   last_error TEXT,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -23,6 +26,8 @@ CREATE TABLE IF NOT EXISTS tracked_inmates (
 CREATE INDEX IF NOT EXISTS idx_tracked_email ON tracked_inmates(email);
 CREATE INDEX IF NOT EXISTS idx_tracked_register ON tracked_inmates(register_number);
 CREATE INDEX IF NOT EXISTS idx_tracked_active ON tracked_inmates(active);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tracked_verification_token ON tracked_inmates(verification_token) WHERE verification_token IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tracked_unsubscribe_token ON tracked_inmates(unsubscribe_token) WHERE unsubscribe_token IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS alert_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
