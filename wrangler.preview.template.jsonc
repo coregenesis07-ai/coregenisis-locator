@@ -8,7 +8,7 @@
     "directory": "./public",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": true
   },
   "d1_databases": [
     {
@@ -20,7 +20,8 @@
   "vars": {
     "ALLOWED_ORIGIN": "REPLACE_WITH_PREVIEW_WORKERS_DEV_ORIGIN",
     "PUBLIC_SITE_URL": "REPLACE_WITH_PREVIEW_WORKERS_DEV_ORIGIN",
-    "ALERT_FROM_EMAIL": "REPLACE_WITH_VERIFIED_PREVIEW_SENDER"
+    "ALERT_FROM_EMAIL": "REPLACE_WITH_VERIFIED_PREVIEW_SENDER",
+    "PREVIEW_MODE": "1"
   },
   "triggers": {
     "crons": ["0 10 * * *", "30 10 * * 0"]
