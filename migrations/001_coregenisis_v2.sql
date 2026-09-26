@@ -25,6 +25,12 @@ CREATE INDEX IF NOT EXISTS idx_alert_events_tracked ON alert_events(tracked_inma
 
 ALTER TABLE facilities ADD COLUMN city TEXT;
 ALTER TABLE facilities ADD COLUMN security_level TEXT;
+ALTER TABLE facilities ADD COLUMN address TEXT;
+ALTER TABLE facilities ADD COLUMN zip_code TEXT;
+ALTER TABLE facilities ADD COLUMN phone_number TEXT;
+ALTER TABLE facilities ADD COLUMN region TEXT;
+ALTER TABLE facilities ADD COLUMN gender TEXT;
+ALTER TABLE facilities ADD COLUMN has_camp INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE facilities ADD COLUMN official_url TEXT;
 ALTER TABLE facilities ADD COLUMN last_verified_at DATETIME;
 
