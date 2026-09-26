@@ -111,3 +111,12 @@ Planned commercial structure:
 - Optional one-time organization/formatting services displayed as planned offerings
 
 The current preview does not activate checkout or collect payment information.
+
+
+### Elderly/terminally ill pilot caution
+The FSA/Second Chance center explicitly flags the current official-source inconsistency around the elderly/terminally ill home-confinement pilot:
+- current 34 U.S.C. § 60541 still states fiscal years 2019–2023,
+- BOP's June 2024 FSA annual report states referral authority expired at the end of FY2023,
+- BOP's public FAQ still describes the pilot and application path.
+
+Coregenisis links all three rather than presenting the pilot as unquestionably available.
