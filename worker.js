@@ -47,7 +47,6 @@ export default {
           return json({ error: "Tracking database is not configured." }, 503, headers);
         }
         if (!emailConfigured(env)) {
-          // Do not collect email addresses until delivery is actually configured.
           return json({
             error: "Email alerts are not enabled on this deployment yet.",
             code: "ALERTS_NOT_CONFIGURED"
@@ -81,20 +80,26 @@ export default {
 
         const displayName = inmateName || inmate.name || "";
         const releaseDate = inmate.actual_release_date || inmate.projected_release_date || "";
+        const verificationToken = generateToken();
+        const unsubscribeToken = generateToken();
 
         await env.DB.prepare(
           `INSERT INTO tracked_inmates
             (register_number, inmate_name, email, lang, last_facility, last_release_date, last_checked,
-             active, notification_status, failure_count, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, datetime('now'), 1, 'active', 0, datetime('now'), datetime('now'))
+             active, notification_status, verification_token, unsubscribe_token,
+             failure_count, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, datetime('now'), 0, 'pending_verification', ?, ?, 0, datetime('now'), datetime('now'))
            ON CONFLICT(register_number, email) DO UPDATE SET
              inmate_name=excluded.inmate_name,
              lang=excluded.lang,
              last_facility=excluded.last_facility,
              last_release_date=excluded.last_release_date,
              last_checked=datetime('now'),
-             active=1,
-             notification_status='active',
+             active=0,
+             notification_status='pending_verification',
+             verification_token=excluded.verification_token,
+             unsubscribe_token=excluded.unsubscribe_token,
+             verified_at=NULL,
              failure_count=0,
              last_error=NULL,
              updated_at=datetime('now')`
@@ -104,37 +109,107 @@ export default {
           email,
           lang,
           inmate.facility_name || "",
-          releaseDate
+          releaseDate,
+          verificationToken,
+          unsubscribeToken
         ).run();
+
+        try {
+          await sendVerificationEmail(env, {
+            register_number: registerNumber,
+            inmate_name: displayName,
+            email,
+            lang,
+            verification_token: verificationToken
+          });
+        } catch (error) {
+          await env.DB.prepare(
+            `UPDATE tracked_inmates
+                SET notification_status='delivery_error', last_error=?, updated_at=datetime('now')
+              WHERE register_number=? AND lower(email)=lower(?)`
+          ).bind(String(error?.message || error).slice(0, 500), registerNumber, email).run();
+          throw error;
+        }
 
         return json({
           ok: true,
-          message: lang === "es" ? "Seguimiento activado." : "Tracking activated.",
-          register_number: registerNumber,
-          alerts_configured: true
+          pending_verification: true,
+          message: lang === "es"
+            ? "Revise su correo y confirme la alerta antes de que comience el seguimiento."
+            : "Check your email and confirm the alert before tracking begins.",
+          register_number: registerNumber
         }, 200, headers);
+      }
+
+      if (url.pathname === "/api/verify" && request.method === "GET") {
+        if (!env.DB) return htmlPage("Coregenisis", "Verification service is not configured.", 503);
+        const token = cleanText(url.searchParams.get("token"), 200);
+        if (!token) return htmlPage("Coregenisis", "This verification link is invalid.", 400);
+
+        const row = await env.DB.prepare(
+          `SELECT id, inmate_name, register_number, email, lang
+             FROM tracked_inmates WHERE verification_token=? LIMIT 1`
+        ).bind(token).first();
+
+        if (!row) return htmlPage("Coregenisis", "This verification link is invalid or has already been used.", 404);
+
+        await env.DB.prepare(
+          `UPDATE tracked_inmates
+              SET active=1, notification_status='active', verification_token=NULL,
+                  verified_at=datetime('now'), updated_at=datetime('now'), last_error=NULL
+            WHERE id=?`
+        ).bind(row.id).run();
+
+        const message = row.lang === "es"
+          ? `La alerta para ${escapeHtml(row.inmate_name || row.register_number)} está confirmada.`
+          : `Tracking for ${escapeHtml(row.inmate_name || row.register_number)} is confirmed.`;
+        return htmlPage("Coregenisis alert confirmed", message, 200, env.PUBLIC_SITE_URL);
+      }
+
+      if (url.pathname === "/api/unsubscribe" && request.method === "GET") {
+        if (!env.DB) return htmlPage("Coregenisis", "Unsubscribe service is not configured.", 503);
+        const token = cleanText(url.searchParams.get("token"), 200);
+        if (!token) return htmlPage("Coregenisis", "This unsubscribe link is invalid.", 400);
+
+        const row = await env.DB.prepare(
+          `SELECT id, inmate_name, register_number FROM tracked_inmates
+            WHERE unsubscribe_token=? LIMIT 1`
+        ).bind(token).first();
+        if (!row) return htmlPage("Coregenisis", "This unsubscribe link is invalid or expired.", 404);
+
+        await env.DB.prepare(
+          `UPDATE tracked_inmates
+              SET active=0, notification_status='unsubscribed', updated_at=datetime('now')
+            WHERE id=?`
+        ).bind(row.id).run();
+
+        return htmlPage(
+          "Coregenisis alert stopped",
+          `Tracking for ${escapeHtml(row.inmate_name || row.register_number)} has been stopped.`,
+          200,
+          env.PUBLIC_SITE_URL
+        );
       }
 
       if (url.pathname === "/api/track" && request.method === "DELETE") {
         if (!originAllowed(request, env)) {
           return json({ error: "Origin not allowed." }, 403, headers);
         }
-        if (!env.DB) {
-          return json({ error: "Tracking database is not configured." }, 503, headers);
-        }
+        if (!env.DB) return json({ error: "Tracking database is not configured." }, 503, headers);
 
         const body = await readJson(request);
-        const registerNumber = normalizeRegisterNumber(body.register_number);
-        const email = normalizeEmail(body.email);
-        if (!registerNumber || !email) {
-          return json({ error: "Register number and email are required." }, 400, headers);
-        }
+        const token = cleanText(body.unsubscribe_token, 200);
+        if (!token) return json({ error: "A valid deletion token is required." }, 400, headers);
 
-        await env.DB.prepare(
-          "DELETE FROM tracked_inmates WHERE register_number=? AND lower(email)=lower(?)"
-        ).bind(registerNumber, email).run();
+        const result = await env.DB.prepare(
+          "DELETE FROM tracked_inmates WHERE unsubscribe_token=?"
+        ).bind(token).run();
 
-        return json({ ok: true, message: "Tracking request deleted." }, 200, headers);
+        return json({
+          ok: true,
+          deleted: Number(result?.meta?.changes || 0) > 0,
+          message: "Tracking data deletion request processed."
+        }, 200, headers);
       }
 
       if (url.pathname === "/api/rules" && request.method === "GET") {
@@ -447,7 +522,8 @@ async function checkAllInmates(env) {
   }
 
   const { results = [] } = await env.DB.prepare(
-    `SELECT id, register_number, inmate_name, email, lang, last_facility, last_release_date
+    `SELECT id, register_number, inmate_name, email, lang, last_facility, last_release_date,
+              unsubscribe_token
        FROM tracked_inmates
       WHERE active=1
       ORDER BY id
@@ -513,6 +589,23 @@ async function markFailure(env, id, message) {
   ).bind(message, id).run();
 }
 
+async function sendVerificationEmail(env, tracked) {
+  const spanish = tracked.lang === "es";
+  const verifyUrl = `${env.PUBLIC_SITE_URL.replace(/\/$/, "")}/api/verify?token=${encodeURIComponent(tracked.verification_token)}`;
+  const subject = spanish ? "Confirme su alerta de Coregenisis" : "Confirm your Coregenisis alert";
+  const html = spanish
+    ? `<h2>Confirme su alerta de Coregenisis</h2>
+       <p>Solicitó seguimiento de información pública del BOP para <strong>${escapeHtml(tracked.inmate_name || tracked.register_number)}</strong>.</p>
+       <p><a href="${verifyUrl}">Confirmar alerta</a></p>
+       <p>Si usted no solicitó esta alerta, ignore este mensaje.</p>`
+    : `<h2>Confirm your Coregenisis alert</h2>
+       <p>You requested tracking of public BOP information for <strong>${escapeHtml(tracked.inmate_name || tracked.register_number)}</strong>.</p>
+       <p><a href="${verifyUrl}">Confirm alert</a></p>
+       <p>If you did not request this alert, ignore this message.</p>`;
+
+  await sendEmail(env, tracked.email, subject, html);
+}
+
 async function sendAlertEmail(env, tracked, current, changed) {
   const spanish = tracked.lang === "es";
   const subject = spanish
@@ -540,8 +633,13 @@ async function sendAlertEmail(env, tracked, current, changed) {
     : `<h2>Coregenisis — public record update</h2>
        <p>We detected a change in public BOP information for <strong>${escapeHtml(tracked.inmate_name || tracked.register_number)}</strong>.</p>
        <ul>${changedLines.join("")}</ul>
-       <p>Verify the information directly at <a href="${BOP_LOCATOR}">BOP.gov</a>. Coregenisis is an independent information service and is not affiliated with BOP or DOJ.</p>`;
+       <p>Verify the information directly at <a href="${BOP_LOCATOR}">BOP.gov</a>. Coregenisis is an independent information service and is not affiliated with BOP or DOJ.</p>
+       <p><a href="${env.PUBLIC_SITE_URL.replace(/\/$/, "")}/api/unsubscribe?token=${encodeURIComponent(tracked.unsubscribe_token || "")}">Unsubscribe</a></p>`;
 
+  await sendEmail(env, tracked.email, subject, html);
+}
+
+async function sendEmail(env, to, subject, html) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -550,7 +648,7 @@ async function sendAlertEmail(env, tracked, current, changed) {
     },
     body: JSON.stringify({
       from: env.ALERT_FROM_EMAIL,
-      to: [tracked.email],
+      to: [to],
       subject,
       html
     })
@@ -563,7 +661,7 @@ async function sendAlertEmail(env, tracked, current, changed) {
 }
 
 function emailConfigured(env) {
-  return Boolean(env.RESEND_API_KEY && env.ALERT_FROM_EMAIL);
+  return Boolean(env.RESEND_API_KEY && env.ALERT_FROM_EMAIL && env.PUBLIC_SITE_URL);
 }
 
 function originAllowed(request, env) {
@@ -597,6 +695,24 @@ async function readJson(request) {
   } catch {
     throw new ApiError(400, "Invalid JSON request.");
   }
+}
+
+function generateToken() {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function htmlPage(title, message, status = 200, homeUrl = "") {
+  const safeHome = homeUrl ? escapeHtml(homeUrl) : "";
+  const homeLink = safeHome ? `<p><a href="${safeHome}">Return to Coregenisis</a></p>` : "";
+  return new Response(
+    `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title></head><body style="font-family:system-ui;max-width:680px;margin:60px auto;padding:0 20px"><h1>${escapeHtml(title)}</h1><p>${message}</p>${homeLink}</body></html>`,
+    { status, headers: { "Content-Type": "text/html; charset=utf-8", "X-Content-Type-Options": "nosniff" } }
+  );
 }
 
 function normalizeRegisterNumber(value) {
