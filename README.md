@@ -134,3 +134,8 @@ V2 now includes a bilingual Refund & Cancellation Policy covering:
 - preservation of non-waivable consumer rights.
 
 The policy is visible in the footer but clearly states that checkout and billing are not active yet.
+
+
+### Additional V2 protections
+- Data Sources & Accuracy Policy: official-source control, update delays, custody-data limits, AI/automation disclosure, and verification requirements.
+- Calculator & Estimate Disclaimer: future FSA, release-date, RRC/home-confinement, classification, and security-points calculators are estimates only and never official BOP determinations.
