@@ -5,7 +5,7 @@ const state = { lang: localStorage.getItem('cg_lang') || 'en', route: location.h
 
 const copy = {
   en: {
-    subtitle:'Federal Custody Information Center', search:'Inmate Search', fsa:'FSA & Time Credits', rules:'Federal Rules', policies:'BOP Policies', facilities:'Facilities', alerts:'Alerts', resources:'Resources',
+    subtitle:'Federal Custody Information Center', search:'Inmate Search', fsa:'FSA & Second Chance', rules:'Federal Rules', policies:'BOP Policies', facilities:'Facilities', alerts:'Alerts', resources:'Resources',
     heroTitle:'Federal custody information, made easier to understand.',
     heroSub:'Search public BOP information, follow First Step Act developments, read federal rule summaries, and verify every important item with an official government source.',
     searchNow:'Search BOP records', exploreRules:'Explore federal rules',
@@ -25,7 +25,7 @@ const copy = {
     sourcesDesc:'Use these official sources to verify current law, regulations, agency policy, and custody information.'
   },
   es: {
-    subtitle:'Centro de Información de Custodia Federal', search:'Buscar Recluso', fsa:'FSA y Créditos', rules:'Reglas Federales', policies:'Políticas BOP', facilities:'Instituciones', alerts:'Alertas', resources:'Recursos',
+    subtitle:'Centro de Información de Custodia Federal', search:'Buscar Recluso', fsa:'FSA y Second Chance', rules:'Reglas Federales', policies:'Políticas BOP', facilities:'Instituciones', alerts:'Alertas', resources:'Recursos',
     heroTitle:'Información de custodia federal, más fácil de entender.',
     heroSub:'Busque información pública del BOP, siga cambios de la Ley First Step, lea resúmenes de reglas federales y verifique cada punto importante con una fuente oficial.',
     searchNow:'Buscar registros BOP', exploreRules:'Explorar reglas federales',
@@ -61,7 +61,7 @@ const rule = {
 
 function t(k){ return copy[state.lang][k]; }
 function navItems(){ return [
-  ['search',t('search')],['fsa',t('fsa')],['rules',t('rules')],['policies',t('policies')],['facilities',t('facilities')],['alerts',t('alerts')],['resources',t('resources')]
+  ['search',t('search')],['fsa',t('fsa')],['rules',t('rules')],['policies',t('policies')],['facilities',t('facilities')],['alerts',t('alerts')],['resources',t('resources')],['pricing',state.lang==='es'?'Planes':'Plans']
 ];}
 
 function header(){
@@ -117,6 +117,8 @@ function home(){
       <div style="height:1rem"></div>
       <div class="grid grid-2"><div class="card"><span class="status-chip status-blue">Featured rule</span><h3>${t('ruleTitle')}</h3><p>${t('summary')}</p><a class="btn btn-light" href="#/rules">Read the rule summary</a></div>${sourceLinks()}</div>
       <div style="height:1rem"></div>
+      <div class="card monetization-teaser"><div><span class="status-chip status-green">${state.lang==='es'?'Búsquedas gratis':'Free searches'}</span><h3>${state.lang==='es'?'Búsquedas gratuitas. Herramientas pagadas opcionales.':'Free searches. Optional paid tools.'}</h3><p>${state.lang==='es'?'Coregenisis mantendrá gratuita la búsqueda pública básica y monetizará funciones futuras como alertas, organización familiar y planificación de reingreso.':'Coregenisis will keep basic public search free and monetize future features such as alerts, family organization, and reentry planning.'}</p></div><a class="btn btn-dark" href="#/pricing">${state.lang==='es'?'Ver planes':'See plans'}</a></div>
+      <div style="height:1rem"></div>
       <div class="card"><div class="rule-head"><div><h3>${state.lang==='es'?'Actualizaciones recientes':'Recent official-source updates'}</h3><p>${state.lang==='es'?'Documentos y políticas indexados recientemente por fecha de publicación o emisión.':'Recently indexed regulations and BOP policies ordered by publication or issue date.'}</p></div><a class="btn btn-light" href="#/resources">${state.lang==='es'?'Ver estado de datos':'View data status'}</a></div><div id="updateStatus" class="helper" role="status" aria-live="polite"></div><div id="updateFeed" class="results"></div></div>
     </div></section>
   </main>`;
@@ -148,19 +150,95 @@ function rulesPage(){
 }
 function fsaPage(){
  const es=state.lang==='es';
- return `<main id="main">${pageHeader(t('fsa'),es?'Centro de información pública sobre la Ley First Step, créditos de tiempo, documentos oficiales y recursos del BOP.':'A focused First Step Act hub for public rules, time-credit information, official documents, and BOP resources.')}<section class="section"><div class="container">
- <div class="grid grid-3"><div class="card"><div class="feature-icon">1</div><h3>${es?'Créditos de tiempo':'Time credits'}</h3><p>${es?'Use el texto regulatorio y las fuentes oficiales para entender las reglas generales de acumulación y aplicación.':'Use the regulatory text and official sources to understand the general earning and application rules.'}</p></div><div class="card"><div class="feature-icon">2</div><h3>PATTERN & programs</h3><p>${es?'Consulte los recursos oficiales de evaluación de riesgo, necesidades y programas relacionados con FSA.':'Use the official risk-assessment, needs, and programming resources tied to FSA implementation.'}</p></div><div class="card"><div class="feature-icon">3</div><h3>${es?'Verifique la fuente':'Verify the source'}</h3><p>${es?'Los resúmenes de Coregenisis no sustituyen las publicaciones oficiales.':'Coregenisis summaries do not replace official publications.'}</p></div></div>
- <div style="height:1rem"></div>
- <div class="grid grid-2">
-   <div class="card"><h3>${es?'Recursos oficiales del BOP':'Official BOP FSA resources'}</h3>
-     <a class="resource-link" href="https://www.bop.gov/inmates/fsa/" target="_blank" rel="noopener"><b>First Step Act</b><span>BOP overview hub ↗</span></a>
-     <a class="resource-link" href="https://www.bop.gov/inmates/fsa/policies.jsp" target="_blank" rel="noopener"><b>FSA related resources</b><span>BOP policies & tools ↗</span></a>
-     <a class="resource-link" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener"><b>FSA FAQ</b><span>BOP frequently asked questions ↗</span></a>
+ const changes=[
+   {
+     date:'2026-08-31',
+     title:es?'Regla 2026 sobre Créditos de Tiempo FSA':'2026 FSA Time Credits rule',
+     text:es
+       ?'La regla interina revisa 28 CFR 523.42 y 523.44. Aclara que un recluso elegible comienza a ganar créditos FSA después de que comienza su término de encarcelamiento y aborda ciertos casos de sentencias impuestas en el extranjero.'
+       :'The interim rule revises 28 CFR 523.42 and 523.44. It clarifies that an eligible inmate begins earning FSA Time Credits after the term of imprisonment commences and addresses specified foreign-sentence transfer cases.',
+     href:'https://www.federalregister.gov/documents/2026/08/31/2026-17752/first-step-act-time-credits-revisions',
+     tag:'91 FR 55740'
+   },
+   {
+     date:'2026-05-07',
+     title:es?'Programa 5405.01: evaluaciones, programación e incentivos':'Program Statement 5405.01: assessments, programming & incentives',
+     text:es
+       ?'El BOP consolidó orientación sobre evaluaciones de necesidades criminógenas, programación, incentivos, capacitación y responsabilidades institucionales relacionadas con FSA.'
+       :'BOP consolidated guidance on criminogenic-needs assessment, programming, incentives, training, and institutional responsibilities related to FSA implementation.',
+     href:'https://www.bop.gov/policy/progstat/5405_001.pdf',
+     tag:'PS 5405.01'
+   },
+   {
+     date:'2025-08-01',
+     title:es?'Programa actualizado de aplicación de créditos':'Updated Time Credit Application Program',
+     text:es
+       ?'BOP anunció una herramienta actualizada que muestra fechas condicionales de confinamiento domiciliario que combinan FSA y Second Chance Act para apoyar la planificación de transición.'
+       :'BOP announced an updated tool that provides conditional home-confinement placement dates combining FSA and Second Chance Act information for transition planning.',
+     href:'https://www.bop.gov/news/20250801-message-from-director-william-k-marshall-iii.jsp',
+     tag:'BOP update'
+   },
+   {
+     date:'2025-05-28',
+     title:es?'Directiva sobre mayor uso de confinamiento domiciliario':'Home-confinement expansion directive',
+     text:es
+       ?'La directiva del BOP instruyó a los equipos a usar las fechas condicionales FSA y SCA en la planificación previa a la liberación y a distinguir correctamente la autoridad de cada estatuto.'
+       :'BOP directed unit teams to use FSA and SCA conditional placement dates in prerelease planning and to distinguish the statutory authority and eligibility rules of each program.',
+     href:'https://www.bop.gov/news/pdfs/20250528-home-confinement-expansioin.pdf',
+     tag:'BOP directive'
+   },
+   {
+     date:'2025-04-10',
+     title:es?'BOP rescindió el límite general de 60 días':'BOP rescinded proposed 60-day SCA limit',
+     text:es
+       ?'BOP anunció que no seguiría con la orientación del 31 de marzo de 2025 que habría limitado ciertas colocaciones SCA en centros de reingreso a 60 días.'
+       :'BOP announced that it would not proceed with March 31, 2025 guidance that would have limited certain Second Chance Act RRC placements to 60 days.',
+     href:'https://www.bop.gov/news/20250410-second-chance-act-sca-placements.jsp',
+     tag:'Second Chance Act'
+   }
+ ];
+
+ return `<main id="main">${pageHeader(
+   es?'First Step Act y Second Chance':'First Step Act & Second Chance',
+   es
+     ?'Centro de información pública para comprender créditos FSA, fechas condicionales, colocaciones de reingreso y cambios recientes del BOP.'
+     :'A public-information center for understanding FSA credits, conditional placement dates, reentry placement, and recent BOP changes.'
+ )}<section class="section"><div class="container">
+   <div class="banner"><strong>${es?'Importante':'Important'}:</strong> ${es
+     ?'FSA y Second Chance Act no son lo mismo. Las fechas condicionales y los créditos no garantizan una colocación específica. Las decisiones individuales dependen de la ley aplicable y de las determinaciones del BOP.'
+     :'FSA and the Second Chance Act are not the same program. Conditional dates and credits do not guarantee a particular placement. Individual outcomes depend on applicable law and BOP determinations.'}</div>
+
+   <div style="height:1rem"></div>
+   <div class="grid grid-3">
+     <div class="card"><div class="feature-icon">FSA</div><h3>${es?'Créditos de tiempo':'Time Credits'}</h3><p>${es?'Información sobre acumulación, aplicación y fuentes oficiales de créditos FSA.':'Information on earning, application, and official sources for FSA Time Credits.'}</p></div>
+     <div class="card"><div class="feature-icon">SCA</div><h3>Second Chance Act</h3><p>${es?'Información sobre planificación de colocación previa a la liberación, RRC y confinamiento domiciliario.':'Information on prerelease placement planning, RRCs, and home confinement.'}</p></div>
+     <div class="card"><div class="feature-icon">✓</div><h3>${es?'Verifique su caso':'Verify your case'}</h3><p>${es?'Coregenisis explica fuentes públicas; no determina elegibilidad individual ni fechas oficiales.':'Coregenisis explains public sources; it does not determine individual eligibility or official dates.'}</p></div>
    </div>
-   ${sourceLinks()}
- </div>
- <div style="height:1rem"></div>${ruleCard()}</div></section></main>`;
+
+   <div style="height:1.4rem"></div>
+   <div class="section-title"><div><h2>${es?'Cambios recientes importantes':'Important recent changes'}</h2><p>${es?'Cronología de cambios y orientación pública que Coregenisis debe mantener visible.':'A timeline of public changes and guidance Coregenisis should keep visible.'}</p></div></div>
+   <div class="timeline">${changes.map(c=>`<article class="timeline-item card"><div class="timeline-date">${esc(formatDate(c.date))}</div><div><span class="status-chip status-blue">${esc(c.tag)}</span><h3>${esc(c.title)}</h3><p>${esc(c.text)}</p><a class="btn btn-light" href="${c.href}" target="_blank" rel="noopener">${es?'Fuente oficial ↗':'Official source ↗'}</a></div></article>`).join('')}</div>
+
+   <div style="height:1.4rem"></div>
+   <div class="grid grid-2">
+     <div class="card"><h3>${es?'Cómo leer las fechas':'How to read the dates'}</h3>
+       <p><b>FSA Conditional Placement Date.</b> ${es?'Una fecha de planificación basada en créditos FSA proyectados/aplicables; no es por sí sola una orden de liberación.':'A planning date based on projected/applicable FSA credits; it is not itself a release order.'}</p>
+       <p><b>SCA Conditional Placement Date.</b> ${es?'Una fecha usada en la planificación de prerelease bajo Second Chance Act; el BOP indica que la colocación requiere evaluación individual.':'A date used in Second Chance Act prerelease planning; BOP states placement requires an individualized assessment.'}</p>
+       <p><b>Conditional Transition to Community Date.</b> ${es?'La fecha condicional más temprana que puede reflejar la interacción de FSA y SCA en la planificación del BOP.':'The earliest conditional community-transition date that may reflect both FSA and SCA planning.'}</p>
+     </div>
+     <div class="card"><h3>${es?'Recursos oficiales':'Official resources'}</h3>
+       <a class="resource-link" href="https://www.bop.gov/inmates/fsa/" target="_blank" rel="noopener"><b>BOP First Step Act</b><span>Overview hub ↗</span></a>
+       <a class="resource-link" href="https://www.bop.gov/inmates/fsa/policies.jsp" target="_blank" rel="noopener"><b>FSA resources & policies</b><span>BOP ↗</span></a>
+       <a class="resource-link" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener"><b>FSA FAQ</b><span>BOP ↗</span></a>
+       <a class="resource-link" href="https://www.bop.gov/resources/policy_and_forms.jsp" target="_blank" rel="noopener"><b>BOP Program Statements</b><span>Policy library ↗</span></a>
+     </div>
+   </div>
+
+   <div style="height:1.4rem"></div>
+   ${ruleCard()}
+ </div></section></main>`;
 }
+
 function policiesPage(){
  const es=state.lang==='es';
  return `<main id="main">${pageHeader(t('policies'),es?'Busque declaraciones de programa y otros documentos de política publicados por la Oficina Federal de Prisiones.':'Search Program Statements and other policy documents published by the Federal Bureau of Prisons.')}<section class="section"><div class="container">
@@ -199,6 +277,51 @@ function alertsPage(){
   <div class="full"><button class="btn btn-dark" type="submit">${t('saveAlert')}</button><div id="alertStatus" class="helper" role="status" aria-live="polite"></div></div>
  </form></div><div style="height:1rem"></div><div class="banner"><strong>Important:</strong> Alert enrollment uses email confirmation. Tracking does not begin until the recipient verifies the request. Every alert email includes an unsubscribe link.</div></div></section></main>`;
 }
+function pricingPage(){
+ const es=state.lang==='es';
+ const plans=[
+  {
+    name:es?'Gratis':'Free',
+    price:'$0',
+    cadence:es?'siempre':'always',
+    badge:es?'Para individuos y familias':'For individuals & families',
+    features:es
+      ?['Búsqueda pública de reclusos','Directorio de instituciones','Centro FSA & Second Chance','Políticas BOP y reglas federales','Enlaces a fuentes oficiales']
+      :['Public inmate search','Facility directory','FSA & Second Chance center','BOP policies & federal rules','Official-source links'],
+    note:es?'Las búsquedas básicas permanecen gratuitas.':'Basic searches stay free.'
+  },
+  {
+    name:'Family Plus',
+    price:'$9.99',
+    cadence:es?'por mes (planificado)':'/month (planned)',
+    badge:es?'Comodidad y seguimiento':'Convenience & monitoring',
+    featured:true,
+    features:es
+      ?['Todo lo gratuito','Perfiles familiares guardados','Alertas verificadas de cambios de institución/fecha','Historial de cambios','Alertas bilingües','Panel familiar']
+      :['Everything in Free','Saved family profiles','Verified facility/release-date change alerts','Change history','Bilingual alerts','Family dashboard'],
+    note:es?'Próximamente; todavía no se cobran pagos.':'Coming soon; payments are not active yet.'
+  },
+  {
+    name:es?'Planificador de Reingreso':'Reentry Planner',
+    price:'$14.99',
+    cadence:es?'por mes (planificado)':'/month (planned)',
+    badge:es?'Organización de reingreso':'Reentry organization',
+    features:es
+      ?['Todo en Family Plus','Lista de preparación para liberación','Organizador de identificación y documentos','Calendario de planificación RRC/HC','Recursos de vivienda y empleo','Paquete imprimible de reingreso']
+      :['Everything in Family Plus','Release-preparation checklist','ID & document organizer','RRC/HC planning calendar','Housing & employment resources','Printable reentry packet'],
+    note:es?'Herramientas informativas; no asesoría legal.':'Informational tools; not legal advice.'
+  }
+ ];
+ return `<main id="main">${pageHeader(
+   es?'Planes de Coregenisis':'Coregenisis Plans',
+   es?'Las búsquedas públicas permanecen gratuitas. Los planes futuros monetizan conveniencia, seguimiento y organización — no el acceso a registros públicos.':'Public searches stay free. Future paid plans monetize convenience, monitoring, and organization — not access to public records.'
+ )}<section class="section"><div class="container">
+   <div class="pricing-grid">${plans.map(p=>`<article class="pricing-card ${p.featured?'featured':''}">${p.featured?'<span class="status-chip status-green">Planned popular plan</span>':''}<h2>${esc(p.name)}</h2><div class="price">${esc(p.price)} <small>${esc(p.cadence)}</small></div><p><b>${esc(p.badge)}</b></p><ul class="pricing-list">${p.features.map(f=>`<li>✓ ${esc(f)}</li>`).join('')}</ul><div class="plan-note">${esc(p.note)}</div><button class="btn ${p.featured?'btn-dark':'btn-light'}" type="button" disabled>${es?'Próximamente':'Coming soon'}</button></article>`).join('')}</div>
+   <div style="height:1rem"></div>
+   <div class="banner"><strong>${es?'Principio de monetización':'Monetization principle'}:</strong> ${es?'Coregenisis no venderá datos personales ni cobrará por ver documentos públicos oficiales. Los ingresos provendrán de funciones opcionales de conveniencia y organización.':'Coregenisis will not sell personal data or charge to view official public documents. Revenue will come from optional convenience and organization features.'}</div>
+ </div></section></main>`;
+}
+
 function resourcesPage(){
  const es=state.lang==='es';
  return `<main id="main">${pageHeader(t('resources'),t('sourcesDesc'))}<section class="section"><div class="container">
@@ -245,7 +368,7 @@ function legalPage(kind){
 }
 
 function app(){
- const routes={home:home,search:searchPage,fsa:fsaPage,rules:rulesPage,policies:policiesPage,facilities:facilitiesPage,alerts:alertsPage,resources:resourcesPage,privacy:()=>legalPage('privacy'),terms:()=>legalPage('terms'),disclaimer:()=>legalPage('disclaimer'),copyright:()=>legalPage('copyright')};
+ const routes={home:home,search:searchPage,fsa:fsaPage,rules:rulesPage,policies:policiesPage,facilities:facilitiesPage,alerts:alertsPage,resources:resourcesPage,pricing:pricingPage,privacy:()=>legalPage('privacy'),terms:()=>legalPage('terms'),disclaimer:()=>legalPage('disclaimer'),copyright:()=>legalPage('copyright')};
  const view=(routes[state.route]||home)();
  $('#app').innerHTML=header()+previewNotice()+view+footer();
  bind();
