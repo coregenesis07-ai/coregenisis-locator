@@ -1,0 +1,26 @@
+name: Coregenisis V2 checks
+
+on:
+  push:
+    branches: [coregenisis-v2]
+  pull_request:
+    branches: [main]
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check application JavaScript
+        run: node --check app.js
+      - name: Check public application JavaScript
+        run: node --check public/app.js
+      - name: Check Worker JavaScript
+        run: node --check worker.js
+      - name: Check preview smoke test script
+        run: node --check scripts/smoke-test.mjs
+      - name: Test D1 schema and migration
+        run: python3 scripts/schema-test.py
