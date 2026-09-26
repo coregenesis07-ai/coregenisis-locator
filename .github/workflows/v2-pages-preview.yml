@@ -1,0 +1,51 @@
+name: Coregenisis V2 visual preview
+
+on:
+  push:
+    branches: [coregenisis-v2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: coregenisis-v2-pages-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout V2 branch
+        uses: actions/checkout@v6
+
+      - name: Prepare visual preview
+        run: |
+          rm -rf _site
+          mkdir _site
+          cp -R public/. _site/
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("_site/index.html")
+          s=p.read_text()
+          s=s.replace('<meta name="robots" content="index,follow" />','<meta name="robots" content="noindex,nofollow,noarchive" />')
+          p.write_text(s)
+          Path("_site/robots.txt").write_text("User-agent: *\nDisallow: /\n")
+          PY
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload visual preview
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy visual preview
+        id: deployment
+        uses: actions/deploy-pages@v4
