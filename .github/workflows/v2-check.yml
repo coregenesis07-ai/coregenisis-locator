@@ -20,3 +20,5 @@ jobs:
         run: node --check public/app.js
       - name: Check Worker JavaScript
         run: node --check worker.js
+      - name: Check preview smoke test script
+        run: node --check scripts/smoke-test.mjs
