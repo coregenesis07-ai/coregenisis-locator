@@ -78,6 +78,7 @@ function footer(){
     <div><h4>${t('search')}</h4><a href="#/search">BOP inmate search</a><a href="https://www.bop.gov/inmateloc/" target="_blank" rel="noopener">Official BOP locator ↗</a></div>
     <div><h4>${t('rules')}</h4><a href="#/fsa">First Step Act</a><a href="#/rules">Rule center</a><a href="https://www.ecfr.gov/" target="_blank" rel="noopener">eCFR ↗</a></div>
     <div><h4>${t('resources')}</h4><a href="https://www.federalregister.gov/" target="_blank" rel="noopener">Federal Register ↗</a><a href="https://www.govinfo.gov/" target="_blank" rel="noopener">GovInfo ↗</a><a href="https://www.bop.gov/" target="_blank" rel="noopener">BOP.gov ↗</a></div>
+    <div><h4>Legal</h4><a href="#/privacy">${state.lang==='es'?'Privacidad':'Privacy'}</a><a href="#/terms">${state.lang==='es'?'Términos':'Terms'}</a><a href="#/disclaimer">${state.lang==='es'?'Aviso legal':'Disclaimer'}</a><a href="#/copyright">${state.lang==='es'?'Derechos de autor':'Copyright'}</a></div>
   </div></footer>`;
 }
 
@@ -150,8 +151,44 @@ function resourcesPage(){
  return `<main id="main">${pageHeader(t('resources'),t('sourcesDesc'))}<section class="section"><div class="container grid grid-2">${sourceLinks()}<div class="card"><h3>Coregenisis use principles</h3><p>1. Show the official source.</p><p>2. Separate source text from explanation.</p><p>3. Date summaries and updates.</p><p>4. Avoid implying government affiliation.</p><p>5. Do not present individualized legal conclusions as fact.</p></div></div></section></main>`;
 }
 
+function legalPage(kind){
+ const es=state.lang==='es';
+ const pages={
+  privacy:{
+   title:es?'Política de Privacidad':'Privacy Policy',
+   lead:es?'Cómo Coregenisis maneja la información necesaria para búsquedas públicas y alertas.':'How Coregenisis handles information needed for public searches and alerts.',
+   body:es
+    ? '<h3>Datos que usamos</h3><p>Coregenisis usa registros federales públicos para mostrar información de custodia y fuentes regulatorias. Para una alerta verificada podemos guardar el número de registro BOP, nombre mostrado, correo electrónico, idioma, última institución/fecha de liberación conocida, fechas de comprobación y metadatos técnicos necesarios para operar la alerta.</p><h3>Alertas por correo</h3><p>La inscripción usa confirmación por correo. El seguimiento no comienza hasta que el destinatario confirma la solicitud. Cada alerta incluye un enlace para cancelar la suscripción.</p><h3>Uso de datos</h3><p>No vendemos información personal. No ofrecemos alertas SMS en esta versión. Las solicitudes viajan por HTTPS cuando el sitio se despliega en Cloudflare.</p><h3>Eliminación</h3><p>Los registros de seguimiento pueden desactivarse mediante el enlace de cancelación. La versión de producción también debe mantener un método de eliminación autenticado por token y un canal de contacto publicado.</p>'
+    : '<h3>Data we use</h3><p>Coregenisis uses public federal records to display custody information and regulatory sources. For a verified alert we may store the BOP register number, display name, email address, language, last known facility/release date, check timestamps, and technical metadata needed to operate the alert.</p><h3>Email alerts</h3><p>Enrollment uses email confirmation. Tracking does not begin until the recipient confirms the request. Every alert includes an unsubscribe link.</p><h3>Use of data</h3><p>We do not sell personal information. This version does not offer SMS alerts. Requests are transmitted over HTTPS when the site is deployed on Cloudflare.</p><h3>Deletion</h3><p>Tracking records can be deactivated through the unsubscribe link. Production should also maintain a token-authenticated deletion method and a published contact channel.</p>'
+  },
+  terms:{
+   title:es?'Términos y Uso Lícito':'Terms & Lawful Use',
+   lead:es?'Condiciones básicas para usar Coregenisis.':'Basic conditions for using Coregenisis.',
+   body:es
+    ? '<p>Esta herramienta es solo para fines lícitos. Usted acepta no usar Coregenisis para acoso, intimidación, acecho, vigilancia ilegal, suplantación, fraude, abuso automatizado o extracción masiva que perjudique las fuentes oficiales.</p><p>Coregenisis ofrece información pública y resúmenes educativos. No es un bufete de abogados y no ofrece asesoría legal individualizada.</p><p>Al usar el servicio, usted acepta verificar decisiones importantes con las fuentes oficiales y cumplir con las leyes aplicables.</p>'
+    : '<p>This tool is for lawful purposes only. You agree not to use Coregenisis for harassment, intimidation, stalking, unlawful surveillance, impersonation, fraud, abusive automation, or bulk extraction that harms official source services.</p><p>Coregenisis provides public information and educational summaries. It is not a law firm and does not provide individualized legal advice.</p><p>By using the service, you agree to verify important decisions against official sources and comply with applicable law.</p>'
+  },
+  disclaimer:{
+   title:es?'Aviso Legal':'Disclaimer',
+   lead:es?'Coregenisis es un servicio independiente de información pública.':'Coregenisis is an independent public-information service.',
+   body:es
+    ? '<p>Coregenisis NO está afiliado a la Oficina Federal de Prisiones (BOP), el Departamento de Justicia (DOJ), NARA, FederalRegister.gov ni ninguna agencia gubernamental.</p><p>La información pública puede cambiar. No se garantiza exactitud, integridad o disponibilidad continua. Las fechas de liberación y otros datos de custodia deben verificarse directamente con BOP.gov.</p><p>Los resúmenes regulatorios no sustituyen el texto oficial del Federal Register, GovInfo o eCFR y no constituyen asesoría legal.</p>'
+    : '<p>Coregenisis is NOT affiliated with the Federal Bureau of Prisons (BOP), Department of Justice (DOJ), NARA, FederalRegister.gov, or any government agency.</p><p>Public information can change. Accuracy, completeness, and continuous availability are not guaranteed. Release dates and other custody information should be verified directly with BOP.gov.</p><p>Regulatory summaries do not replace the official Federal Register, GovInfo, or eCFR text and are not legal advice.</p>'
+  },
+  copyright:{
+   title:es?'Derechos de Autor':'Copyright',
+   lead:es?'Propiedad intelectual del contenido original de Coregenisis.':'Intellectual-property notice for original Coregenisis content.',
+   body:es
+    ? '<p>© 2026 Coregenisis. Se reservan los derechos sobre el diseño original, código, textos explicativos y marca de Coregenisis, sujeto a los derechos de terceros y al carácter público de los registros y materiales gubernamentales enlazados.</p><p>Coregenisis no reclama propiedad sobre publicaciones gubernamentales de dominio público ni sobre marcas de agencias federales.</p>'
+    : '<p>© 2026 Coregenisis. Rights are reserved in original Coregenisis design, code, explanatory text, and branding, subject to third-party rights and the public status of linked government records and publications.</p><p>Coregenisis does not claim ownership of public-domain government publications or federal agency marks.</p>'
+  }
+ };
+ const p=pages[kind]||pages.disclaimer;
+ return `<main id="main">${pageHeader(p.title,p.lead)}<section class="section"><div class="container"><div class="card" style="max-width:860px;margin:auto">${p.body}<div class="banner" style="margin-top:1rem">${t('verify')}</div></div></div></section></main>`;
+}
+
 function app(){
- const routes={home:home,search:searchPage,fsa:fsaPage,rules:rulesPage,facilities:facilitiesPage,alerts:alertsPage,resources:resourcesPage};
+ const routes={home:home,search:searchPage,fsa:fsaPage,rules:rulesPage,facilities:facilitiesPage,alerts:alertsPage,resources:resourcesPage,privacy:()=>legalPage('privacy'),terms:()=>legalPage('terms'),disclaimer:()=>legalPage('disclaimer'),copyright:()=>legalPage('copyright')};
  const view=(routes[state.route]||home)();
  $('#app').innerHTML=header()+view+footer();
  bind();
