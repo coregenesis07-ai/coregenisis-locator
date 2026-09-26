@@ -101,7 +101,7 @@ function home(){
     <section class="hero"><div class="container hero-grid"><div><span class="eyebrow">COREGENISIS 2.0 • PUBLIC FEDERAL INFORMATION</span><h1>${t('heroTitle')}</h1><p>${t('heroSub')}</p><div class="hero-buttons"><a class="btn btn-primary" href="#/search">${t('searchNow')}</a><a class="btn btn-secondary" href="#/rules">${t('exploreRules')}</a></div></div>
     <aside class="hero-panel"><h3>Built around verification</h3><div class="trust-list"><div class="trust-item"><span class="dot"></span><span>${t('unofficial')}</span></div><div class="trust-item"><span class="dot"></span><span>${t('verify')}</span></div><div class="trust-item"><span class="dot"></span><span>Public data, source links, plain-language context, bilingual access.</span></div></div></aside></div></section>
     <section class="section white"><div class="container">
-      <div class="search-shell"><form id="knowledgeForm"><label><b>${state.lang==='es'?'Buscar en Coregenisis':'Search the Coregenisis knowledge center'}</b><div class="search-row" style="margin-top:.55rem"><input id="knowledgeQuery" class="field" placeholder="${state.lang==='es'?'Política, institución, regla, documento...':'Policy, facility, rule, document...'}"><button class="btn btn-dark" type="submit">${state.lang==='es'?'Buscar':'Search'}</button></div></label><div class="helper">${state.lang==='es'?'Busca en políticas BOP, instituciones y documentos regulatorios indexados.':'Search indexed BOP policies, facilities, and regulatory documents.'}</div></form><div id="knowledgeStatus" class="helper"></div><div id="knowledgeResults" class="results"></div></div>
+      <div class="search-shell"><form id="knowledgeForm"><label><b>${state.lang==='es'?'Buscar en Coregenisis':'Search the Coregenisis knowledge center'}</b><div class="search-row" style="margin-top:.55rem"><input id="knowledgeQuery" class="field" placeholder="${state.lang==='es'?'Política, institución, regla, documento...':'Policy, facility, rule, document...'}"><button class="btn btn-dark" type="submit">${state.lang==='es'?'Buscar':'Search'}</button></div></label><div class="helper">${state.lang==='es'?'Busca en políticas BOP, instituciones y documentos regulatorios indexados.':'Search indexed BOP policies, facilities, and regulatory documents.'}</div></form><div id="knowledgeStatus" class="helper" role="status" aria-live="polite"></div><div id="knowledgeResults" class="results"></div></div>
       <div style="height:2rem"></div>
       <div class="section-title"><div><h2>One place for the information families actually need</h2><p>Coregenisis 2.0 organizes public custody and regulatory information around practical questions instead of government-site structure.</p></div></div><div class="grid grid-3">${features.map((x,i)=>`<div class="card"><div class="feature-icon">${i+1}</div><h3>${x}</h3><p>Clear, source-linked information designed for mobile use.</p></div>`).join('')}</div>
     </div></section>
@@ -110,14 +110,14 @@ function home(){
       <div style="height:1rem"></div>
       <div class="grid grid-2"><div class="card"><span class="status-chip status-blue">Featured rule</span><h3>${t('ruleTitle')}</h3><p>${t('summary')}</p><a class="btn btn-light" href="#/rules">Read the rule summary</a></div>${sourceLinks()}</div>
       <div style="height:1rem"></div>
-      <div class="card"><div class="rule-head"><div><h3>${state.lang==='es'?'Actualizaciones recientes':'Recent official-source updates'}</h3><p>${state.lang==='es'?'Documentos y políticas indexados recientemente por fecha de publicación o emisión.':'Recently indexed regulations and BOP policies ordered by publication or issue date.'}</p></div><a class="btn btn-light" href="#/resources">${state.lang==='es'?'Ver estado de datos':'View data status'}</a></div><div id="updateStatus" class="helper"></div><div id="updateFeed" class="results"></div></div>
+      <div class="card"><div class="rule-head"><div><h3>${state.lang==='es'?'Actualizaciones recientes':'Recent official-source updates'}</h3><p>${state.lang==='es'?'Documentos y políticas indexados recientemente por fecha de publicación o emisión.':'Recently indexed regulations and BOP policies ordered by publication or issue date.'}</p></div><a class="btn btn-light" href="#/resources">${state.lang==='es'?'Ver estado de datos':'View data status'}</a></div><div id="updateStatus" class="helper" role="status" aria-live="polite"></div><div id="updateFeed" class="results"></div></div>
     </div></section>
   </main>`;
 }
 
 function searchPage(){
   return `<main id="main">${pageHeader(t('searchTitle'),t('searchDesc'))}<section class="section"><div class="container">
-  <div class="search-shell"><form id="searchForm"><label><b>${t('searchTitle')}</b><div class="search-row" style="margin-top:.55rem"><input id="searchQuery" class="field" placeholder="${t('searchPlaceholder')}" autocomplete="off" required><button class="btn btn-dark" type="submit">${t('search')}</button></div></label><div class="helper">Examples: 12345-067 or John Smith. Public results should always be verified at BOP.gov.</div></form><div id="searchStatus" class="helper"></div><div id="results" class="results"></div></div>
+  <div class="search-shell"><form id="searchForm"><label><b>${t('searchTitle')}</b><div class="search-row" style="margin-top:.55rem"><input id="searchQuery" class="field" placeholder="${t('searchPlaceholder')}" autocomplete="off" required><button class="btn btn-dark" type="submit">${t('search')}</button></div></label><div class="helper">Examples: 12345-067 or John Smith. Public results should always be verified at BOP.gov.</div></form><div id="searchStatus" class="helper" role="status" aria-live="polite"></div><div id="results" class="results"></div></div>
   <div style="height:1rem"></div><div class="banner">${t('unofficial')} ${t('verify')}</div>
   </div></section></main>`;
 }
@@ -134,8 +134,8 @@ function rulesPage(){
  return `<main id="main">${pageHeader(t('rules'),t('rulesDesc'))}<section class="section"><div class="container">
    <div class="banner"><strong>Source-first:</strong> Coregenisis summaries are explanatory. Use the linked official publication for the controlling text.</div>
    <div style="height:1rem"></div>
-   <div class="card"><div class="rule-head"><div><h3>${state.lang==='es'?'Fechas y plazos publicados':'Published dates & deadlines'}</h3><p>${state.lang==='es'?'Seguimiento neutral de fechas de vigencia y períodos de comentarios que aparecen en los registros indexados.':'Neutral tracking of effective dates and comment deadlines appearing in indexed records.'}</p></div></div><div id="deadlineStatus" class="helper"></div><div id="deadlineFeed" class="results"></div></div>
-   <div id="ruleStatus" class="helper" style="margin:.8rem 0"></div>
+   <div class="card"><div class="rule-head"><div><h3>${state.lang==='es'?'Fechas y plazos publicados':'Published dates & deadlines'}</h3><p>${state.lang==='es'?'Seguimiento neutral de fechas de vigencia y períodos de comentarios que aparecen en los registros indexados.':'Neutral tracking of effective dates and comment deadlines appearing in indexed records.'}</p></div></div><div id="deadlineStatus" class="helper" role="status" aria-live="polite"></div><div id="deadlineFeed" class="results"></div></div>
+   <div id="ruleStatus" class="helper" role="status" aria-live="polite" style="margin:.8rem 0"></div>
    <div id="ruleFeed" class="grid grid-2">${ruleCard()}${sourceLinks()}</div>
  </div></section></main>`;
 }
@@ -167,7 +167,7 @@ function policiesPage(){
      </div>
      <div style="margin-top:.8rem"><button class="btn btn-dark" type="submit">${es?'Buscar políticas':'Search policies'}</button> <a class="btn btn-light" href="https://www.bop.gov/resources/policy_and_forms.jsp" target="_blank" rel="noopener">${es?'Página oficial BOP ↗':'Official BOP policy page ↗'}</a></div>
    </form></div>
-   <div id="policyStatus" class="helper" style="margin:.8rem 0"></div>
+   <div id="policyStatus" class="helper" role="status" aria-live="polite" style="margin:.8rem 0"></div>
    <div id="policyResults" class="grid grid-2"></div>
  </div></section></main>`;
 }
@@ -178,7 +178,7 @@ function facilitiesPage(){
      <form id="facilityForm"><label><b>Search federal facilities</b><div class="search-row" style="margin-top:.55rem"><input id="facilityQuery" class="field" placeholder="Facility, city, state, or code"><button class="btn btn-dark" type="submit">Search</button></div></label></form>
      <div class="helper">Directory entries are refreshed from the public BOP locations source when the scheduled refresh is enabled.</div>
    </div>
-   <div id="facilityStatus" class="helper" style="margin:.8rem 0"></div>
+   <div id="facilityStatus" class="helper" role="status" aria-live="polite" style="margin:.8rem 0"></div>
    <div id="facilityResults" class="grid grid-2"><div class="card"><h3>Official BOP Locations</h3><p>Use the official BOP directory to verify current institution information.</p><a class="btn btn-dark" href="https://www.bop.gov/locations/" target="_blank" rel="noopener">Open BOP Locations ↗</a></div></div>
  </div></section></main>`;
 }
@@ -189,7 +189,7 @@ function alertsPage(){
   <label>Email<input class="field" type="email" name="email" placeholder="you@example.com" required></label>
   <label>Language<select class="field" name="lang"><option value="en">English</option><option value="es">Español</option></select></label>
   <label class="full"><input type="checkbox" id="lawful" required> I will use this service only for lawful, non-harassing purposes.</label>
-  <div class="full"><button class="btn btn-dark" type="submit">${t('saveAlert')}</button><div id="alertStatus" class="helper"></div></div>
+  <div class="full"><button class="btn btn-dark" type="submit">${t('saveAlert')}</button><div id="alertStatus" class="helper" role="status" aria-live="polite"></div></div>
  </form></div><div style="height:1rem"></div><div class="banner"><strong>Important:</strong> Alert enrollment uses email confirmation. Tracking does not begin until the recipient verifies the request. Every alert email includes an unsubscribe link.</div></div></section></main>`;
 }
 function resourcesPage(){
