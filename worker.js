@@ -30,6 +30,46 @@ export default {
         }, 200, headers);
       }
 
+      if (url.pathname === "/api/search" && request.method === "GET") {
+        if (!env.DB) return json({ error: "Database is not configured." }, 503, headers);
+        const q = cleanText(url.searchParams.get("q"), 120).trim().toLowerCase();
+        if (q.length < 2) return json({ error: "Enter at least 2 characters." }, 400, headers);
+        const like = `%${q}%`;
+
+        const [facilityRows, policyRows, ruleRows] = await env.DB.batch([
+          env.DB.prepare(
+            `SELECT code, name, state, city, type, security_level, official_url, last_verified_at
+               FROM facilities
+              WHERE lower(name) LIKE ? OR lower(state) LIKE ? OR lower(city) LIKE ? OR lower(code) LIKE ?
+              ORDER BY name LIMIT 10`
+          ).bind(like, like, like, like),
+          env.DB.prepare(
+            `SELECT record_number, policy_number, title, document_type, series, issue_date,
+                    source_url, last_verified_at
+               FROM bop_policies
+              WHERE lower(title) LIKE ? OR lower(policy_number) LIKE ?
+              ORDER BY issue_date DESC LIMIT 10`
+          ).bind(like, like),
+          env.DB.prepare(
+            `SELECT slug, title, agency, federal_register_citation, document_number,
+                    publication_date, effective_date, comment_deadline, source_url, official_pdf_url,
+                    last_verified_at
+               FROM regulatory_documents
+              WHERE lower(title) LIKE ? OR lower(document_number) LIKE ?
+                 OR lower(coalesce(federal_register_citation,'')) LIKE ?
+                 OR lower(coalesce(summary,'')) LIKE ?
+              ORDER BY publication_date DESC LIMIT 10`
+          ).bind(like, like, like, like)
+        ]);
+
+        return json({
+          query: q,
+          facilities: facilityRows?.results || [],
+          policies: policyRows?.results || [],
+          regulatory_documents: ruleRows?.results || []
+        }, 200, headers, { "Cache-Control": "public, max-age=60" });
+      }
+
       if (url.pathname === "/api/data-status" && request.method === "GET") {
         if (!env.DB) return json({ error: "Database is not configured." }, 503, headers);
 
