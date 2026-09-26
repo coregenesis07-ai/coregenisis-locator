@@ -24,10 +24,14 @@ Use:
 3. Put that preview database ID in `wrangler.preview.jsonc`.
 4. Apply `schema.sql` to the **preview** database.
 5. Set the preview origin in both `ALLOWED_ORIGIN` and `PUBLIC_SITE_URL`.
-6. Add `RESEND_API_KEY` only if email confirmation is ready to test.
-7. Set `ALERT_FROM_EMAIL` to a verified sender.
-8. Deploy the preview Worker.
-9. Run `BASE_URL=https://<preview-host> npm run smoke`.
+6. Add `ADMIN_TOKEN` as a Cloudflare Worker secret for the protected manual source refresh endpoint.
+7. Add `RESEND_API_KEY` only if email confirmation is ready to test.
+8. Set `ALERT_FROM_EMAIL` to a verified sender.
+9. Deploy the preview Worker.
+10. Run `BASE_URL=https://<preview-host> npm run smoke`.
+
+### Optional immediate source refresh
+After deployment, the protected endpoint `POST /api/admin/refresh` can populate/refresh facilities, BOP policies, and regulatory documents immediately instead of waiting for the weekly cron. Send `Authorization: Bearer <ADMIN_TOKEN>`. Never store the token in the repository or frontend.
 
 ## Required preview checks
 The smoke test checks:
