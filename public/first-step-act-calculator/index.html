@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>First Step Act Calculator | FSA Time Credits, GCT & RDAP Estimate</title>
+  <meta name="description" content="Free First Step Act planning calculator for federal families. Model FSA Time Credits, approximate Good Conduct Time and optional RDAP reduction, with official BOP source links.">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <link rel="canonical" href="https://federalcustodyguide.com/first-step-act-calculator/">
+  <meta property="og:site_name" content="Federal Custody Guide">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="First Step Act Planning Calculator">
+  <meta property="og:description" content="Model FSA Time Credits, approximate Good Conduct Time and optional RDAP reduction for planning — not an official BOP release-date calculation.">
+  <meta property="og:url" content="https://federalcustodyguide.com/first-step-act-calculator/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .tool-wrap{max-width:1100px;margin:auto}.tool-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:1rem}
+    .calc-form{display:grid;gap:.85rem}.calc-form label>b{display:block;margin-bottom:.35rem}
+    .calc-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin-top:1rem}
+    .calc-summary>div{border:1px solid var(--line);border-radius:14px;padding:.9rem;background:#f8fafc}
+    .calc-summary small{display:block;color:var(--muted);margin-bottom:.25rem}.calc-summary strong{font-size:1.15rem;color:var(--navy)}
+    .calc-summary .wide{grid-column:1/-1;background:#eff6ff}.source-note{font-size:.84rem;color:var(--muted)}
+    .tool-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}.tool-tabs a{text-decoration:none}
+    @media(max-width:800px){.tool-grid{grid-template-columns:1fr}.calc-summary{grid-template-columns:1fr}.calc-summary .wide{grid-column:auto}}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/"><span class="brand-mark">F</span><span class="brand-copy"><strong>Federal Custody Guide</strong><small>by Coregenisis</small></span></a>
+    <nav class="nav" aria-label="Primary">
+      <a href="/federal-inmate-search/">Inmate Search</a>
+      <a href="/first-step-act-calculator/">FSA Calculator</a>
+      <a href="/first-step-act/">FSA Guide</a>
+      <a href="/federal-prison-directory/">Facilities</a>
+      <a href="/updates-guides/">Guides</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="page-header"><div class="container">
+  <span class="status-chip status-green">Free planning tool</span>
+  <h1>First Step Act Planning Calculator</h1>
+  <p>Model selected FSA Time Credits, approximate maximum Good Conduct Time (GCT), and an optional RDAP reduction using information you enter.</p>
+</div></section>
+
+<section class="section"><div class="container tool-wrap">
+  <div class="banner"><strong>Planning estimate only:</strong> this calculator does not determine FSA eligibility, award credits, modify a sentence, or replace the Bureau of Prisons' official sentence computation. The BOP itself describes its conditional FSA calculator as a planning tool rather than an actual Projected Release Date.</div>
+
+  <div style="height:1rem"></div>
+  <div class="tool-grid">
+    <section class="card">
+      <h2>Enter the sentence information</h2>
+      <form id="fsaCalcForm" class="calc-form">
+        <label><b>Sentence start date</b><input id="calcStart" class="field" type="date" required></label>
+
+        <div class="grid grid-2">
+          <label><b>Sentence years</b><input id="calcYears" class="field" type="number" min="0" max="99" value="5"></label>
+          <label><b>Additional months</b><input id="calcMonths" class="field" type="number" min="0" max="11" value="0"></label>
+        </div>
+
+        <label><b>30-day qualifying FSA participation periods to model</b>
+          <input id="calcFsaPeriods" class="field" type="number" min="0" max="2000" value="0">
+        </label>
+
+        <label><b>FSA earning rate to model</b>
+          <select id="calcFsaRate" class="field">
+            <option value="10">10 days per 30-day period</option>
+            <option value="15">15 days per 30-day period</option>
+          </select>
+        </label>
+        <p class="source-note">Use 15 days only when the BOP record supports the additional earning rate. BOP guidance says eligible people generally earn 10 days per 30 days, with an additional 5 days for qualifying minimum/low risk status over the required assessments.</p>
+
+        <label class="check-row"><input id="calcGct" type="checkbox" checked><span>Model approximate maximum statutory Good Conduct Time</span></label>
+
+        <label><b>RDAP reduction to model (months, 0–12)</b>
+          <input id="calcRdap" class="field" type="number" min="0" max="12" value="0">
+        </label>
+        <p class="source-note">Entering an RDAP reduction does not determine RDAP eligibility. Use only an amount you want to model for planning.</p>
+
+        <button class="btn btn-dark" type="submit">Calculate planning estimate</button>
+      </form>
+      <div id="fsaCalcResult" aria-live="polite"></div>
+    </section>
+
+    <aside>
+      <div class="card">
+        <h2>What the result means</h2>
+        <p><b>Sentence end before credits:</b> calendar estimate based on the start date and imposed sentence length you enter.</p>
+        <p><b>Approximate GCT:</b> a planning estimate using the statutory maximum rate. Actual BOP calculations and disciplinary history control.</p>
+        <p><b>Modeled FTC:</b> the number of 30-day periods you enter multiplied by 10 or 15 days.</p>
+        <p><b>Illustrative combined date:</b> a planning comparison only. It is <b>not</b> an official release date, prerelease placement date, or supervised-release date.</p>
+      </div>
+      <div style="height:1rem"></div>
+      <div class="card">
+        <h3>Official sources</h3>
+        <a class="resource-link" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener"><b>BOP First Step Act FAQ</b><span>Eligibility & credits ↗</span></a>
+        <a class="resource-link" href="https://www.bop.gov/news/20231205-release-date-calculator.jsp" target="_blank" rel="noopener"><b>BOP Conditional FSA Calculator notice</b><span>Planning-tool explanation ↗</span></a>
+        <a class="resource-link" href="https://uscode.house.gov/view.xhtml?req=%28title%3A18+section%3A3624+edition%3Aprelim%29" target="_blank" rel="noopener"><b>18 U.S.C. § 3624</b><span>GCT & release law ↗</span></a>
+        <a class="resource-link" href="/#/calculator-disclaimer"><b>Calculator & Estimate Disclaimer</b><span>Read limits →</span></a>
+      </div>
+    </aside>
+  </div>
+
+  <div style="height:1rem"></div>
+  <section class="card">
+    <span class="status-chip status-blue">Companion worksheet</span>
+    <h2>BOP Security / Custody Score Worksheet</h2>
+    <p>This worksheet totals point values that you already have from a BOP form or have verified under the current classification policy. It intentionally does not assign policy points automatically because current BOP classification can involve detailed tables, exceptions, overrides and professional judgment.</p>
+    <form id="securityCalcForm" class="calc-form">
+      <div class="grid grid-3">
+        <label><b>Offense / severity points</b><input class="field security-point" type="number" min="-99" max="99" value="0"></label>
+        <label><b>Criminal-history points</b><input class="field security-point" type="number" min="-99" max="99" value="0"></label>
+        <label><b>Violence / escape / detainer points</b><input class="field security-point" type="number" min="-99" max="99" value="0"></label>
+        <label><b>Other static points</b><input class="field security-point" type="number" min="-99" max="99" value="0"></label>
+        <label><b>Dynamic / custody adjustments</b><input class="field security-point" type="number" min="-99" max="99" value="0"></label>
+      </div>
+      <button class="btn btn-light" type="submit">Total worksheet points</button>
+    </form>
+    <div id="securityCalcResult" aria-live="polite"></div>
+    <p class="notice">BOP states that designation/classification decisions consider security and program needs and are made under its classification policy. Compare your worksheet with the current PS 5100.08 and official BOP forms.</p>
+    <a class="btn btn-light" href="https://www.bop.gov/inmates/custody_and_care/designations.jsp" target="_blank" rel="noopener">Official BOP designation information ↗</a>
+  </section>
+</div></section>
+</main>
+
+<footer class="footer"><div class="container footer-grid">
+  <div><strong>Federal Custody Guide</strong><p>Independent informational service by Coregenisis. Not affiliated with BOP, DOJ, or any government agency.</p></div>
+  <div><h4>Tools</h4><a href="/federal-inmate-search/">Federal inmate search</a><a href="/first-step-act-calculator/">FSA calculator</a><a href="/family-checklist/">Family checklist</a></div>
+  <div><h4>Official sources</h4><a href="https://www.bop.gov/" target="_blank" rel="noopener">BOP.gov ↗</a><a href="https://www.federalregister.gov/" target="_blank" rel="noopener">Federal Register ↗</a></div>
+</div></footer>
+<script src="./calculator.js" defer></script>
+</body>
+</html>
