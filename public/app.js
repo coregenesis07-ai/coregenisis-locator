@@ -65,7 +65,8 @@ function navItems(){ return [
 ];}
 
 function header(){
-  const navMarkup=`<a class="nav-link" href="/first-step-act-calculator/">${state.lang==='es'?'Calculadora FSA':'FSA Calculator'}</a>`+navItems().map(([r,l])=>`<button data-route="${r}" class="${state.route===r?'active':''}">${l}</button>`).join('');
+  const homeLabel=state.lang==='es'?'Inicio':'Home';
+  const navMarkup=`<button data-route="home" class="home-nav-item ${state.route==='home'?'active':''}" aria-label="${homeLabel}">⌂ <span>${homeLabel}</span></button><a class="nav-link" href="/first-step-act-calculator/">${state.lang==='es'?'Calculadora FSA':'FSA Calculator'}</a>`+navItems().map(([r,l])=>`<button data-route="${r}" class="${state.route===r?'active':''}">${l}</button>`).join('');
   return `<header class="site-header"><div class="header-inner">
     <a class="brand" href="#/home"><span class="brand-mark">C</span><span class="brand-copy"><strong>Federal Custody Guide</strong><small>${t('subtitle')}</small></span></a>
     <nav class="nav" aria-label="Primary">${navMarkup}</nav>
@@ -94,7 +95,7 @@ function footer(){
   </div></footer>`;
 }
 
-function pageHeader(title,desc){ return `<section class="page-header"><div class="container"><h1>${title}</h1><p>${desc}</p></div></section>`; }
+function pageHeader(title,desc){ return `<section class="page-header"><div class="container"><a class="page-home-link" href="#/home">⌂ ${state.lang==='es'?'Inicio':'Home'}</a><h1>${title}</h1><p>${desc}</p></div></section>`; }
 function sourceLinks(){ return `<div class="card"><h3>${t('officialSources')}</h3>
   <a class="resource-link" href="https://www.federalregister.gov/" target="_blank" rel="noopener"><b>FederalRegister.gov</b><span>Rules, notices, documents ↗</span></a>
   <a class="resource-link" href="https://www.govinfo.gov/" target="_blank" rel="noopener"><b>GovInfo.gov</b><span>Official published materials ↗</span></a>
