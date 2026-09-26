@@ -47,18 +47,28 @@ jobs:
           printf 'CLOUDFLARE_API_TOKEN=%s\n' "$CLEAN_TOKEN" >> "$GITHUB_ENV"
 
           case "$CLEAN_TOKEN" in
-            cfat_*) echo "Token format: Cloudflare account-owned token" ;;
-            *) echo "Token format warning: newly created account-owned tokens normally begin with cfat_" ;;
+            cfut_*)
+              echo "Token format: Cloudflare user-owned token"
+              VERIFY_URL="https://api.cloudflare.com/client/v4/user/tokens/verify"
+              ;;
+            cfat_*)
+              echo "Token format: Cloudflare account-owned token"
+              VERIFY_URL="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/verify"
+              ;;
+            *)
+              echo "Token format: legacy/unrecognized; using user-token verification endpoint"
+              VERIFY_URL="https://api.cloudflare.com/client/v4/user/tokens/verify"
+              ;;
           esac
 
-          VERIFY_JSON="$(curl -sS -H "Authorization: Bearer $CLEAN_TOKEN"             "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/verify")"
+          VERIFY_JSON="$(curl -sS -H "Authorization: Bearer $CLEAN_TOKEN" "$VERIFY_URL")"
           VERIFY_SUCCESS="$(printf '%s' "$VERIFY_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);process.stdout.write(j.success===true&&j.result?.status==="active"?"yes":"no")}catch{process.stdout.write("no")}})')"
           if [ "$VERIFY_SUCCESS" != "yes" ]; then
-            echo "Cloudflare rejected the Account API token during the official token verification check."
+            echo "Cloudflare rejected the API token during the official token verification check."
             printf '%s' "$VERIFY_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);for(const e of (j.errors||[])) console.log("Cloudflare error "+e.code+": "+e.message)}catch{console.log("Cloudflare verification returned an unreadable response")}})'
             exit 1
           fi
-          echo "Cloudflare Account API token verified as active."
+          echo "Cloudflare API token verified as active."
 
       - name: Find or create isolated preview D1 database
         id: d1
