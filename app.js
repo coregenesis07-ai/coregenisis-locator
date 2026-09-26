@@ -95,7 +95,11 @@ function home(){
   return `<main id="main">
     <section class="hero"><div class="container hero-grid"><div><span class="eyebrow">COREGENISIS 2.0 • PUBLIC FEDERAL INFORMATION</span><h1>${t('heroTitle')}</h1><p>${t('heroSub')}</p><div class="hero-buttons"><a class="btn btn-primary" href="#/search">${t('searchNow')}</a><a class="btn btn-secondary" href="#/rules">${t('exploreRules')}</a></div></div>
     <aside class="hero-panel"><h3>Built around verification</h3><div class="trust-list"><div class="trust-item"><span class="dot"></span><span>${t('unofficial')}</span></div><div class="trust-item"><span class="dot"></span><span>${t('verify')}</span></div><div class="trust-item"><span class="dot"></span><span>Public data, source links, plain-language context, bilingual access.</span></div></div></aside></div></section>
-    <section class="section white"><div class="container"><div class="section-title"><div><h2>One place for the information families actually need</h2><p>Coregenisis 2.0 organizes public custody and regulatory information around practical questions instead of government-site structure.</p></div></div><div class="grid grid-3">${features.map((x,i)=>`<div class="card"><div class="feature-icon">${i+1}</div><h3>${x}</h3><p>Clear, source-linked information designed for mobile use.</p></div>`).join('')}</div></div></section>
+    <section class="section white"><div class="container">
+      <div class="search-shell"><form id="knowledgeForm"><label><b>${state.lang==='es'?'Buscar en Coregenisis':'Search the Coregenisis knowledge center'}</b><div class="search-row" style="margin-top:.55rem"><input id="knowledgeQuery" class="field" placeholder="${state.lang==='es'?'Política, institución, regla, documento...':'Policy, facility, rule, document...'}"><button class="btn btn-dark" type="submit">${state.lang==='es'?'Buscar':'Search'}</button></div></label><div class="helper">${state.lang==='es'?'Busca en políticas BOP, instituciones y documentos regulatorios indexados.':'Search indexed BOP policies, facilities, and regulatory documents.'}</div></form><div id="knowledgeStatus" class="helper"></div><div id="knowledgeResults" class="results"></div></div>
+      <div style="height:2rem"></div>
+      <div class="section-title"><div><h2>One place for the information families actually need</h2><p>Coregenisis 2.0 organizes public custody and regulatory information around practical questions instead of government-site structure.</p></div></div><div class="grid grid-3">${features.map((x,i)=>`<div class="card"><div class="feature-icon">${i+1}</div><h3>${x}</h3><p>Clear, source-linked information designed for mobile use.</p></div>`).join('')}</div>
+    </div></section>
     <section class="section"><div class="container"><div class="banner"><strong>Source-first design:</strong> summaries are informational. Official government publications and agency records control.</div><div style="height:1rem"></div>
       <div class="grid grid-2"><div class="card"><span class="status-chip status-blue">Featured rule</span><h3>${t('ruleTitle')}</h3><p>${t('summary')}</p><a class="btn btn-light" href="#/rules">Read the rule summary</a></div>${sourceLinks()}</div></div></section>
   </main>`;
@@ -232,6 +236,7 @@ function bind(){
  $('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route});
  $('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
  const sf=$('#searchForm'); if(sf) sf.addEventListener('submit',doSearch);
+ const kf=$('#knowledgeForm'); if(kf) kf.addEventListener('submit',doKnowledgeSearch);
  const af=$('#alertForm'); if(af) af.addEventListener('submit',saveAlert);
  const ff=$('#facilityForm'); if(ff) ff.addEventListener('submit',e=>{e.preventDefault();loadFacilities($('#facilityQuery')?.value||'')});
  const pf=$('#policyForm'); if(pf) pf.addEventListener('submit',e=>{e.preventDefault();loadPolicies()});
@@ -239,6 +244,41 @@ function bind(){
  if(state.route==='rules') loadRules();
  if(state.route==='policies') loadPolicies();
  if(state.route==='resources') loadDataStatus();
+}
+
+async function doKnowledgeSearch(e){
+ e.preventDefault();
+ const q=$('#knowledgeQuery')?.value?.trim()||'';
+ const status=$('#knowledgeStatus'), out=$('#knowledgeResults');
+ if(!q||!status||!out) return;
+ status.textContent=state.lang==='es'?'Buscando…':'Searching…'; out.innerHTML='';
+ try{
+   const res=await fetch('/api/search?'+new URLSearchParams({q}).toString(),{headers:{Accept:'application/json'}});
+   const data=await res.json();
+   if(!res.ok) throw new Error(data.error||'Search unavailable');
+   const groups=[
+     [state.lang==='es'?'Instituciones':'Facilities',data.facilities||[],renderKnowledgeFacility],
+     [state.lang==='es'?'Políticas BOP':'BOP Policies',data.policies||[],renderKnowledgePolicy],
+     [state.lang==='es'?'Reglas y documentos':'Rules & Documents',data.regulatory_documents||[],renderKnowledgeRule]
+   ].filter(([,rows])=>rows.length);
+   const total=groups.reduce((n,[,rows])=>n+rows.length,0);
+   status.textContent=total?(state.lang==='es'?`${total} resultado(s).`:`${total} result(s).`):(state.lang==='es'?'Sin resultados.':'No results.');
+   out.innerHTML=groups.length?groups.map(([label,rows,render])=>`<div class="card"><h3>${esc(label)}</h3>${rows.map(render).join('')}</div>`).join(''):'<div class="empty-state">No matching indexed records found.</div>';
+ }catch(err){
+   status.textContent=err.message||'Search unavailable.';
+ }
+}
+function renderKnowledgeFacility(f){
+ const href=safeHref(f.official_url,'https://www.bop.gov/locations/');
+ return `<a class="resource-link" href="${href}" target="_blank" rel="noopener"><b>${esc(f.name||f.code)}</b><span>${esc([f.city,f.state,f.type].filter(Boolean).join(' • '))} ↗</span></a>`;
+}
+function renderKnowledgePolicy(p){
+ const href=safeHref(p.source_url,'https://www.bop.gov/resources/policy_and_forms.jsp');
+ return `<a class="resource-link" href="${href}" target="_blank" rel="noopener"><b>${esc(p.title||p.policy_number)}</b><span>${esc(p.policy_number||'')} ↗</span></a>`;
+}
+function renderKnowledgeRule(r){
+ const href=safeHref(r.source_url,'https://www.federalregister.gov/');
+ return `<a class="resource-link" href="${href}" target="_blank" rel="noopener"><b>${esc(r.title||r.document_number)}</b><span>${esc(r.federal_register_citation||r.document_number||'')} ↗</span></a>`;
 }
 
 async function loadDataStatus(){
