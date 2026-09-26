@@ -66,3 +66,7 @@ No live deployment should be replaced until these checks are complete.
 
 ## Preview-first requirement
 Before any production switch, follow `PREVIEW.md` and deploy `coregenisis-v2-preview` with a separate preview D1 database. Run the smoke-test script against the preview URL and resolve all failures before attaching the production domain.
+
+
+## Protected source refresh
+`POST /api/admin/refresh` performs an immediate refresh of official BOP facility data, BOP policy metadata, and indexed Federal Register records. It requires `Authorization: Bearer <ADMIN_TOKEN>`. Keep `ADMIN_TOKEN` only in Cloudflare Secrets; never expose it in frontend JavaScript, GitHub files, screenshots, or chat.
