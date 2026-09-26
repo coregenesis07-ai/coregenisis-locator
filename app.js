@@ -235,8 +235,8 @@ function app(){
 }
 
 function bind(){
- $('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route});
- $('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
+ $$('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route});
+ $$('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
  const sf=$('#searchForm'); if(sf) sf.addEventListener('submit',doSearch);
  const kf=$('#knowledgeForm'); if(kf) kf.addEventListener('submit',doKnowledgeSearch);
  const af=$('#alertForm'); if(af) af.addEventListener('submit',saveAlert);
