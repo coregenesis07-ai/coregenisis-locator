@@ -163,7 +163,7 @@ async function doSearch(e){
    if(!res.ok) throw new Error(data.error||('HTTP '+res.status));
    const rows=normalizeResults(data); state.lastResults=rows; renderResults(rows);
    $('#searchStatus').textContent=rows.length?`${rows.length} public result(s) returned. Verify at BOP.gov.`:(data.notice||t('noResults'));
- }catch(err){ $('#searchStatus').textContent='Live BOP search is not connected on this deployment yet. The V2 interface is ready for the Cloudflare Worker endpoint.'; $('#results').innerHTML='<div class="empty-state">No live result displayed. Verify directly with the official BOP locator.</div>'; }
+ }catch(err){ $('#searchStatus').textContent=err.message||'Live BOP search is unavailable right now.'; $('#results').innerHTML='<div class="empty-state">No live result displayed. Verify directly with the official BOP locator.</div>'; }
 }
 
 function normalizeResults(data){
