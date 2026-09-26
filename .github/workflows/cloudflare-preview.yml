@@ -66,27 +66,39 @@ jobs:
         run: |
           set -euo pipefail
           NAME="coregenisis-v2-preview-db"
-          npx wrangler d1 list --json > /tmp/d1-list.json
-          DB_ID=$(node -e '
-            const fs=require("fs");
-            const rows=JSON.parse(fs.readFileSync("/tmp/d1-list.json","utf8"));
-            const item=rows.find(x=>x.name==="coregenisis-v2-preview-db");
-            if(item) process.stdout.write(item.uuid || item.id || "");
-          ')
-          if [ -z "$DB_ID" ]; then
-            echo "Creating $NAME"
-            npx wrangler d1 create "$NAME"
-            npx wrangler d1 list --json > /tmp/d1-list.json
-            DB_ID=$(node -e '
-              const fs=require("fs");
-              const rows=JSON.parse(fs.readFileSync("/tmp/d1-list.json","utf8"));
-              const item=rows.find(x=>x.name==="coregenisis-v2-preview-db");
-              if(!item) process.exit(2);
-              process.stdout.write(item.uuid || item.id || "");
-            ')
+          LIST_JSON="$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database?name=$NAME&per_page=100")"
+
+          LIST_OK="$(printf '%s' "$LIST_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);process.stdout.write(j.success===true?"yes":"no")}catch{process.stdout.write("no")}})')"
+          if [ "$LIST_OK" != "yes" ]; then
+            echo "Direct Cloudflare D1 list request failed."
+            printf '%s' "$LIST_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);for(const e of (j.errors||[])) console.log("Cloudflare error "+e.code+": "+e.message)}catch{console.log("Unreadable Cloudflare response")}})'
+            exit 1
           fi
-          test -n "$DB_ID"
+
+          DB_ID="$(printf '%s' "$LIST_JSON" | node -e '
+            let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
+              const j=JSON.parse(s);
+              const rows=Array.isArray(j.result)?j.result:[];
+              const item=rows.find(x=>x.name==="coregenisis-v2-preview-db");
+              if(item) process.stdout.write(item.uuid || item.id || "");
+            })
+          ')"
+
+          if [ -z "$DB_ID" ]; then
+            echo "Creating isolated preview D1 database"
+            CREATE_JSON="$(curl -sS -X POST               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"               -H "Content-Type: application/json"               "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database"               --data '{"name":"coregenisis-v2-preview-db"}')"
+            CREATE_OK="$(printf '%s' "$CREATE_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);process.stdout.write(j.success===true?"yes":"no")}catch{process.stdout.write("no")}})')"
+            if [ "$CREATE_OK" != "yes" ]; then
+              echo "Direct Cloudflare D1 create request failed."
+              printf '%s' "$CREATE_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);for(const e of (j.errors||[])) console.log("Cloudflare error "+e.code+": "+e.message)}catch{console.log("Unreadable Cloudflare response")}})'
+              exit 1
+            fi
+            DB_ID="$(printf '%s' "$CREATE_JSON" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);process.stdout.write(j.result?.uuid||j.result?.id||"")})')"
+          fi
+
+          test -n "$DB_ID" || (echo "Could not determine preview D1 database ID" && exit 1)
           echo "database_id=$DB_ID" >> "$GITHUB_OUTPUT"
+          echo "Preview D1 database located successfully."
 
       - name: Generate preview Wrangler config
         env:
