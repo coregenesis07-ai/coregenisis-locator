@@ -277,6 +277,85 @@ function alertsPage(){
   <div class="full"><button class="btn btn-dark" type="submit">${t('saveAlert')}</button><div id="alertStatus" class="helper" role="status" aria-live="polite"></div></div>
  </form></div><div style="height:1rem"></div><div class="banner"><strong>Important:</strong> Alert enrollment uses email confirmation. Tracking does not begin until the recipient verifies the request. Every alert email includes an unsubscribe link.</div></div></section></main>`;
 }
+function familyPage(){
+ const es=state.lang==='es';
+ return `<main id="main">${pageHeader(
+   es?'Panel Family Plus':'Family Plus Dashboard',
+   es?'Vista previa funcional. Los perfiles guardados en esta página permanecen solo en este dispositivo durante la etapa de prueba.':'Functional preview. Profiles saved here remain only on this device during the preview stage.'
+ )}<section class="section"><div class="container">
+   <div class="banner"><strong>${es?'Privacidad de la vista previa':'Preview privacy'}:</strong> ${es?'No envíe información sensible. Esta vista previa usa almacenamiento local del navegador y todavía no está conectada a una cuenta segura.':'Do not enter sensitive information. This preview uses browser local storage and is not yet connected to a secure account.'}</div>
+   <div style="height:1rem"></div>
+   <div class="grid grid-2">
+     <div class="card">
+       <h3>${es?'Agregar perfil familiar':'Add family profile'}</h3>
+       <form id="familyForm">
+         <label>${es?'Nombre para mostrar':'Display name'}<input class="field" name="name" maxlength="80" required placeholder="${es?'Ej. Juan R.':'e.g. John R.'}"></label>
+         <div style="height:.65rem"></div>
+         <label>${es?'Número BOP':'BOP register number'}<input class="field" name="bop" maxlength="9" placeholder="12345-067"></label>
+         <div style="height:.65rem"></div>
+         <label>${es?'Nota opcional':'Optional note'}<textarea class="field" name="note" maxlength="160" rows="3" placeholder="${es?'Ej. llamar los domingos':'e.g. call Sundays'}"></textarea></label>
+         <div style="height:.8rem"></div>
+         <button class="btn btn-dark" type="submit">${es?'Guardar en este dispositivo':'Save on this device'}</button>
+         <div id="familyStatus" class="helper" role="status" aria-live="polite"></div>
+       </form>
+     </div>
+     <div class="card">
+       <div class="rule-head"><div><h3>${es?'Perfiles guardados':'Saved profiles'}</h3><p>${es?'Estos datos son locales a este navegador.':'These records are local to this browser.'}</p></div><button id="clearFamily" class="btn btn-light" type="button">${es?'Borrar todo':'Clear all'}</button></div>
+       <div id="familyProfiles" class="results"></div>
+     </div>
+   </div>
+   <div style="height:1rem"></div>
+   <div class="grid grid-3">
+     <div class="card"><div class="feature-icon">1</div><h3>${es?'Alertas verificadas':'Verified alerts'}</h3><p>${es?'Planeado: cambios de institución y fecha de liberación con confirmación por correo.':'Planned: facility and release-date change alerts with email confirmation.'}</p></div>
+     <div class="card"><div class="feature-icon">2</div><h3>${es?'Historial':'Change history'}</h3><p>${es?'Planeado: línea de tiempo de cambios públicos detectados.':'Planned: timeline of detected public-record changes.'}</p></div>
+     <div class="card"><div class="feature-icon">3</div><h3>${es?'Panel familiar':'Family organization'}</h3><p>${es?'Notas, enlaces y próximos pasos en un solo lugar.':'Notes, links, and next steps in one place.'}</p></div>
+   </div>
+ </div></section></main>`;
+}
+
+function reentryPage(){
+ const es=state.lang==='es';
+ const items=[
+  ['id',es?'Identificación estatal / licencia':'State ID / driver license'],
+  ['birth',es?'Acta de nacimiento':'Birth certificate'],
+  ['ss',es?'Tarjeta / registro del Seguro Social':'Social Security card/record'],
+  ['housing',es?'Plan de vivienda':'Housing plan'],
+  ['employment',es?'Empleo / capacitación':'Employment / training'],
+  ['transport',es?'Transporte':'Transportation'],
+  ['health',es?'Atención médica / recetas':'Healthcare / prescriptions'],
+  ['phone',es?'Teléfono y correo electrónico':'Phone & email'],
+  ['bank',es?'Cuenta bancaria / presupuesto':'Banking / budget'],
+  ['appointments',es?'Citas y obligaciones después de la liberación':'Post-release appointments & obligations']
+ ];
+ return `<main id="main">${pageHeader(
+   es?'Planificador de Reingreso':'Reentry Planner',
+   es?'Una vista previa de organización personal para preparar documentos, vivienda, empleo y necesidades prácticas antes de la transición.':'A personal organization preview for preparing documents, housing, employment, and practical needs before transition.'
+ )}<section class="section"><div class="container">
+   <div class="banner"><strong>${es?'Herramienta informativa':'Informational tool'}:</strong> ${es?'Este planificador no calcula elegibilidad, créditos ni fechas oficiales del BOP.':'This planner does not calculate eligibility, credits, or official BOP dates.'}</div>
+   <div style="height:1rem"></div>
+   <div class="grid grid-2">
+     <div class="card">
+       <div class="rule-head"><div><h3>${es?'Lista de preparación':'Preparation checklist'}</h3><p>${es?'Marque lo que ya está preparado.':'Check items as they are prepared.'}</p></div><span id="reentryProgress" class="status-chip status-blue">0%</span></div>
+       <div id="reentryChecklist" class="checklist">${items.map(([id,label])=>`<label class="check-row"><input type="checkbox" data-reentry="${id}"><span>${esc(label)}</span></label>`).join('')}</div>
+     </div>
+     <div class="card">
+       <h3>${es?'Plan personal':'Personal plan'}</h3>
+       <label>${es?'Fecha objetivo opcional':'Optional target date'}<input id="reentryDate" class="field" type="date"></label>
+       <div style="height:.65rem"></div>
+       <label>${es?'Vivienda / contacto':'Housing / contact'}<textarea id="reentryHousing" class="field" rows="3" maxlength="250"></textarea></label>
+       <div style="height:.65rem"></div>
+       <label>${es?'Empleo / capacitación':'Employment / training'}<textarea id="reentryEmployment" class="field" rows="3" maxlength="250"></textarea></label>
+       <div style="height:.65rem"></div>
+       <label>${es?'Próximos pasos':'Next steps'}<textarea id="reentryNext" class="field" rows="4" maxlength="400"></textarea></label>
+       <div style="height:.8rem"></div>
+       <button id="saveReentry" class="btn btn-dark" type="button">${es?'Guardar en este dispositivo':'Save on this device'}</button>
+       <button id="printReentry" class="btn btn-light" type="button">${es?'Imprimir':'Print'}</button>
+       <div id="reentryStatus" class="helper" role="status" aria-live="polite"></div>
+     </div>
+   </div>
+ </div></section></main>`;
+}
+
 function pricingPage(){
  const es=state.lang==='es';
  const plans=[
@@ -316,7 +395,7 @@ function pricingPage(){
    es?'Planes de Coregenisis':'Coregenisis Plans',
    es?'Las búsquedas públicas permanecen gratuitas. Los planes futuros monetizan conveniencia, seguimiento y organización — no el acceso a registros públicos.':'Public searches stay free. Future paid plans monetize convenience, monitoring, and organization — not access to public records.'
  )}<section class="section"><div class="container">
-   <div class="pricing-grid">${plans.map(p=>`<article class="pricing-card ${p.featured?'featured':''}">${p.featured?'<span class="status-chip status-green">Planned popular plan</span>':''}<h2>${esc(p.name)}</h2><div class="price">${esc(p.price)} <small>${esc(p.cadence)}</small></div><p><b>${esc(p.badge)}</b></p><ul class="pricing-list">${p.features.map(f=>`<li>✓ ${esc(f)}</li>`).join('')}</ul><div class="plan-note">${esc(p.note)}</div><button class="btn ${p.featured?'btn-dark':'btn-light'}" type="button" disabled>${es?'Próximamente':'Coming soon'}</button></article>`).join('')}</div>
+   <div class="pricing-grid">${plans.map(p=>`<article class="pricing-card ${p.featured?'featured':''}">${p.featured?'<span class="status-chip status-green">Planned popular plan</span>':''}<h2>${esc(p.name)}</h2><div class="price">${esc(p.price)} <small>${esc(p.cadence)}</small></div><p><b>${esc(p.badge)}</b></p><ul class="pricing-list">${p.features.map(f=>`<li>✓ ${esc(f)}</li>`).join('')}</ul><div class="plan-note">${esc(p.note)}</div><a class="btn ${p.featured?'btn-dark':'btn-light'}" href="${p.name==='Family Plus'?'#/family':(p.name==='Reentry Planner'||p.name==='Planificador de Reingreso'?'#/reentry':'#/search')}">${p.name==='Family Plus'?(es?'Ver vista previa':'Preview Family Plus'):(p.name==='Reentry Planner'||p.name==='Planificador de Reingreso'?(es?'Ver planificador':'Preview Planner'):(es?'Buscar gratis':'Search free'))}</a></article>`).join('')}</div>
    <div style="height:1rem"></div>
    <div class="banner"><strong>${es?'Principio de monetización':'Monetization principle'}:</strong> ${es?'Coregenisis no venderá datos personales ni cobrará por ver documentos públicos oficiales. Los ingresos provendrán de funciones opcionales de conveniencia y organización.':'Coregenisis will not sell personal data or charge to view official public documents. Revenue will come from optional convenience and organization features.'}</div>
  </div></section></main>`;
@@ -368,7 +447,7 @@ function legalPage(kind){
 }
 
 function app(){
- const routes={home:home,search:searchPage,fsa:fsaPage,rules:rulesPage,policies:policiesPage,facilities:facilitiesPage,alerts:alertsPage,resources:resourcesPage,pricing:pricingPage,privacy:()=>legalPage('privacy'),terms:()=>legalPage('terms'),disclaimer:()=>legalPage('disclaimer'),copyright:()=>legalPage('copyright')};
+ const routes={home:home,search:searchPage,fsa:fsaPage,rules:rulesPage,policies:policiesPage,facilities:facilitiesPage,alerts:alertsPage,resources:resourcesPage,pricing:pricingPage,family:familyPage,reentry:reentryPage,privacy:()=>legalPage('privacy'),terms:()=>legalPage('terms'),disclaimer:()=>legalPage('disclaimer'),copyright:()=>legalPage('copyright')};
  const view=(routes[state.route]||home)();
  $('#app').innerHTML=header()+previewNotice()+view+footer();
  bind();
@@ -388,6 +467,40 @@ function bind(){
  if(state.route==='policies') loadPolicies();
  if(state.route==='resources') loadDataStatus();
  if(state.route==='home') loadRecentUpdates();
+ if(state.route==='family') initFamilyPreview();
+ if(state.route==='reentry') initReentryPreview();
+}
+
+function readLocalJson(key,fallback){
+ try{const v=JSON.parse(localStorage.getItem(key)||'null');return v??fallback}catch{return fallback}
+}
+function initFamilyPreview(){
+ const form=$('#familyForm'), list=$('#familyProfiles'), status=$('#familyStatus'), clear=$('#clearFamily');
+ if(!form||!list)return;
+ const render=()=>{
+   const rows=readLocalJson('cg_family_profiles',[]);
+   list.innerHTML=rows.length?rows.map((r,idx)=>`<div class="result-card"><div><b>${esc(r.name)}</b><div class="result-meta">${esc(r.bop||'No BOP # saved')}</div></div><div class="result-meta">${esc(r.note||'')}</div><button class="btn btn-light" type="button" data-remove-family="${idx}">${state.lang==='es'?'Eliminar':'Remove'}</button></div>`).join(''):'<div class="empty-state">'+(state.lang==='es'?'No hay perfiles guardados.':'No saved profiles yet.')+'</div>';
+   $$('[data-remove-family]').forEach(b=>b.onclick=()=>{const arr=readLocalJson('cg_family_profiles',[]);arr.splice(Number(b.dataset.removeFamily),1);localStorage.setItem('cg_family_profiles',JSON.stringify(arr));render();});
+ };
+ form.onsubmit=e=>{
+   e.preventDefault();const fd=new FormData(form);const row={name:String(fd.get('name')||'').trim(),bop:String(fd.get('bop')||'').trim(),note:String(fd.get('note')||'').trim()};
+   if(!row.name)return;const arr=readLocalJson('cg_family_profiles',[]);arr.push(row);localStorage.setItem('cg_family_profiles',JSON.stringify(arr));form.reset();if(status)status.textContent=state.lang==='es'?'Guardado localmente.':'Saved locally on this device.';render();
+ };
+ if(clear)clear.onclick=()=>{localStorage.removeItem('cg_family_profiles');if(status)status.textContent=state.lang==='es'?'Perfiles borrados.':'Profiles cleared.';render();};
+ render();
+}
+function initReentryPreview(){
+ const saved=readLocalJson('cg_reentry_plan',{checks:{},date:'',housing:'',employment:'',next:''});
+ $$('[data-reentry]').forEach(c=>{c.checked=Boolean(saved.checks?.[c.dataset.reentry]);c.onchange=updateReentryProgress;});
+ const date=$('#reentryDate'),housing=$('#reentryHousing'),employment=$('#reentryEmployment'),next=$('#reentryNext');
+ if(date)date.value=saved.date||'';if(housing)housing.value=saved.housing||'';if(employment)employment.value=saved.employment||'';if(next)next.value=saved.next||'';
+ const save=$('#saveReentry'),print=$('#printReentry'),status=$('#reentryStatus');
+ if(save)save.onclick=()=>{const checks={};$$('[data-reentry]').forEach(c=>checks[c.dataset.reentry]=c.checked);localStorage.setItem('cg_reentry_plan',JSON.stringify({checks,date:date?.value||'',housing:housing?.value||'',employment:employment?.value||'',next:next?.value||''}));if(status)status.textContent=state.lang==='es'?'Plan guardado localmente.':'Plan saved locally on this device.';updateReentryProgress();};
+ if(print)print.onclick=()=>window.print();
+ updateReentryProgress();
+}
+function updateReentryProgress(){
+ const boxes=$$('[data-reentry]'),chip=$('#reentryProgress');if(!boxes.length||!chip)return;const done=boxes.filter(x=>x.checked).length;chip.textContent=Math.round(done/boxes.length*100)+'%';
 }
 
 async function loadRecentUpdates(){
