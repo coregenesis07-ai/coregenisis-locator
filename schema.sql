@@ -44,6 +44,12 @@ CREATE TABLE IF NOT EXISTS facilities (
   city TEXT,
   type TEXT,
   security_level TEXT,
+  address TEXT,
+  zip_code TEXT,
+  phone_number TEXT,
+  region TEXT,
+  gender TEXT,
+  has_camp INTEGER NOT NULL DEFAULT 0,
   official_url TEXT,
   last_verified_at DATETIME
 );
