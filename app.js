@@ -220,6 +220,23 @@ function fsaPage(){
    <div class="timeline">${changes.map(c=>`<article class="timeline-item card"><div class="timeline-date">${esc(formatDate(c.date))}</div><div><span class="status-chip status-blue">${esc(c.tag)}</span><h3>${esc(c.title)}</h3><p>${esc(c.text)}</p><a class="btn btn-light" href="${c.href}" target="_blank" rel="noopener">${es?'Fuente oficial ↗':'Official source ↗'}</a></div></article>`).join('')}</div>
 
    <div style="height:1.4rem"></div>
+   <div class="card">
+     <span class="status-chip status-amber">${es?'Verificación especial':'Special verification note'}</span>
+     <h3>${es?'Estado del piloto para personas mayores o con enfermedad terminal':'Elderly/terminally ill pilot status'}</h3>
+     <p>${es
+       ?'Las fuentes oficiales actualmente no son totalmente consistentes. El texto vigente de 34 U.S.C. § 60541 todavía limita el período del piloto a los años fiscales 2019–2023, y el informe anual FSA del BOP de junio de 2024 indicó que la autoridad para nuevas referencias expiró al final del año fiscal 2023. Sin embargo, la página FAQ pública del BOP todavía describe el programa y cómo solicitarlo.'
+       :'Official sources are currently not fully consistent. The current text of 34 U.S.C. § 60541 still states that the pilot was to run during fiscal years 2019–2023, and BOP’s June 2024 FSA annual report said referral authority expired at the end of FY2023. However, BOP’s public FAQ still describes the program and how to apply.'}</p>
+     <p>${es
+       ?'Coregenisis mostrará ambas fuentes y no presentará el piloto como una opción garantizada o actualmente reautorizada sin una fuente oficial más reciente.'
+       :'Coregenisis will show both sources and will not present the pilot as guaranteed or currently reauthorized without a newer controlling official source.'}</p>
+     <div class="hero-buttons">
+       <a class="btn btn-light" href="https://uscode.house.gov/view.xhtml?edition=prelim&num=0&req=granuleid%3AUSC-prelim-title34-section60541" target="_blank" rel="noopener">${es?'Texto actual 34 USC 60541 ↗':'Current 34 USC 60541 ↗'}</a>
+       <a class="btn btn-light" href="https://www.bop.gov/inmates/fsa/docs/first-step-act-annual-report-june-2024.pdf" target="_blank" rel="noopener">${es?'Informe anual BOP ↗':'BOP annual report ↗'}</a>
+       <a class="btn btn-light" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener">BOP FAQ ↗</a>
+     </div>
+   </div>
+
+   <div style="height:1.4rem"></div>
    <div class="grid grid-2">
      <div class="card"><h3>${es?'Cómo leer las fechas':'How to read the dates'}</h3>
        <p><b>FSA Conditional Placement Date.</b> ${es?'Una fecha de planificación basada en créditos FSA proyectados/aplicables; no es por sí sola una orden de liberación.':'A planning date based on projected/applicable FSA credits; it is not itself a release order.'}</p>
