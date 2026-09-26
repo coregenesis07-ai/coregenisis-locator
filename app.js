@@ -5,7 +5,7 @@ const state = { lang: localStorage.getItem('cg_lang') || 'en', route: location.h
 
 const copy = {
   en: {
-    subtitle:'Federal Custody Information Center', search:'Inmate Search', fsa:'FSA & Second Chance', rules:'Federal Rules', policies:'BOP Policies', facilities:'Facilities', alerts:'Alerts', resources:'Resources',
+    subtitle:'Federal Custody Information Center', search:'Inmate Search', fsa:'FSA & Second Chance', rules:'Federal Rules', policies:'BOP Policies', facilities:'Facilities', alerts:'Alerts', resources:'Resources', services:'Services',
     heroTitle:'Federal custody information, made easier to understand.',
     heroSub:'Search public BOP information, follow First Step Act developments, read federal rule summaries, and verify every important item with an official government source.',
     searchNow:'Search BOP records', exploreRules:'Explore federal rules',
@@ -25,7 +25,7 @@ const copy = {
     sourcesDesc:'Use these official sources to verify current law, regulations, agency policy, and custody information.'
   },
   es: {
-    subtitle:'Centro de Información de Custodia Federal', search:'Buscar Recluso', fsa:'FSA y Second Chance', rules:'Reglas Federales', policies:'Políticas BOP', facilities:'Instituciones', alerts:'Alertas', resources:'Recursos',
+    subtitle:'Centro de Información de Custodia Federal', search:'Buscar Recluso', fsa:'FSA y Second Chance', rules:'Reglas Federales', policies:'Políticas BOP', facilities:'Instituciones', alerts:'Alertas', resources:'Recursos', services:'Servicios',
     heroTitle:'Información de custodia federal, más fácil de entender.',
     heroSub:'Busque información pública del BOP, siga cambios de la Ley First Step, lea resúmenes de reglas federales y verifique cada punto importante con una fuente oficial.',
     searchNow:'Buscar registros BOP', exploreRules:'Explorar reglas federales',
@@ -61,7 +61,7 @@ const rule = {
 
 function t(k){ return copy[state.lang][k]; }
 function navItems(){ return [
-  ['search',t('search')],['fsa',t('fsa')],['rules',t('rules')],['policies',t('policies')],['facilities',t('facilities')],['alerts',t('alerts')],['resources',t('resources')],['pricing',state.lang==='es'?'Planes':'Plans']
+  ['search',t('search')],['fsa',t('fsa')],['rules',t('rules')],['policies',t('policies')],['facilities',t('facilities')],['alerts',t('alerts')],['resources',t('resources')],['services',t('services')],['pricing',state.lang==='es'?'Planes':'Plans']
 ];}
 
 function header(){
@@ -268,14 +268,26 @@ function facilitiesPage(){
  </div></section></main>`;
 }
 function alertsPage(){
- return `<main id="main">${pageHeader(t('alertsTitle'),t('alertsDesc'))}<section class="section"><div class="container"><div class="card"><form id="alertForm" class="alert-form">
-  <label>BOP register number<input class="field" name="register_number" placeholder="12345-067" required></label>
-  <label>Inmate name<input class="field" name="inmate_name" placeholder="Full name"></label>
-  <label>Email<input class="field" type="email" name="email" placeholder="you@example.com" required></label>
-  <label>Language<select class="field" name="lang"><option value="en">English</option><option value="es">Español</option></select></label>
-  <label class="full"><input type="checkbox" id="lawful" required> I will use this service only for lawful, non-harassing purposes.</label>
-  <div class="full"><button class="btn btn-dark" type="submit">${t('saveAlert')}</button><div id="alertStatus" class="helper" role="status" aria-live="polite"></div></div>
- </form></div><div style="height:1rem"></div><div class="banner"><strong>Important:</strong> Alert enrollment uses email confirmation. Tracking does not begin until the recipient verifies the request. Every alert email includes an unsubscribe link.</div></div></section></main>`;
+ const es=state.lang==='es';
+ return `<main id="main">${pageHeader(
+   es?'Alertas verificadas':'Verified Alerts',
+   es?'Las búsquedas públicas permanecen gratuitas. Las alertas automáticas están planificadas como una función Family Plus.':'Public searches stay free. Automatic monitoring alerts are planned as a Family Plus feature.'
+ )}<section class="section"><div class="container">
+   <div class="grid grid-2">
+     <div class="card">
+       <span class="status-chip status-green">Family Plus</span>
+       <h3>${es?'Qué monitoreará':'What it will monitor'}</h3>
+       <p>${es?'Cambios públicos de institución y fecha de liberación detectados en la fuente BOP, con verificación por correo antes de activar el seguimiento.':'Public facility and release-date changes detected from the BOP source, with email verification before tracking activates.'}</p>
+       <p>${es?'Cada correo incluirá un enlace para cancelar y eliminar el registro de seguimiento.':'Every email will include an unsubscribe link that removes the tracking record.'}</p>
+       <a class="btn btn-dark" href="#/pricing">${es?'Ver Family Plus':'View Family Plus'}</a>
+     </div>
+     <div class="card">
+       <h3>${es?'Estado actual':'Current status'}</h3>
+       <p>${es?'La arquitectura de alertas ya está preparada, pero el envío de correo y la base de datos todavía deben conectarse en Cloudflare antes de aceptar suscripciones reales.':'The alert architecture is prepared, but email delivery and the database still need to be connected in Cloudflare before real subscriptions are accepted.'}</p>
+       <div class="banner"><strong>${es?'Sin cobros todavía':'No charges yet'}:</strong> ${es?'No hay checkout activo en esta vista previa.':'There is no active checkout in this preview.'}</div>
+     </div>
+   </div>
+ </div></section></main>`;
 }
 function familyPage(){
  const es=state.lang==='es';
@@ -353,6 +365,38 @@ function reentryPage(){
        <div id="reentryStatus" class="helper" role="status" aria-live="polite"></div>
      </div>
    </div>
+ </div></section></main>`;
+}
+
+function servicesPage(){
+ const es=state.lang==='es';
+ const services=[
+   {
+     title:es?'Organización de paquete de reingreso':'Reentry Packet Organization',
+     price:'$39',
+     note:es?'precio inicial planificado':'planned starting price',
+     desc:es?'Ayuda para organizar listas, documentos, contactos, vivienda, empleo y próximos pasos en un paquete claro y listo para imprimir.':'Help organizing checklists, documents, contacts, housing, employment, and next steps into a clear printable packet.'
+   },
+   {
+     title:es?'Organización de registros familiares':'Family Records Organizer',
+     price:'$29',
+     note:es?'precio inicial planificado':'planned starting price',
+     desc:es?'Organización de números BOP, instituciones, fechas públicas, contactos y enlaces de fuentes oficiales para una familia.':'Organization of BOP numbers, facilities, public dates, contacts, and official-source links for a family.'
+   },
+   {
+     title:es?'Formato bilingüe de documentos':'Bilingual Document Formatting',
+     price:'$25+',
+     note:es?'según alcance':'depending on scope',
+     desc:es?'Formato EN/ES y organización de documentos informativos o administrativos proporcionados por el cliente.':'EN/ES formatting and organization of informational or administrative documents supplied by the customer.'
+   }
+ ];
+ return `<main id="main">${pageHeader(
+   es?'Servicios opcionales':'Optional Services',
+   es?'Servicios de organización y formato separados de las búsquedas públicas gratuitas. No son servicios legales.':'Organization and formatting services separate from the free public search tools. These are not legal services.'
+ )}<section class="section"><div class="container">
+   <div class="pricing-grid">${services.map(s=>`<article class="pricing-card"><h2>${esc(s.title)}</h2><div class="price">${esc(s.price)} <small>${esc(s.note)}</small></div><p>${esc(s.desc)}</p><div class="plan-note">${es?'Disponible después de activar pagos y flujo de pedidos.':'Available after payment and order workflows are activated.'}</div><button class="btn btn-light" type="button" disabled>${es?'Próximamente':'Coming soon'}</button></article>`).join('')}</div>
+   <div style="height:1rem"></div>
+   <div class="banner"><strong>${es?'Límite del servicio':'Service boundary'}:</strong> ${es?'Coregenisis puede ayudar a organizar, traducir y dar formato a información suministrada por el cliente, pero no representará a una persona como abogado ni prometerá resultados del BOP o del tribunal.':'Coregenisis may help organize, translate, and format customer-supplied information, but will not represent anyone as a lawyer or promise BOP or court outcomes.'}</div>
  </div></section></main>`;
 }
 
@@ -447,7 +491,7 @@ function legalPage(kind){
 }
 
 function app(){
- const routes={home:home,search:searchPage,fsa:fsaPage,rules:rulesPage,policies:policiesPage,facilities:facilitiesPage,alerts:alertsPage,resources:resourcesPage,pricing:pricingPage,family:familyPage,reentry:reentryPage,privacy:()=>legalPage('privacy'),terms:()=>legalPage('terms'),disclaimer:()=>legalPage('disclaimer'),copyright:()=>legalPage('copyright')};
+ const routes={home:home,search:searchPage,fsa:fsaPage,rules:rulesPage,policies:policiesPage,facilities:facilitiesPage,alerts:alertsPage,resources:resourcesPage,services:servicesPage,pricing:pricingPage,family:familyPage,reentry:reentryPage,privacy:()=>legalPage('privacy'),terms:()=>legalPage('terms'),disclaimer:()=>legalPage('disclaimer'),copyright:()=>legalPage('copyright')};
  const view=(routes[state.route]||home)();
  $('#app').innerHTML=header()+previewNotice()+view+footer();
  bind();
