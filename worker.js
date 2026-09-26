@@ -4,7 +4,9 @@
 
 const VERSION = "2.0.0-dev";
 const BOP_ENDPOINT = "https://www.bop.gov/PublicInfo/execute/inmateloc";
+const BOP_LOCATIONS_ENDPOINT = "https://www.bop.gov/PublicInfo/execute/locations/?todo=query&output=json";
 const BOP_LOCATOR = "https://www.bop.gov/inmateloc/";
+const FEDERAL_REGISTER_API = "https://www.federalregister.gov/api/v1/documents";
 
 export default {
   async fetch(request, env, ctx) {
@@ -153,14 +155,16 @@ export default {
         let stmt;
         if (q) {
           stmt = env.DB.prepare(
-            `SELECT code, name, state, type, security_level, city, official_url, last_verified_at
+            `SELECT code, name, state, type, security_level, city, address, zip_code,
+                  phone_number, region, gender, has_camp, official_url, last_verified_at
                FROM facilities
               WHERE lower(name) LIKE ? OR lower(state) LIKE ? OR lower(city) LIKE ? OR lower(code) LIKE ?
               ORDER BY name LIMIT 100`
           ).bind(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
         } else {
           stmt = env.DB.prepare(
-            `SELECT code, name, state, type, security_level, city, official_url, last_verified_at
+            `SELECT code, name, state, type, security_level, city, address, zip_code,
+                    phone_number, region, gender, has_camp, official_url, last_verified_at
                FROM facilities ORDER BY name LIMIT 100`
           );
         }
@@ -181,6 +185,15 @@ export default {
 
   async scheduled(event, env, ctx) {
     if (!env.DB) return;
+
+    if (event.cron === "30 10 * * 0") {
+      ctx.waitUntil(Promise.all([
+        refreshFacilities(env),
+        refreshRegulatoryDocuments(env)
+      ]));
+      return;
+    }
+
     ctx.waitUntil(checkAllInmates(env));
   }
 };
@@ -255,6 +268,125 @@ function normalizeBopRow(row) {
     projected_release_date: cleanText(row?.projRelDate, 40),
     actual_release_date: cleanText(row?.actRelDate, 40)
   };
+}
+
+async function refreshFacilities(env) {
+  const response = await fetch(BOP_LOCATIONS_ENDPOINT, {
+    headers: {
+      "Accept": "application/json",
+      "User-Agent": "Coregenisis/2.0 (+public federal information service)"
+    }
+  });
+  if (!response.ok) throw new Error(`BOP locations refresh failed: ${response.status}`);
+
+  const data = await response.json();
+  const locations = Array.isArray(data?.Locations) ? data.Locations : [];
+  if (!locations.length) throw new Error("BOP locations refresh returned no locations.");
+
+  const statements = locations.map(loc => {
+    const officialUrl = loc?.url ? new URL(loc.url, "https://www.bop.gov").toString() : "";
+    return env.DB.prepare(
+      `INSERT INTO facilities
+        (code, name, state, city, type, security_level, address, zip_code, phone_number,
+         region, gender, has_camp, official_url, last_verified_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+       ON CONFLICT(code) DO UPDATE SET
+         name=excluded.name,
+         state=excluded.state,
+         city=excluded.city,
+         type=excluded.type,
+         security_level=excluded.security_level,
+         address=excluded.address,
+         zip_code=excluded.zip_code,
+         phone_number=excluded.phone_number,
+         region=excluded.region,
+         gender=excluded.gender,
+         has_camp=excluded.has_camp,
+         official_url=excluded.official_url,
+         last_verified_at=datetime('now')`
+    ).bind(
+      cleanText(loc?.code, 20),
+      cleanText(loc?.nameDisplay || loc?.nameTitle || loc?.name, 160),
+      cleanText(loc?.state, 10),
+      cleanText(loc?.city, 100),
+      cleanText(loc?.type, 40),
+      cleanText(loc?.securityLevel, 60),
+      cleanText(loc?.address, 180),
+      cleanText(loc?.zipCode, 20),
+      cleanText(loc?.phoneNumber, 40),
+      cleanText(loc?.region, 100),
+      cleanText(loc?.gender, 30),
+      loc?.hasCamp ? 1 : 0,
+      officialUrl
+    );
+  });
+
+  for (let i = 0; i < statements.length; i += 50) {
+    await env.DB.batch(statements.slice(i, i + 50));
+  }
+
+  console.log(`Coregenisis facilities refreshed: ${locations.length}`);
+}
+
+async function refreshRegulatoryDocuments(env) {
+  const { results = [] } = await env.DB.prepare(
+    `SELECT id, document_number FROM regulatory_documents
+      WHERE document_number IS NOT NULL AND document_number <> ''`
+  ).all();
+
+  for (const row of results) {
+    try {
+      const response = await fetch(`${FEDERAL_REGISTER_API}/${encodeURIComponent(row.document_number)}.json`, {
+        headers: { "Accept": "application/json" }
+      });
+      if (!response.ok) {
+        console.warn("Federal Register refresh skipped", row.document_number, response.status);
+        continue;
+      }
+      const data = await response.json();
+      const rin = Array.isArray(data?.regulation_id_numbers) ? data.regulation_id_numbers[0] || "" : "";
+      const docket = Array.isArray(data?.docket_ids) ? data.docket_ids[0] || "" : "";
+      const cfr = Array.isArray(data?.cfr_references)
+        ? data.cfr_references.map(x => `${x.title} CFR ${x.part}`).join(", ")
+        : "";
+
+      await env.DB.prepare(
+        `UPDATE regulatory_documents SET
+          title=?,
+          agency=?,
+          docket_number=?,
+          cfr=?,
+          federal_register_citation=?,
+          rin=?,
+          document_type=?,
+          publication_date=?,
+          effective_date=?,
+          comment_deadline=?,
+          summary=?,
+          source_url=?,
+          official_pdf_url=?,
+          last_verified_at=datetime('now')
+         WHERE id=?`
+      ).bind(
+        cleanText(data?.title, 240),
+        cleanText((data?.agencies || []).map(a => a.name).join("; "), 240),
+        cleanText(docket, 80),
+        cleanText(cfr, 120),
+        cleanText(data?.citation, 80),
+        cleanText(rin, 80),
+        cleanText(data?.action || data?.type, 160),
+        cleanText(data?.publication_date, 30),
+        cleanText(data?.effective_on, 30),
+        cleanText(data?.comments_close_on, 30),
+        cleanText(data?.abstract, 2000),
+        cleanText(data?.html_url, 500),
+        cleanText(data?.pdf_url, 500),
+        row.id
+      ).run();
+    } catch (error) {
+      console.warn("Federal Register refresh error", row.document_number, error);
+    }
+  }
 }
 
 async function checkAllInmates(env) {
