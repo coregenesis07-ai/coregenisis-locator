@@ -5,6 +5,7 @@
 const VERSION = "2.0.0-dev";
 const BOP_ENDPOINT = "https://www.bop.gov/PublicInfo/execute/inmateloc";
 const BOP_LOCATIONS_ENDPOINT = "https://www.bop.gov/PublicInfo/execute/locations/?todo=query&output=json";
+const BOP_POLICY_ENDPOINT = "https://www.bop.gov/PublicInfo/execute/policysearch?todo=query&output=json";
 const BOP_LOCATOR = "https://www.bop.gov/inmateloc/";
 const FEDERAL_REGISTER_API = "https://www.federalregister.gov/api/v1/documents";
 
@@ -224,6 +225,40 @@ export default {
         return json({ results: results || [] }, 200, headers, { "Cache-Control": "public, max-age=300" });
       }
 
+      if (url.pathname === "/api/policies" && request.method === "GET") {
+        if (!env.DB) return json({ error: "Database is not configured." }, 503, headers);
+
+        const q = cleanText(url.searchParams.get("q"), 120).toLowerCase();
+        const series = cleanText(url.searchParams.get("series"), 20);
+        const type = cleanText(url.searchParams.get("type"), 20);
+
+        const where = [];
+        const binds = [];
+
+        if (q) {
+          where.push("(lower(title) LIKE ? OR lower(policy_number) LIKE ?)");
+          binds.push(`%${q}%`, `%${q}%`);
+        }
+        if (series) {
+          where.push("series=?");
+          binds.push(series);
+        }
+        if (type) {
+          where.push("document_type=?");
+          binds.push(type);
+        }
+
+        const sql = `SELECT record_number, policy_number, title, document_type, series,
+                            issue_date, active, source_url, secondary_url, last_verified_at
+                       FROM bop_policies
+                      ${where.length ? "WHERE " + where.join(" AND ") : ""}
+                      ORDER BY issue_date DESC, title ASC
+                      LIMIT 250`;
+
+        const { results } = await env.DB.prepare(sql).bind(...binds).all();
+        return json({ results: results || [] }, 200, headers, { "Cache-Control": "public, max-age=300" });
+      }
+
       if (url.pathname === "/api/facilities" && request.method === "GET") {
         if (!env.DB) return json({ error: "Database is not configured." }, 503, headers);
         const q = (url.searchParams.get("q") || "").trim().toLowerCase();
@@ -344,6 +379,7 @@ function normalizeBopRow(row) {
 
 async function refreshOfficialSources(env) {
   await refreshFacilities(env);
+  await refreshBopPolicies(env);
   await discoverRecentBopFederalRegisterDocuments(env);
   await refreshRegulatoryDocuments(env);
 }
@@ -394,6 +430,59 @@ async function discoverRecentBopFederalRegisterDocuments(env) {
   }
 
   console.log(`Coregenisis regulatory feed discovered: ${docs.length}`);
+}
+
+async function refreshBopPolicies(env) {
+  const response = await fetch(BOP_POLICY_ENDPOINT, {
+    headers: {
+      "Accept": "application/json",
+      "User-Agent": "Coregenisis/2.0 (+public federal information service)"
+    }
+  });
+  if (!response.ok) throw new Error(`BOP policy refresh failed: ${response.status}`);
+
+  const data = await response.json();
+  const policies = Array.isArray(data?.Policies) ? data.Policies : [];
+  if (!policies.length) throw new Error("BOP policy refresh returned no policies.");
+
+  const statements = policies
+    .filter(p => cleanText(p?.recordNumber, 40))
+    .map(p => {
+      const sourceUrl = p?.url ? new URL(p.url, "https://www.bop.gov").toString() : "";
+      const secondaryUrl = p?.url2 ? new URL(p.url2, "https://www.bop.gov").toString() : "";
+      return env.DB.prepare(
+        `INSERT INTO bop_policies
+          (record_number, policy_number, title, document_type, series, issue_date,
+           active, source_url, secondary_url, last_verified_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+         ON CONFLICT(record_number) DO UPDATE SET
+           policy_number=excluded.policy_number,
+           title=excluded.title,
+           document_type=excluded.document_type,
+           series=excluded.series,
+           issue_date=excluded.issue_date,
+           active=excluded.active,
+           source_url=excluded.source_url,
+           secondary_url=excluded.secondary_url,
+           last_verified_at=datetime('now')`
+      ).bind(
+        cleanText(p?.recordNumber, 40),
+        cleanText(p?.number, 80),
+        cleanText(p?.name, 260),
+        cleanText(p?.type, 30),
+        cleanText(p?.series, 30),
+        cleanText(p?.issueDate, 30),
+        String(p?.active) === "1" ? 1 : 0,
+        sourceUrl,
+        secondaryUrl
+      );
+    });
+
+  for (let i = 0; i < statements.length; i += 50) {
+    await env.DB.batch(statements.slice(i, i + 50));
+  }
+
+  console.log(`Coregenisis BOP policies refreshed: ${statements.length}`);
 }
 
 async function refreshFacilities(env) {
