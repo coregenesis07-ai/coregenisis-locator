@@ -116,14 +116,25 @@ function ruleCard(){
 }
 
 function rulesPage(){
- return `<main id="main">${pageHeader(t('rules'),t('rulesDesc'))}<section class="section"><div class="container"><div class="grid grid-2">${ruleCard()}${sourceLinks()}</div></div></section></main>`;
+ return `<main id="main">${pageHeader(t('rules'),t('rulesDesc'))}<section class="section"><div class="container">
+   <div class="banner"><strong>Source-first:</strong> Coregenisis summaries are explanatory. Use the linked official publication for the controlling text.</div>
+   <div id="ruleStatus" class="helper" style="margin:.8rem 0"></div>
+   <div id="ruleFeed" class="grid grid-2">${ruleCard()}${sourceLinks()}</div>
+ </div></section></main>`;
 }
 function fsaPage(){
  return `<main id="main">${pageHeader(t('fsa'),'A focused First Step Act hub for public rules, time-credit information, source documents, and future updates.')}<section class="section"><div class="container">
  <div class="grid grid-3"><div class="card"><div class="feature-icon">1</div><h3>Earning credits</h3><p>Understand the regulatory language governing when eligible inmates begin earning FSA Time Credits.</p></div><div class="card"><div class="feature-icon">2</div><h3>Applying credits</h3><p>Keep earning rules separate from the rules governing application toward prerelease custody or supervised release.</p></div><div class="card"><div class="feature-icon">3</div><h3>Verify the source</h3><p>Use Federal Register, eCFR, GovInfo, and BOP materials before relying on a summary.</p></div></div><div style="height:1rem"></div>${ruleCard()}</div></section></main>`;
 }
 function facilitiesPage(){
- return `<main id="main">${pageHeader(t('facilities'),t('facilitiesDesc'))}<section class="section"><div class="container"><div class="grid grid-2"><div class="card"><h3>Official BOP Locations</h3><p>Use the official facility directory for institution pages, addresses, phone numbers, visiting details, and facility type.</p><a class="btn btn-dark" href="https://www.bop.gov/locations/" target="_blank" rel="noopener">Open BOP Locations ↗</a></div><div class="card"><h3>Coregenisis facility directory</h3><p>The V2 data model includes a facility index so we can add searchable public facility information without presenting stale contact details as current.</p><span class="status-chip status-blue">V2 foundation</span></div></div></div></section></main>`;
+ return `<main id="main">${pageHeader(t('facilities'),t('facilitiesDesc'))}<section class="section"><div class="container">
+   <div class="search-shell">
+     <form id="facilityForm"><label><b>Search federal facilities</b><div class="search-row" style="margin-top:.55rem"><input id="facilityQuery" class="field" placeholder="Facility, city, state, or code"><button class="btn btn-dark" type="submit">Search</button></div></label></form>
+     <div class="helper">Directory entries are refreshed from the public BOP locations source when the scheduled refresh is enabled.</div>
+   </div>
+   <div id="facilityStatus" class="helper" style="margin:.8rem 0"></div>
+   <div id="facilityResults" class="grid grid-2"><div class="card"><h3>Official BOP Locations</h3><p>Use the official BOP directory to verify current institution information.</p><a class="btn btn-dark" href="https://www.bop.gov/locations/" target="_blank" rel="noopener">Open BOP Locations ↗</a></div></div>
+ </div></section></main>`;
 }
 function alertsPage(){
  return `<main id="main">${pageHeader(t('alertsTitle'),t('alertsDesc'))}<section class="section"><div class="container"><div class="card"><form id="alertForm" class="alert-form">
@@ -147,11 +158,63 @@ function app(){
 }
 
 function bind(){
- $$('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route});
- $$('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
+ $('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route});
+ $('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
  const sf=$('#searchForm'); if(sf) sf.addEventListener('submit',doSearch);
  const af=$('#alertForm'); if(af) af.addEventListener('submit',saveAlert);
+ const ff=$('#facilityForm'); if(ff) ff.addEventListener('submit',e=>{e.preventDefault();loadFacilities($('#facilityQuery')?.value||'')});
+ if(state.route==='facilities') loadFacilities('');
+ if(state.route==='rules') loadRules();
 }
+
+async function loadFacilities(q=''){
+ const status=$('#facilityStatus'), out=$('#facilityResults');
+ if(!status||!out) return;
+ status.textContent='Loading public facility directory…';
+ try{
+   const res=await fetch('/api/facilities?'+new URLSearchParams({q}).toString(),{headers:{Accept:'application/json'}});
+   const data=await res.json();
+   if(!res.ok) throw new Error(data.error||'Unable to load facilities');
+   const rows=Array.isArray(data.results)?data.results:[];
+   status.textContent=rows.length?`${rows.length} facility record(s). Verify details at BOP.gov.`:'No matching facilities found.';
+   out.innerHTML=rows.length?rows.map(renderFacilityCard).join(''):'<div class="empty-state">No matching facilities found.</div>';
+ }catch(err){
+   status.textContent=err.message||'Facility directory is unavailable.';
+   out.innerHTML='<div class="card"><h3>Official BOP Locations</h3><p>Use the official directory while the Coregenisis index is unavailable.</p><a class="btn btn-dark" href="https://www.bop.gov/locations/" target="_blank" rel="noopener">Open BOP Locations ↗</a></div>';
+ }
+}
+function renderFacilityCard(f){
+ const href=safeHref(f.official_url,'https://www.bop.gov/locations/');
+ const camp=Number(f.has_camp)===1?' • Camp available':'';
+ const contact=[f.address,[f.city,f.state,f.zip_code].filter(Boolean).join(', '),f.phone_number].filter(Boolean).map(esc).join('<br>');
+ return `<article class="card"><div class="rule-head"><div><span class="status-chip status-blue">${esc(f.type||'BOP')}</span><h3>${esc(f.name||f.code||'Federal facility')}</h3><p>${esc(f.security_level||'Security level not listed')}${camp}</p></div></div><div class="result-meta">${contact}</div><p class="notice">Region: ${esc(f.region||'Not listed')} • Last verified: ${esc(formatDateTime(f.last_verified_at))}</p><a class="btn btn-light" href="${href}" target="_blank" rel="noopener">Official BOP page ↗</a></article>`;
+}
+
+async function loadRules(){
+ const status=$('#ruleStatus'), out=$('#ruleFeed');
+ if(!status||!out) return;
+ status.textContent='Checking regulatory source records…';
+ try{
+   const res=await fetch('/api/rules',{headers:{Accept:'application/json'}});
+   const data=await res.json();
+   if(!res.ok) throw new Error(data.error||'Unable to load rule records');
+   const rows=Array.isArray(data.results)?data.results:[];
+   if(!rows.length) throw new Error('No regulatory records are loaded yet.');
+   status.textContent=`${rows.length} source-linked regulatory record(s).`;
+   out.innerHTML=rows.map(renderRuleRecord).join('')+sourceLinks();
+ }catch(err){
+   status.textContent='Using the built-in source-linked rule summary until the database is connected.';
+ }
+}
+function renderRuleRecord(r){
+ const href=safeHref(r.source_url,'https://www.federalregister.gov/');
+ const pdf=r.official_pdf_url?safeHref(r.official_pdf_url,''):'';
+ const deadline=r.comment_deadline?formatDate(r.comment_deadline):'Not listed';
+ return `<article class="card"><div class="rule-head"><div><span class="status-chip status-amber">${esc(r.document_type||r.status||'Federal rule')}</span><h2 style="margin:.65rem 0 .2rem">${esc(r.title||'Federal regulatory document')}</h2><p>${esc(r.summary||'See the official source for details.')}</p></div></div><div class="rule-meta"><span class="meta-pill">${esc(r.federal_register_citation||'')}</span><span class="meta-pill">${esc(r.document_number||'')}</span><span class="meta-pill">${esc(r.cfr||'')}</span></div><ul class="fact-list"><li><b>Agency</b>${esc(r.agency||'')}</li><li><b>Published</b>${esc(formatDate(r.publication_date))}</li><li><b>Effective</b>${esc(formatDate(r.effective_date))}</li><li><b>Comment deadline</b>${esc(deadline)}</li><li><b>Last verified</b>${esc(formatDateTime(r.last_verified_at))}</li></ul><p><a class="btn btn-light" href="${href}" target="_blank" rel="noopener">Official Federal Register source ↗</a>${pdf?` <a class="btn btn-light" href="${pdf}" target="_blank" rel="noopener">Official PDF ↗</a>`:''}</p></article>`;
+}
+function formatDate(v){ if(!v)return 'Not listed'; const d=new Date(v+'T00:00:00'); return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString(); }
+function formatDateTime(v){ if(!v)return 'Not yet'; const d=new Date(v); return Number.isNaN(d.getTime())?String(v):d.toLocaleString(); }
+function safeHref(v,fallback){ try{const u=new URL(String(v||'')); return ['https:','http:'].includes(u.protocol)?esc(u.toString()):fallback;}catch{return fallback;} }
 
 async function doSearch(e){
  e.preventDefault(); const q=$('#searchQuery').value.trim(); if(!q)return;
