@@ -69,3 +69,22 @@ The Worker deliberately refuses to collect alert email addresses when the email 
 - `GET /api/unsubscribe?token=...`
 - `DELETE /api/track`
 - `POST /api/admin/refresh` (Bearer-protected)
+
+
+### FSA & Second Chance center
+The V2 public-information center now includes a source-linked timeline for:
+- 2026 First Step Act Time Credits revisions (91 FR 55740 / 2026-17752)
+- Program Statement 5405.01 (May 7, 2026)
+- BOP updated Time Credit Application Program (August 1, 2025)
+- BOP home-confinement expansion directive (May 28, 2025)
+- BOP rescission of the proposed 60-day SCA placement limit (April 10, 2025)
+
+The page explicitly separates FSA Time Credits from Second Chance Act prerelease-placement planning and avoids representing conditional dates as guaranteed release dates.
+
+### Planned monetization
+Coregenisis keeps basic public inmate search and official-source access free. The V2 interface includes non-functional, clearly labeled planned tiers:
+- Free
+- Family Plus — planned at $9.99/month
+- Reentry Planner — planned at $14.99/month
+
+No checkout or payment processing is active. The paid-value proposition is convenience, monitoring, organization, and reentry planning—not resale of public records.
