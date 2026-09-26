@@ -77,6 +77,13 @@ function header(){
   </div><nav id="mobileNav" class="mobile-nav hidden" aria-label="${state.lang==='es'?'Navegación móvil':'Mobile navigation'}">${navMarkup}</nav></header>`;
 }
 
+function previewNotice(){
+  const host=location.hostname||'';
+  const visualOnly=host.endsWith('github.io')||host.includes('githack')||host.includes('jsdelivr');
+  if(!visualOnly) return '';
+  return `<div class="banner" style="margin:1rem auto;max-width:1180px"><strong>${state.lang==='es'?'Vista previa visual':'Visual preview'}:</strong> ${state.lang==='es'?'La navegación y el diseño son reales, pero los servicios BOP, base de datos y correo no están conectados en esta vista temporal.':'The navigation and design are real, but BOP, database, and email services are not connected on this temporary preview.'}</div>`;
+}
+
 function footer(){
   return `<footer class="footer"><div class="container footer-grid">
     <div><div class="brand" style="color:white"><span class="brand-mark">C</span><span class="brand-copy"><strong>Coregenisis</strong><small>${t('subtitle')}</small></span></div><p style="max-width:420px">${t('unofficial')}</p><small>© ${new Date().getFullYear()} Coregenisis. ${t('noAdvice')}</small></div>
@@ -240,7 +247,7 @@ function legalPage(kind){
 function app(){
  const routes={home:home,search:searchPage,fsa:fsaPage,rules:rulesPage,policies:policiesPage,facilities:facilitiesPage,alerts:alertsPage,resources:resourcesPage,privacy:()=>legalPage('privacy'),terms:()=>legalPage('terms'),disclaimer:()=>legalPage('disclaimer'),copyright:()=>legalPage('copyright')};
  const view=(routes[state.route]||home)();
- $('#app').innerHTML=header()+view+footer();
+ $('#app').innerHTML=header()+previewNotice()+view+footer();
  bind();
 }
 
