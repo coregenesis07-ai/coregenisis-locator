@@ -1,6 +1,8 @@
 name: Coregenisis V2 visual preview
 
 on:
+  push:
+    branches: [coregenisis-v2]
   workflow_dispatch:
 
 permissions:
