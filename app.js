@@ -883,25 +883,52 @@ function formatDateTime(v){ if(!v)return 'Not yet'; const d=new Date(v); return 
 function safeHref(v,fallback){ try{const u=new URL(String(v||'')); return ['https:','http:'].includes(u.protocol)?esc(u.toString()):fallback;}catch{return fallback;} }
 
 async function doSearch(e){
- e.preventDefault(); const q=$('#searchQuery').value.trim(); if(!q)return;
- $('#searchStatus').textContent=t('searching'); $('#results').innerHTML='';
- const p=new URLSearchParams({q});
+ e.preventDefault();
+ const input=$('#searchQuery');
+ const q=(input?.value||'').trim();
+ if(!q)return;
+ const status=$('#searchStatus'), out=$('#results');
+ status.textContent=t('searching'); out.innerHTML='';
+ const params=new URLSearchParams({todo:'query',output:'json'});
+ const digits=q.replace(/\D/g,'');
+ if(digits.length===8){
+   const reg=digits.slice(0,5)+'-'+digits.slice(5);
+   params.set('inmateNumType','IRN');
+   params.set('inmateNum',reg);
+ }else{
+   const parts=q.replace(/\s+/g,' ').split(' ').filter(Boolean);
+   if(parts.length<2){
+     status.textContent=state.lang==='es'?'Para buscar por nombre, ingrese nombre y apellido; o use un número BOP de 8 dígitos.':'For a name search, enter at least first and last name; or use an 8-digit BOP register number.';
+     return;
+   }
+   params.set('nameFirst',parts[0]);
+   params.set('nameLast',parts[parts.length-1]);
+   if(parts.length>2)params.set('nameMiddle',parts.slice(1,-1).join(' '));
+ }
  try{
-   const res=await fetch('/api/bop-search?'+p.toString(),{headers:{Accept:'application/json'}});
+   const url='https://www.bop.gov/PublicInfo/execute/inmateloc?'+params.toString();
+   const res=await fetch(url,{headers:{Accept:'application/json'}});
+   if(!res.ok)throw new Error('BOP HTTP '+res.status);
    const data=await res.json();
-   if(!res.ok) throw new Error(data.error||('HTTP '+res.status));
-   const rows=normalizeResults(data); state.lastResults=rows; renderResults(rows);
-   $('#searchStatus').textContent=rows.length?`${rows.length} public result(s) returned. Verify at BOP.gov.`:(data.notice||t('noResults'));
- }catch(err){ $('#searchStatus').textContent=err.message||'Live BOP search is unavailable right now.'; $('#results').innerHTML='<div class="empty-state">No live result displayed. Verify directly with the official BOP locator.</div>'; }
+   if(data?.Captcha===true)throw new Error(state.lang==='es'?'BOP requiere verificación adicional en este momento.':'BOP requires additional verification right now.');
+   const rows=normalizeResults(data);
+   state.lastResults=rows;
+   renderResults(rows);
+   status.textContent=rows.length
+     ? (state.lang==='es'?rows.length+' resultado(s) público(s). Verifique en BOP.gov.':rows.length+' public result(s) returned. Verify at BOP.gov.')
+     : t('noResults');
+ }catch(err){
+   status.textContent=state.lang==='es'?'La búsqueda directa BOP no está disponible en este momento.':'Direct BOP search is unavailable right now.';
+   out.innerHTML='<div class="empty-state">'+esc(err?.message||'Search unavailable')+'<div style="height:.7rem"></div><a class="btn btn-light" href="https://www.bop.gov/inmateloc/" target="_blank" rel="noopener">Official BOP Inmate Locator ↗</a></div>';
+ }
 }
-
 function normalizeResults(data){
- const candidates=Array.isArray(data?.results) ? data.results : [];
+ const candidates=Array.isArray(data?.InmateLocator) ? data.InmateLocator : (Array.isArray(data?.results)?data.results:[]);
  return candidates.map(x=>({
-   name:x.name||'Name unavailable',
-   bop:x.register_number||'—',
-   facility:x.facility_name||'See BOP source',
-   release:x.actual_release_date||x.projected_release_date||'See BOP source'
+   name:x.name || [x.nameFirst,x.nameMiddle,x.nameLast,x.suffix].filter(Boolean).join(' ') || 'Name unavailable',
+   bop:x.register_number || x.inmateNum || '—',
+   facility:x.facility_name || x.faclName || 'See BOP source',
+   release:x.actual_release_date || x.projected_release_date || x.actRelDate || x.projRelDate || 'See BOP source'
  }));
 }
 function renderResults(rows){
