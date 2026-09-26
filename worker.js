@@ -30,6 +30,26 @@ export default {
         }, 200, headers);
       }
 
+      if (url.pathname === "/api/data-status" && request.method === "GET") {
+        if (!env.DB) return json({ error: "Database is not configured." }, 503, headers);
+
+        const [facilities, policies, rules, alerts] = await env.DB.batch([
+          env.DB.prepare("SELECT COUNT(*) AS count, MAX(last_verified_at) AS last_verified_at FROM facilities"),
+          env.DB.prepare("SELECT COUNT(*) AS count, MAX(last_verified_at) AS last_verified_at FROM bop_policies"),
+          env.DB.prepare("SELECT COUNT(*) AS count, MAX(last_verified_at) AS last_verified_at FROM regulatory_documents"),
+          env.DB.prepare("SELECT COUNT(*) AS count, MAX(last_checked) AS last_checked FROM tracked_inmates WHERE active=1")
+        ]);
+
+        return json({
+          checked_at: new Date().toISOString(),
+          alerts_configured: emailConfigured(env),
+          facilities: firstRow(facilities),
+          policies: firstRow(policies),
+          regulatory_documents: firstRow(rules),
+          active_alerts: firstRow(alerts)
+        }, 200, headers, { "Cache-Control": "public, max-age=60" });
+      }
+
       if (url.pathname === "/api/bop-search" && request.method === "GET") {
         const q = (url.searchParams.get("q") || "").trim();
         if (q.length < 2 || q.length > 100) {
@@ -785,6 +805,14 @@ async function readJson(request) {
   } catch {
     throw new ApiError(400, "Invalid JSON request.");
   }
+}
+
+function firstRow(batchResult) {
+  const row = batchResult?.results?.[0] || {};
+  return {
+    count: Number(row.count || 0),
+    last_verified_at: row.last_verified_at || row.last_checked || null
+  };
 }
 
 function generateToken() {
