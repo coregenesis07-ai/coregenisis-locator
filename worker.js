@@ -293,15 +293,14 @@ export default {
         ).bind(token).first();
         if (!row) return htmlPage("Coregenisis", "This unsubscribe link is invalid or expired.", 404);
 
-        await env.DB.prepare(
-          `UPDATE tracked_inmates
-              SET active=0, notification_status='unsubscribed', updated_at=datetime('now')
-            WHERE id=?`
-        ).bind(row.id).run();
+        await env.DB.batch([
+          env.DB.prepare("DELETE FROM alert_events WHERE tracked_inmate_id=?").bind(row.id),
+          env.DB.prepare("DELETE FROM tracked_inmates WHERE id=?").bind(row.id)
+        ]);
 
         return htmlPage(
           "Coregenisis alert stopped",
-          `Tracking for ${escapeHtml(row.inmate_name || row.register_number)} has been stopped.`,
+          `Tracking for ${escapeHtml(row.inmate_name || row.register_number)} has been stopped and the tracking record was deleted.`,
           200,
           env.PUBLIC_SITE_URL
         );
@@ -317,14 +316,23 @@ export default {
         const token = cleanText(body.unsubscribe_token, 200);
         if (!token) return json({ error: "A valid deletion token is required." }, 400, headers);
 
-        const result = await env.DB.prepare(
-          "DELETE FROM tracked_inmates WHERE unsubscribe_token=?"
-        ).bind(token).run();
+        const row = await env.DB.prepare(
+          "SELECT id FROM tracked_inmates WHERE unsubscribe_token=? LIMIT 1"
+        ).bind(token).first();
+
+        if (!row) {
+          return json({ ok: true, deleted: false, message: "No matching tracking record was found." }, 200, headers);
+        }
+
+        await env.DB.batch([
+          env.DB.prepare("DELETE FROM alert_events WHERE tracked_inmate_id=?").bind(row.id),
+          env.DB.prepare("DELETE FROM tracked_inmates WHERE id=?").bind(row.id)
+        ]);
 
         return json({
           ok: true,
-          deleted: Number(result?.meta?.changes || 0) > 0,
-          message: "Tracking data deletion request processed."
+          deleted: true,
+          message: "Tracking data deleted."
         }, 200, headers);
       }
 
@@ -448,7 +456,7 @@ export default {
       return;
     }
 
-    ctx.waitUntil(checkAllInmates(env));
+    ctx.waitUntil(runDailyTrackingTasks(env));
   }
 };
 
@@ -749,6 +757,30 @@ async function refreshRegulatoryDocuments(env) {
       console.warn("Federal Register refresh error", row.document_number, error);
     }
   }
+}
+
+async function runDailyTrackingTasks(env) {
+  await cleanupStalePendingAlerts(env);
+  await checkAllInmates(env);
+}
+
+async function cleanupStalePendingAlerts(env) {
+  const { results = [] } = await env.DB.prepare(
+    `SELECT id FROM tracked_inmates
+      WHERE active=0
+        AND notification_status IN ('pending_verification','delivery_error')
+        AND created_at < datetime('now','-7 days')
+      LIMIT 1000`
+  ).all();
+
+  for (const row of results) {
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM alert_events WHERE tracked_inmate_id=?").bind(row.id),
+      env.DB.prepare("DELETE FROM tracked_inmates WHERE id=?").bind(row.id)
+    ]);
+  }
+
+  if (results.length) console.log(`Coregenisis removed stale pending alerts: ${results.length}`);
 }
 
 async function checkAllInmates(env) {
