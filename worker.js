@@ -187,10 +187,7 @@ export default {
     if (!env.DB) return;
 
     if (event.cron === "30 10 * * 0") {
-      ctx.waitUntil(Promise.all([
-        refreshFacilities(env),
-        refreshRegulatoryDocuments(env)
-      ]));
+      ctx.waitUntil(refreshOfficialSources(env));
       return;
     }
 
@@ -268,6 +265,60 @@ function normalizeBopRow(row) {
     projected_release_date: cleanText(row?.projRelDate, 40),
     actual_release_date: cleanText(row?.actRelDate, 40)
   };
+}
+
+async function refreshOfficialSources(env) {
+  await refreshFacilities(env);
+  await discoverRecentBopFederalRegisterDocuments(env);
+  await refreshRegulatoryDocuments(env);
+}
+
+async function discoverRecentBopFederalRegisterDocuments(env) {
+  const url = new URL(FEDERAL_REGISTER_API + ".json");
+  url.searchParams.set("per_page", "25");
+  url.searchParams.set("order", "newest");
+  url.searchParams.append("conditions[agencies][]", "prisons-bureau");
+
+  const response = await fetch(url.toString(), { headers: { "Accept": "application/json" } });
+  if (!response.ok) throw new Error(`Federal Register BOP feed refresh failed: ${response.status}`);
+
+  const data = await response.json();
+  const docs = Array.isArray(data?.results) ? data.results : [];
+
+  for (const doc of docs) {
+    const number = cleanText(doc?.document_number, 80);
+    if (!number) continue;
+
+    await env.DB.prepare(
+      `INSERT INTO regulatory_documents
+        (slug, title, agency, document_number, document_type, publication_date,
+         status, summary, source_url, official_pdf_url, last_verified_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+       ON CONFLICT(document_number) DO UPDATE SET
+         title=excluded.title,
+         agency=excluded.agency,
+         document_type=excluded.document_type,
+         publication_date=excluded.publication_date,
+         status=excluded.status,
+         summary=excluded.summary,
+         source_url=excluded.source_url,
+         official_pdf_url=excluded.official_pdf_url,
+         last_verified_at=datetime('now')`
+    ).bind(
+      `fr-${number.toLowerCase()}`,
+      cleanText(doc?.title, 240),
+      cleanText((doc?.agencies || []).map(a => a.name).join("; "), 240),
+      number,
+      cleanText(doc?.type, 120),
+      cleanText(doc?.publication_date, 30),
+      cleanText(doc?.type, 120),
+      cleanText(doc?.abstract || doc?.excerpts, 2000),
+      cleanText(doc?.html_url, 500),
+      cleanText(doc?.pdf_url, 500)
+    ).run();
+  }
+
+  console.log(`Coregenisis regulatory feed discovered: ${docs.length}`);
 }
 
 async function refreshFacilities(env) {
