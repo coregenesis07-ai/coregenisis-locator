@@ -27,3 +27,15 @@ The existing Worker and D1 code should be reviewed and tested against the curren
 
 ### Source-first rule
 Coregenisis is independent and not affiliated with BOP, DOJ, NARA, FederalRegister.gov, or any government agency. Regulatory and custody information should link users back to the controlling official source.
+
+
+### V2 Worker configuration
+Required Cloudflare bindings/secrets before production alerts are enabled:
+
+- `DB` — Cloudflare D1 database binding
+- `ALLOWED_ORIGIN` — production site origin, recommended for POST/DELETE protection
+- `RESEND_API_KEY` — email provider secret
+- `ALERT_FROM_EMAIL` — verified sender, for example `Coregenisis <alerts@example.com>`
+- Cron Trigger — schedule for the Worker's `scheduled()` handler
+
+The Worker deliberately refuses to collect alert email addresses when the email provider is not configured. This prevents the UI from promising alerts that cannot be delivered.
