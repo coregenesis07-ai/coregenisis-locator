@@ -62,3 +62,7 @@ Only after the preview tests pass:
 5. then retire the old deployment.
 
 No live deployment should be replaced until these checks are complete.
+
+
+## Preview-first requirement
+Before any production switch, follow `PREVIEW.md` and deploy `coregenisis-v2-preview` with a separate preview D1 database. Run the smoke-test script against the preview URL and resolve all failures before attaching the production domain.
