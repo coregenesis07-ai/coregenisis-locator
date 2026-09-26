@@ -415,6 +415,20 @@ export default {
         return json({ results: results || [] }, 200, headers);
       }
 
+      if (!url.pathname.startsWith("/api/") && request.method === "GET" && env.ASSETS) {
+        const assetResponse = await env.ASSETS.fetch(request);
+        if (env.PREVIEW_MODE === "1") {
+          const previewHeaders = new Headers(assetResponse.headers);
+          previewHeaders.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+          return new Response(assetResponse.body, {
+            status: assetResponse.status,
+            statusText: assetResponse.statusText,
+            headers: previewHeaders
+          });
+        }
+        return assetResponse;
+      }
+
       return json({ error: "Not found." }, 404, headers);
     } catch (error) {
       console.error("Coregenisis API error", error);
