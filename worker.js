@@ -30,6 +30,32 @@ export default {
         }, 200, headers);
       }
 
+      if (url.pathname === "/api/plans" && request.method === "GET") {
+        if (!env.DB) {
+          return json({
+            results: [
+              { plan_code: "free", name: "Free", monthly_price_cents: 0, public_search: 1, family_profiles: 0, verified_alerts: 0, reentry_planner: 0 },
+              { plan_code: "family_plus", name: "Family Plus", monthly_price_cents: 999, public_search: 1, family_profiles: 1, verified_alerts: 1, reentry_planner: 0 },
+              { plan_code: "reentry_planner", name: "Reentry Planner", monthly_price_cents: 1499, public_search: 1, family_profiles: 1, verified_alerts: 1, reentry_planner: 1 }
+            ],
+            payments_configured: false
+          }, 200, headers);
+        }
+
+        const { results } = await env.DB.prepare(
+          `SELECT plan_code, name, monthly_price_cents, public_search,
+                  family_profiles, verified_alerts, reentry_planner
+             FROM service_plans
+            WHERE active=1
+            ORDER BY monthly_price_cents ASC`
+        ).all();
+
+        return json({
+          results: results || [],
+          payments_configured: Boolean(env.PAYMENT_PROVIDER && env.PAYMENT_WEBHOOK_SECRET)
+        }, 200, headers, { "Cache-Control": "public, max-age=300" });
+      }
+
       if (url.pathname === "/api/updates" && request.method === "GET") {
         if (!env.DB) return json({ error: "Database is not configured." }, 503, headers);
         const { results } = await env.DB.prepare(
