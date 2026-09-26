@@ -273,6 +273,24 @@ export default {
         }, 200, headers);
       }
 
+      if (url.pathname === "/api/deadlines" && request.method === "GET") {
+        if (!env.DB) return json({ error: "Database is not configured." }, 503, headers);
+        const { results } = await env.DB.prepare(
+          `SELECT slug, title, document_number, source_url, effective_date, comment_deadline
+             FROM regulatory_documents
+            WHERE (comment_deadline IS NOT NULL AND comment_deadline >= date('now'))
+               OR (effective_date IS NOT NULL AND effective_date >= date('now'))
+            ORDER BY
+              CASE
+                WHEN comment_deadline IS NOT NULL AND effective_date IS NOT NULL
+                  THEN MIN(comment_deadline, effective_date)
+                ELSE COALESCE(comment_deadline, effective_date)
+              END ASC
+            LIMIT 50`
+        ).all();
+        return json({ results: results || [] }, 200, headers, { "Cache-Control": "public, max-age=300" });
+      }
+
       if (url.pathname === "/api/rules" && request.method === "GET") {
         if (!env.DB) return json({ error: "Database is not configured." }, 503, headers);
         const { results } = await env.DB.prepare(
