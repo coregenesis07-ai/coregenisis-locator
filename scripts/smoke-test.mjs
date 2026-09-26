@@ -25,6 +25,7 @@ await check("data status","/api/data-status");
 await check("facilities","/api/facilities?q=Beckley");
 await check("policies","/api/policies?q=compassionate");
 await check("rules","/api/rules");
+await check("updates","/api/updates");
 await check("deadlines","/api/deadlines");
 await check("knowledge search","/api/search?q=First%20Step");
 await check("invalid inmate search","/api/bop-search?q=a",{expectedStatus:400});
