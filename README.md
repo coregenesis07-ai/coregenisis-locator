@@ -88,3 +88,26 @@ Coregenisis keeps basic public inmate search and official-source access free. Th
 - Reentry Planner — planned at $14.99/month
 
 No checkout or payment processing is active. The paid-value proposition is convenience, monitoring, organization, and reentry planning—not resale of public records.
+
+
+### Commerce/account-ready foundation
+V2 now includes a provider-agnostic database foundation for:
+- public plan definitions
+- external-auth customer accounts (no password storage in Coregenisis)
+- account entitlements/subscription state
+- private family profiles
+- private reentry plans
+- payment event IDs/status tracking only
+
+Coregenisis does **not** store card numbers or bank credentials. A future payment provider should host or tokenize payment collection. A future identity provider should supply a validated external subject identifier before private account APIs are enabled.
+
+Public plan endpoint:
+- `GET /api/plans`
+
+Planned commercial structure:
+- Free — $0
+- Family Plus — $9.99/month
+- Reentry Planner — $14.99/month
+- Optional one-time organization/formatting services displayed as planned offerings
+
+The current preview does not activate checkout or collect payment information.
