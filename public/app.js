@@ -144,7 +144,7 @@ function alertsPage(){
   <label>Language<select class="field" name="lang"><option value="en">English</option><option value="es">Español</option></select></label>
   <label class="full"><input type="checkbox" id="lawful" required> I will use this service only for lawful, non-harassing purposes.</label>
   <div class="full"><button class="btn btn-dark" type="submit">${t('saveAlert')}</button><div id="alertStatus" class="helper"></div></div>
- </form></div><div style="height:1rem"></div><div class="banner"><strong>Important:</strong> A saved tracking request is not proof that email delivery is active. Coregenisis should display alert-delivery status only after the production notification service is configured and tested.</div></div></section></main>`;
+ </form></div><div style="height:1rem"></div><div class="banner"><strong>Important:</strong> Alert enrollment uses email confirmation. Tracking does not begin until the recipient verifies the request. Every alert email includes an unsubscribe link.</div></div></section></main>`;
 }
 function resourcesPage(){
  return `<main id="main">${pageHeader(t('resources'),t('sourcesDesc'))}<section class="section"><div class="container grid grid-2">${sourceLinks()}<div class="card"><h3>Coregenisis use principles</h3><p>1. Show the official source.</p><p>2. Separate source text from explanation.</p><p>3. Date summaries and updates.</p><p>4. Avoid implying government affiliation.</p><p>5. Do not present individualized legal conclusions as fact.</p></div></div></section></main>`;
