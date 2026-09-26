@@ -5,8 +5,8 @@ const state = { lang: localStorage.getItem('cg_lang') || 'en', route: location.h
 
 const copy = {
   en: {
-    subtitle:'Federal Custody Information Center', search:'Inmate Search', fsa:'FSA & Second Chance', rules:'Federal Rules', policies:'BOP Policies', facilities:'Facilities', alerts:'Alerts', resources:'Resources', services:'Services',
-    heroTitle:'Federal custody information, made easier to understand.',
+    subtitle:'Independent federal custody information • by Coregenisis', search:'Inmate Search', fsa:'FSA & Second Chance', rules:'Federal Rules', policies:'BOP Policies', facilities:'Facilities', alerts:'Alerts', resources:'Resources', services:'Services',
+    heroTitle:'Federal inmate information, First Step Act, BOP policies and reentry — in one place.',
     heroSub:'Search public BOP information, follow First Step Act developments, read federal rule summaries, and verify every important item with an official government source.',
     searchNow:'Search BOP records', exploreRules:'Explore federal rules',
     unofficial:'Independent informational service — not affiliated with BOP, DOJ, NARA, FederalRegister.gov, or any government agency.',
@@ -25,8 +25,8 @@ const copy = {
     sourcesDesc:'Use these official sources to verify current law, regulations, agency policy, and custody information.'
   },
   es: {
-    subtitle:'Centro de Información de Custodia Federal', search:'Buscar Recluso', fsa:'FSA y Second Chance', rules:'Reglas Federales', policies:'Políticas BOP', facilities:'Instituciones', alerts:'Alertas', resources:'Recursos', services:'Servicios',
-    heroTitle:'Información de custodia federal, más fácil de entender.',
+    subtitle:'Información independiente de custodia federal • por Coregenisis', search:'Buscar Recluso', fsa:'FSA y Second Chance', rules:'Reglas Federales', policies:'Políticas BOP', facilities:'Instituciones', alerts:'Alertas', resources:'Recursos', services:'Servicios',
+    heroTitle:'Información de reclusos federales, First Step Act, políticas BOP y reingreso — en un solo lugar.',
     heroSub:'Busque información pública del BOP, siga cambios de la Ley First Step, lea resúmenes de reglas federales y verifique cada punto importante con una fuente oficial.',
     searchNow:'Buscar registros BOP', exploreRules:'Explorar reglas federales',
     unofficial:'Servicio informativo independiente — no afiliado con BOP, DOJ, NARA, FederalRegister.gov ni ninguna agencia gubernamental.',
@@ -67,7 +67,7 @@ function navItems(){ return [
 function header(){
   const navMarkup=navItems().map(([r,l])=>`<button data-route="${r}" class="${state.route===r?'active':''}">${l}</button>`).join('');
   return `<header class="site-header"><div class="header-inner">
-    <a class="brand" href="#/home"><span class="brand-mark">C</span><span class="brand-copy"><strong>Coregenisis</strong><small>${t('subtitle')}</small></span></a>
+    <a class="brand" href="#/home"><span class="brand-mark">C</span><span class="brand-copy"><strong>Federal Custody Guide</strong><small>${t('subtitle')}</small></span></a>
     <nav class="nav" aria-label="Primary">${navMarkup}</nav>
     <div class="header-actions">
       <div class="lang-toggle"><button data-lang="en" class="${state.lang==='en'?'active':''}">EN</button><button data-lang="es" class="${state.lang==='es'?'active':''}">ES</button></div>
@@ -86,9 +86,9 @@ function previewNotice(){
 
 function footer(){
   return `<footer class="footer"><div class="container footer-grid">
-    <div><div class="brand" style="color:white"><span class="brand-mark">C</span><span class="brand-copy"><strong>Coregenisis</strong><small>${t('subtitle')}</small></span></div><p style="max-width:420px">${t('unofficial')}</p><small>© ${new Date().getFullYear()} Coregenisis. ${t('noAdvice')}</small></div>
-    <div><h4>${t('search')}</h4><a href="#/search">BOP inmate search</a><a href="https://www.bop.gov/inmateloc/" target="_blank" rel="noopener">Official BOP locator ↗</a></div>
-    <div><h4>${t('rules')}</h4><a href="#/fsa">First Step Act</a><a href="#/rules">Rule center</a><a href="https://www.ecfr.gov/" target="_blank" rel="noopener">eCFR ↗</a></div>
+    <div><div class="brand" style="color:white"><span class="brand-mark">C</span><span class="brand-copy"><strong>Federal Custody Guide</strong><small>${t('subtitle')}</small></span></div><p style="max-width:420px">${t('unofficial')}</p><small>© ${new Date().getFullYear()} Coregenisis. ${t('noAdvice')}</small></div>
+    <div><h4>${t('search')}</h4><a href="/federal-inmate-search/">Federal inmate search guide</a><a href="https://www.bop.gov/inmateloc/" target="_blank" rel="noopener">Official BOP locator ↗</a></div>
+    <div><h4>${t('rules')}</h4><a href="/first-step-act/">First Step Act</a><a href="/second-chance/">Second Chance & reentry</a><a href="#/rules">Rule center</a><a href="https://www.ecfr.gov/" target="_blank" rel="noopener">eCFR ↗</a></div>
     <div><h4>${t('resources')}</h4><a href="https://www.federalregister.gov/" target="_blank" rel="noopener">Federal Register ↗</a><a href="https://www.govinfo.gov/" target="_blank" rel="noopener">GovInfo ↗</a><a href="https://www.bop.gov/" target="_blank" rel="noopener">BOP.gov ↗</a></div>
     <div><h4>Legal</h4><a href="#/privacy">${state.lang==='es'?'Privacidad':'Privacy'}</a><a href="#/terms">${state.lang==='es'?'Términos':'Terms'}</a><a href="#/disclaimer">${state.lang==='es'?'Aviso legal':'Disclaimer'}</a><a href="#/accuracy">${state.lang==='es'?'Fuentes y exactitud':'Data Sources & Accuracy'}</a><a href="#/calculator-disclaimer">${state.lang==='es'?'Aviso de calculadoras':'Calculator Disclaimer'}</a><a href="#/refunds">${state.lang==='es'?'Reembolsos y cancelación':'Refunds & Cancellation'}</a><a href="#/copyright">${state.lang==='es'?'Derechos de autor':'Copyright'}</a></div>
   </div></footer>`;
@@ -105,12 +105,12 @@ function sourceLinks(){ return `<div class="card"><h3>${t('officialSources')}</h
 function home(){
   const features = t('homeFeatures');
   return `<main id="main">
-    <section class="hero"><div class="container hero-grid"><div><span class="eyebrow">COREGENISIS 2.0 • PUBLIC FEDERAL INFORMATION</span><h1>${t('heroTitle')}</h1><p>${t('heroSub')}</p><div class="hero-buttons"><a class="btn btn-primary" href="#/search">${t('searchNow')}</a><a class="btn btn-secondary" href="#/rules">${t('exploreRules')}</a></div></div>
+    <section class="hero"><div class="container hero-grid"><div><span class="eyebrow">FEDERAL CUSTODY GUIDE • BY COREGENISIS</span><h1>${t('heroTitle')}</h1><p>${t('heroSub')}</p><div class="hero-buttons"><a class="btn btn-primary" href="#/search">${t('searchNow')}</a><a class="btn btn-secondary" href="#/rules">${t('exploreRules')}</a></div></div>
     <aside class="hero-panel"><h3>Built around verification</h3><div class="trust-list"><div class="trust-item"><span class="dot"></span><span>${t('unofficial')}</span></div><div class="trust-item"><span class="dot"></span><span>${t('verify')}</span></div><div class="trust-item"><span class="dot"></span><span>Public data, source links, plain-language context, bilingual access.</span></div></div></aside></div></section>
     <section class="section white"><div class="container">
       <div class="search-shell"><form id="knowledgeForm"><label><b>${state.lang==='es'?'Buscar en Coregenisis':'Search the Coregenisis knowledge center'}</b><div class="search-row" style="margin-top:.55rem"><input id="knowledgeQuery" class="field" placeholder="${state.lang==='es'?'Política, institución, regla, documento...':'Policy, facility, rule, document...'}"><button class="btn btn-dark" type="submit">${state.lang==='es'?'Buscar':'Search'}</button></div></label><div class="helper">${state.lang==='es'?'Busca en políticas BOP, instituciones y documentos regulatorios indexados.':'Search indexed BOP policies, facilities, and regulatory documents.'}</div></form><div id="knowledgeStatus" class="helper" role="status" aria-live="polite"></div><div id="knowledgeResults" class="results"></div></div>
       <div style="height:2rem"></div>
-      <div class="section-title"><div><h2>One place for the information families actually need</h2><p>Coregenisis 2.0 organizes public custody and regulatory information around practical questions instead of government-site structure.</p></div></div><div class="grid grid-3">${features.map((x,i)=>`<div class="card"><div class="feature-icon">${i+1}</div><h3>${x}</h3><p>Clear, source-linked information designed for mobile use.</p></div>`).join('')}</div>
+      <div class="section-title"><div><h2>One place for the information families actually need</h2><p>Federal Custody Guide organizes public custody and regulatory information around practical questions instead of government-site structure.</p></div></div><div class="grid grid-3">${features.map((x,i)=>`<div class="card"><div class="feature-icon">${i+1}</div><h3>${x}</h3><p>Clear, source-linked information designed for mobile use.</p></div>`).join('')}</div>
     </div></section>
     <section class="section"><div class="container">
       <div class="banner"><strong>Source-first design:</strong> summaries are informational. Official government publications and agency records control.</div>
