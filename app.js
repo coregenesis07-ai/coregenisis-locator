@@ -86,7 +86,7 @@ function previewNotice(){
 
 function footer(){
   return `<footer class="footer"><div class="container footer-grid">
-    <div><div class="brand" style="color:white"><span class="brand-mark">C</span><span class="brand-copy"><strong>Federal Custody Guide</strong><small>${t('subtitle')}</small></span></div><p style="max-width:420px">${t('unofficial')}</p><small>© ${new Date().getFullYear()} Coregenisis. ${t('noAdvice')}</small></div>
+    <div><div class="brand" style="color:white"><span class="brand-mark">C</span><span class="brand-copy"><strong>Federal Custody Guide</strong><small>${t('subtitle')}</small></span></div><p style="max-width:420px">${t('unofficial')}</p><small>© ${new Date().getFullYear()} Federal Custody Guide by Coregenisis. ${t('noAdvice')}</small></div>
     <div><h4>${t('search')}</h4><a href="/federal-inmate-search/">Federal inmate search guide</a><a href="https://www.bop.gov/inmateloc/" target="_blank" rel="noopener">Official BOP locator ↗</a></div>
     <div><h4>${t('rules')}</h4><a href="/first-step-act/">First Step Act</a><a href="/second-chance/">Second Chance & reentry</a><a href="#/rules">Rule center</a><a href="https://www.ecfr.gov/" target="_blank" rel="noopener">eCFR ↗</a></div>
     <div><h4>${t('resources')}</h4><a href="/updates-guides/">${state.lang==='es'?'Actualizaciones y Guías':'Updates & Guides'}</a><a href="/family-checklist/">${state.lang==='es'?'Lista familiar gratis':'Free Family Checklist'}</a><a href="https://www.federalregister.gov/" target="_blank" rel="noopener">Federal Register ↗</a><a href="https://www.govinfo.gov/" target="_blank" rel="noopener">GovInfo ↗</a><a href="https://www.bop.gov/" target="_blank" rel="noopener">BOP.gov ↗</a></div>
@@ -488,7 +488,7 @@ function pricingPage(){
 function resourcesPage(){
  const es=state.lang==='es';
  return `<main id="main">${pageHeader(t('resources'),t('sourcesDesc'))}<section class="section"><div class="container">
-   <div class="grid grid-2">${sourceLinks()}<div class="card"><h3>Coregenisis use principles</h3><p>1. Show the official source.</p><p>2. Separate source text from explanation.</p><p>3. Date summaries and updates.</p><p>4. Avoid implying government affiliation.</p><p>5. Do not present individualized legal conclusions as fact.</p></div></div>
+   <div class="grid grid-2">${sourceLinks()}<div class="card"><h3>${es?'Principios de publicación':'Federal Custody Guide publishing principles'}</h3><p>1. ${es?'Mostrar la fuente oficial.':'Show the official source.'}</p><p>2. ${es?'Separar el texto fuente de la explicación.':'Separate source text from explanation.'}</p><p>3. ${es?'Fechar resúmenes y actualizaciones.':'Date summaries and updates.'}</p><p>4. ${es?'Evitar cualquier impresión de afiliación gubernamental.':'Avoid implying government affiliation.'}</p><p>5. ${es?'No presentar conclusiones legales individualizadas como hechos.':'Do not present individualized legal conclusions as fact.'}</p></div></div>
    <div style="height:1rem"></div>
    <div class="card"><div class="rule-head"><div><h3>${es?'Estado y frescura de datos':'Data status & freshness'}</h3><p>${es?'Transparencia sobre cuándo se verificaron por última vez las fuentes indexadas.':'Transparency about when indexed sources were last verified.'}</p></div><span id="alertConfigChip" class="status-chip status-blue">Checking…</span></div><div id="dataStatus" class="grid grid-3" style="margin-top:1rem"><div class="empty-state">Loading status…</div></div></div>
  </div></section></main>`;
@@ -686,8 +686,8 @@ async function loadDataStatus(){
    ];
    out.innerHTML=items.map(([label,v])=>`<div class="card"><div class="feature-icon">${esc(v?.count??0)}</div><h3>${esc(label)}</h3><p class="notice">${state.lang==='es'?'Última verificación':'Last verified'}: ${esc(formatDateTime(v?.last_verified_at))}</p></div>`).join('');
  }catch(err){
-   if(chip){chip.textContent='Unavailable';chip.className='status-chip status-amber';}
-   out.innerHTML='<div class="empty-state">Status data is unavailable until the V2 database is connected.</div>';
+   if(chip){chip.textContent=state.lang==='es'?'Estado en preparación':'Live status pending';chip.className='status-chip status-amber';}
+   out.innerHTML='<div class="empty-state">'+(state.lang==='es'?'Los indicadores automáticos de frescura se están conectando. Mientras tanto, verifique la información con los enlaces oficiales mostrados en el sitio.':'Automatic source-freshness indicators are being connected. In the meantime, verify important information using the official-source links provided throughout the site.')+'</div>';
  }
 }
 
