@@ -629,7 +629,8 @@ async function sendAlertEmail(env, tracked, current, changed) {
     ? `<h2>Coregenisis — actualización de registro público</h2>
        <p>Detectamos un cambio en la información pública del BOP para <strong>${escapeHtml(tracked.inmate_name || tracked.register_number)}</strong>.</p>
        <ul>${changedLines.join("")}</ul>
-       <p>Verifique la información directamente en <a href="${BOP_LOCATOR}">BOP.gov</a>. Coregenisis es un servicio informativo independiente y no está afiliado al BOP o DOJ.</p>`
+       <p>Verifique la información directamente en <a href="${BOP_LOCATOR}">BOP.gov</a>. Coregenisis es un servicio informativo independiente y no está afiliado al BOP o DOJ.</p>
+       <p><a href="${env.PUBLIC_SITE_URL.replace(/\/$/, "")}/api/unsubscribe?token=${encodeURIComponent(tracked.unsubscribe_token || "")}">Cancelar alerta</a></p>`
     : `<h2>Coregenisis — public record update</h2>
        <p>We detected a change in public BOP information for <strong>${escapeHtml(tracked.inmate_name || tracked.register_number)}</strong>.</p>
        <ul>${changedLines.join("")}</ul>
