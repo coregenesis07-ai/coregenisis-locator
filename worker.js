@@ -30,6 +30,61 @@ export default {
         }, 200, headers);
       }
 
+      if (url.pathname === "/api/updates" && request.method === "GET") {
+        if (!env.DB) return json({ error: "Database is not configured." }, 503, headers);
+        const { results } = await env.DB.prepare(
+          `SELECT * FROM (
+             SELECT
+               'regulation' AS source_type,
+               title,
+               document_number AS identifier,
+               publication_date AS published_date,
+               source_url,
+               last_verified_at
+             FROM regulatory_documents
+             WHERE publication_date IS NOT NULL
+             UNION ALL
+             SELECT
+               'bop_policy' AS source_type,
+               title,
+               policy_number AS identifier,
+               CASE
+                 WHEN length(issue_date)=10
+                   THEN substr(issue_date,7,4)||'-'||substr(issue_date,1,2)||'-'||substr(issue_date,4,2)
+                 ELSE NULL
+               END AS published_date,
+               source_url,
+               last_verified_at
+             FROM bop_policies
+             WHERE issue_date IS NOT NULL
+           )
+           WHERE published_date IS NOT NULL
+           ORDER BY published_date DESC
+           LIMIT 25`
+        ).all();
+
+        return json({ results: results || [] }, 200, headers, { "Cache-Control": "public, max-age=300" });
+      }
+
+      if (url.pathname === "/api/admin/refresh" && request.method === "POST") {
+        if (!env.ADMIN_TOKEN) {
+          return json({ error: "Admin refresh is not configured." }, 503, headers);
+        }
+
+        const auth = request.headers.get("Authorization") || "";
+        const supplied = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
+        if (!supplied || !(await secureEqual(supplied, env.ADMIN_TOKEN))) {
+          return json({ error: "Unauthorized." }, 401, headers);
+        }
+
+        await refreshOfficialSources(env);
+        return json({
+          ok: true,
+          refreshed_at: new Date().toISOString(),
+          message: "Official-source refresh completed."
+        }, 200, headers);
+      }
+
       if (url.pathname === "/api/search" && request.method === "GET") {
         if (!env.DB) return json({ error: "Database is not configured." }, 503, headers);
         const q = cleanText(url.searchParams.get("q"), 120).trim().toLowerCase();
@@ -863,6 +918,20 @@ async function readJson(request) {
   } catch {
     throw new ApiError(400, "Invalid JSON request.");
   }
+}
+
+async function secureEqual(a, b) {
+  const enc = new TextEncoder();
+  const [ha, hb] = await Promise.all([
+    crypto.subtle.digest("SHA-256", enc.encode(String(a))),
+    crypto.subtle.digest("SHA-256", enc.encode(String(b)))
+  ]);
+  const aa = new Uint8Array(ha);
+  const bb = new Uint8Array(hb);
+  if (aa.length !== bb.length) return false;
+  let diff = 0;
+  for (let i = 0; i < aa.length; i++) diff |= aa[i] ^ bb[i];
+  return diff === 0;
 }
 
 function firstRow(batchResult) {
