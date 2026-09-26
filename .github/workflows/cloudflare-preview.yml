@@ -1,11 +1,6 @@
 name: Deploy Coregenisis V2 Cloudflare Preview
 
 on:
-  push:
-    branches: [coregenisis-v2]
-    paths:
-      - ".github/workflows/cloudflare-preview.yml"
-      - "cloudflare-preview-trigger.txt"
   workflow_dispatch:
 
 permissions:
