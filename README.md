@@ -39,3 +39,28 @@ Required Cloudflare bindings/secrets before production alerts are enabled:
 - Cron Trigger — schedule for the Worker's `scheduled()` handler
 
 The Worker deliberately refuses to collect alert email addresses when the email provider is not configured. This prevents the UI from promising alerts that cannot be delivered.
+
+
+### Current V2 information services
+- Public BOP inmate lookup proxy
+- Searchable BOP facility directory with scheduled official-source refresh
+- Searchable BOP policy index sourced from the official BOP policy search endpoint
+- Federal Register / BOP regulatory feed with official PDF links
+- Unified knowledge search across facilities, BOP policies, and regulatory documents
+- Public data freshness/status endpoint
+- Double-opt-in email alert design with tokenized unsubscribe
+- English / Spanish frontend
+- Privacy, lawful-use, disclaimer, and copyright pages
+
+### Public API routes
+- `GET /api/health`
+- `GET /api/data-status`
+- `GET /api/search?q=...`
+- `GET /api/bop-search?q=...`
+- `GET /api/facilities?q=...`
+- `GET /api/policies?q=...&series=...&type=...`
+- `GET /api/rules`
+- `POST /api/track`
+- `GET /api/verify?token=...`
+- `GET /api/unsubscribe?token=...`
+- `DELETE /api/track`
