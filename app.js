@@ -112,7 +112,7 @@ function ruleCard(){
  <div class="rule-meta"><span class="meta-pill">${rule.citation}</span><span class="meta-pill">${rule.document}</span><span class="meta-pill">${rule.cfr}</span><span class="meta-pill">RIN ${rule.rin}</span></div>
  <div class="rule-detail"><ul class="fact-list">
   <li><b>Agency</b>${rule.agency}</li><li><b>Docket</b>${rule.docket}</li><li><b>Published</b>${rule.published}</li><li><b>Effective</b>${rule.effective}</li><li><b>Comments due</b>${rule.comments}</li>
- </ul><div><div class="callout"><b>${t('whatChanged')}</b><p>• ${t('change1')}</p><p>• ${t('change2')}</p></div><h3>${t('whyMatters')}</h3><p>${t('affected')}</p><p class="notice">${t('noAdvice')}</p></div></div></article>`; 
+ </ul><div><div class="callout"><b>${t('whatChanged')}</b><p>• ${t('change1')}</p><p>• ${t('change2')}</p></div><h3>${t('whyMatters')}</h3><p>${t('affected')}</p><p class="notice">${t('noAdvice')}</p><p><a class="btn btn-light" href="https://www.federalregister.gov/documents/2026/08/31/2026-17752/first-step-act-time-credits-revisions" target="_blank" rel="noopener">Official Federal Register document ↗</a></p></div></div></article>`; 
 }
 
 function rulesPage(){
@@ -130,7 +130,7 @@ function alertsPage(){
   <label>BOP register number<input class="field" name="register_number" placeholder="12345-067" required></label>
   <label>Inmate name<input class="field" name="inmate_name" placeholder="Full name"></label>
   <label>Email<input class="field" type="email" name="email" placeholder="you@example.com" required></label>
-  <label>Phone (optional)<input class="field" name="phone" placeholder="+1 ..."></label>
+  <label>Language<select class="field" name="lang"><option value="en">English</option><option value="es">Español</option></select></label>
   <label class="full"><input type="checkbox" id="lawful" required> I will use this service only for lawful, non-harassing purposes.</label>
   <div class="full"><button class="btn btn-dark" type="submit">${t('saveAlert')}</button><div id="alertStatus" class="helper"></div></div>
  </form></div><div style="height:1rem"></div><div class="banner"><strong>Important:</strong> A saved tracking request is not proof that email delivery is active. Coregenisis should display alert-delivery status only after the production notification service is configured and tested.</div></div></section></main>`;
@@ -156,23 +156,23 @@ function bind(){
 async function doSearch(e){
  e.preventDefault(); const q=$('#searchQuery').value.trim(); if(!q)return;
  $('#searchStatus').textContent=t('searching'); $('#results').innerHTML='';
- const p=new URLSearchParams({todo:'query',output:'json'});
- if(/^\d{5}-\d{3}$/.test(q)||/^\d{8}$/.test(q)){ p.set('inmateNum',q.replace('-','')); }
- else { const parts=q.split(/\s+/); p.set('inmateFName',parts[0]||''); p.set('inmateLName',parts.slice(1).join(' ')||parts[0]||''); }
+ const p=new URLSearchParams({q});
  try{
    const res=await fetch('/api/bop-search?'+p.toString(),{headers:{Accept:'application/json'}});
-   if(!res.ok) throw new Error('HTTP '+res.status);
-   const data=await res.json(); const rows=normalizeResults(data); state.lastResults=rows; renderResults(rows); $('#searchStatus').textContent=rows.length?`${rows.length} public result(s) returned.`:t('noResults');
+   const data=await res.json();
+   if(!res.ok) throw new Error(data.error||('HTTP '+res.status));
+   const rows=normalizeResults(data); state.lastResults=rows; renderResults(rows);
+   $('#searchStatus').textContent=rows.length?`${rows.length} public result(s) returned. Verify at BOP.gov.`:(data.notice||t('noResults'));
  }catch(err){ $('#searchStatus').textContent='Live BOP search is not connected on this deployment yet. The V2 interface is ready for the Cloudflare Worker endpoint.'; $('#results').innerHTML='<div class="empty-state">No live result displayed. Verify directly with the official BOP locator.</div>'; }
 }
 
 function normalizeResults(data){
- const candidates=[data?.InmateLocator, data?.inmates, data?.results, data?.data, data?.inmate].find(Array.isArray) || (data?.inmate?[data.inmate]:[]);
+ const candidates=Array.isArray(data?.results) ? data.results : [];
  return candidates.map(x=>({
-   name:[x.name,x.inmateName,[x.firstName||x.inmateFName,x.middleName||x.inmateMName,x.lastName||x.inmateLName].filter(Boolean).join(' ')].find(Boolean)||'Name unavailable',
-   bop:x.registerNumber||x.inmateNum||x.regNum||x.register_number||'—',
-   facility:x.facilityName||x.faclName||x.facility||'See BOP source',
-   release:x.releaseDate||x.actRelDate||x.projRelDate||'See BOP source'
+   name:x.name||'Name unavailable',
+   bop:x.register_number||'—',
+   facility:x.facility_name||'See BOP source',
+   release:x.actual_release_date||x.projected_release_date||'See BOP source'
  }));
 }
 function renderResults(rows){
@@ -180,9 +180,21 @@ function renderResults(rows){
  el.innerHTML=rows.map(r=>`<div class="result-card"><div><b>${esc(r.name)}</b><div class="result-meta">BOP # ${esc(r.bop)}</div></div><div><b>${esc(r.facility)}</b><div class="result-meta">Release: ${esc(r.release)}</div></div><a class="btn btn-light" href="https://www.bop.gov/inmateloc/" target="_blank" rel="noopener">Verify ↗</a></div>`).join('');
 }
 async function saveAlert(e){
- e.preventDefault(); const fd=new FormData(e.currentTarget); const payload=Object.fromEntries(fd.entries()); payload.lang=state.lang; const out=$('#alertStatus'); out.textContent='Saving…';
- try{ const res=await fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); const data=await res.json(); if(!res.ok) throw new Error(data.error||'Unable to save'); out.textContent=data.message||'Tracking request saved.'; }
- catch(err){ out.textContent='The tracking backend is not connected on this deployment yet. Your information was not submitted.'; }
+ e.preventDefault();
+ const fd=new FormData(e.currentTarget);
+ const payload=Object.fromEntries(fd.entries());
+ payload.lang=payload.lang||state.lang;
+ payload.consent=$('#lawful')?.checked===true;
+ const out=$('#alertStatus'); out.textContent='Saving…';
+ try{
+   const res=await fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+   const data=await res.json();
+   if(!res.ok) throw new Error(data.error||'Unable to save');
+   out.textContent=data.message||'Tracking activated.';
+ }
+ catch(err){
+   out.textContent=err.message||'Tracking could not be activated. Your information was not submitted.';
+ }
 }
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 window.addEventListener('hashchange',()=>{state.route=location.hash.replace('#/','')||'home';app();scrollTo({top:0,behavior:'smooth'})});
