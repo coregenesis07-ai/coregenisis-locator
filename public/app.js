@@ -61,7 +61,7 @@ const rule = {
 
 function t(k){ return copy[state.lang][k]; }
 function navItems(){ return [
-  ['search',t('search')],['fsa',t('fsa')],['rules',t('rules')],['policies',t('policies')],['facilities',t('facilities')],['alerts',t('alerts')],['resources',t('resources')],['services',t('services')],['pricing',state.lang==='es'?'Planes':'Plans']
+  ['search',t('search')],['facilities',state.lang==='es'?'Directorio':'Prison Directory'],['fsa',t('fsa')],['policies',t('policies')],['resources',state.lang==='es'?'Guías y Recursos':'Guides & Resources'],['alerts',t('alerts')],['services',t('services')],['pricing',state.lang==='es'?'Planes':'Plans']
 ];}
 
 function header(){
@@ -103,30 +103,102 @@ function sourceLinks(){ return `<div class="card"><h3>${t('officialSources')}</h
 </div>`; }
 
 function home(){
-  const features = t('homeFeatures');
+  const es=state.lang==='es';
+  const questions = es ? [
+    ['¿Cómo encuentro a alguien en custodia federal?','/federal-inmate-search/','Buscar por nombre o número BOP y verificar el registro oficial.'],
+    ['¿Cómo funcionan los créditos FSA?','/first-step-act/','Entender acumulación, aplicación, elegibilidad y fuentes oficiales.'],
+    ['¿Cómo estimo una fecha de planificación?','/first-step-act-calculator/','Usar la calculadora FSA/GCT/RDAP como herramienta educativa.'],
+    ['¿Dónde está la prisión y cuáles son sus reglas?','/federal-prison-directory/','Encontrar instituciones, ubicación, contacto, visitas y enlaces BOP.'],
+    ['¿Qué políticas BOP debo revisar?','/bop-policies/','Ir a Program Statements, reglas y documentos oficiales.'],
+    ['¿Qué debe preparar la familia para el reingreso?','/reentry-resources/','Organizar documentos, vivienda, empleo, contactos y próximos pasos.']
+  ] : [
+    ['How do I find someone in federal custody?','/federal-inmate-search/','Search by name or BOP register number and verify the official record.'],
+    ['How do First Step Act credits work?','/first-step-act/','Understand earning, application, eligibility, and official sources.'],
+    ['How can I estimate a planning date?','/first-step-act-calculator/','Use the FSA/GCT/RDAP calculator as an educational planning tool.'],
+    ['Where is the prison and what are its rules?','/federal-prison-directory/','Find facilities, location, contact, visiting information, and BOP links.'],
+    ['Which BOP policies should I review?','/bop-policies/','Go to Program Statements, rules, and official source documents.'],
+    ['What should families prepare for reentry?','/reentry-resources/','Organize documents, housing, employment, contacts, and next steps.']
+  ];
+  const states=['Texas','California','Pennsylvania','West Virginia','Florida','Illinois','Kentucky','Minnesota'];
   return `<main id="main">
-    <section class="hero"><div class="container hero-grid"><div><span class="eyebrow">FEDERAL CUSTODY GUIDE • BY COREGENISIS</span><h1>${t('heroTitle')}</h1><p>${t('heroSub')}</p><div class="hero-buttons"><a class="btn btn-primary" href="#/search">${t('searchNow')}</a><a class="btn btn-secondary" href="#/rules">${t('exploreRules')}</a><a class="btn btn-secondary" href="/first-step-act-calculator/">${state.lang==='es'?'Calculadora FSA':'FSA Calculator'}</a></div></div>
-    <aside class="hero-panel"><h3>Built around verification</h3><div class="trust-list"><div class="trust-item"><span class="dot"></span><span>${t('unofficial')}</span></div><div class="trust-item"><span class="dot"></span><span>${t('verify')}</span></div><div class="trust-item"><span class="dot"></span><span>Public data, source links, plain-language context, bilingual access.</span></div></div></aside></div></section>
-    <section class="section white"><div class="container">
-      <div class="search-shell"><form id="knowledgeForm"><label><b>${state.lang==='es'?'Buscar en Coregenisis':'Search the Federal Custody Guide knowledge center'}</b><div class="search-row" style="margin-top:.55rem"><input id="knowledgeQuery" class="field" placeholder="${state.lang==='es'?'Política, institución, regla, documento...':'Policy, facility, rule, document...'}"><button class="btn btn-dark" type="submit">${state.lang==='es'?'Buscar':'Search'}</button></div></label><div class="helper">${state.lang==='es'?'Busca en políticas BOP, instituciones y documentos regulatorios indexados.':'Search indexed BOP policies, facilities, and regulatory documents.'}</div></form><div id="knowledgeStatus" class="helper" role="status" aria-live="polite"></div><div id="knowledgeResults" class="results"></div></div>
-      <div style="height:2rem"></div>
-      <div class="section-title"><div><h2>One place for the information families actually need</h2><p>Federal Custody Guide organizes public custody and regulatory information around practical questions instead of government-site structure.</p></div></div><div class="grid grid-3">${features.map((x,i)=>`<div class="card"><div class="feature-icon">${i+1}</div><h3>${x}</h3><p>Clear, source-linked information designed for mobile use.</p></div>`).join('')}</div>
-    </div></section>
-    <section class="section"><div class="container">
-      <div class="banner"><strong>Source-first design:</strong> summaries are informational. Official government publications and agency records control.</div>
-      <div style="height:1rem"></div>
-      <div class="grid grid-2"><div class="card"><span class="status-chip status-blue">Featured rule</span><h3>${t('ruleTitle')}</h3><p>${t('summary')}</p><a class="btn btn-light" href="#/rules">Read the rule summary</a></div>${sourceLinks()}</div>
-      <div style="height:1rem"></div>
-      <div class="card monetization-teaser"><div><span class="status-chip status-green">${state.lang==='es'?'Búsquedas gratis':'Free searches'}</span><h3>${state.lang==='es'?'Búsquedas gratuitas. Herramientas pagadas opcionales.':'Free searches. Optional paid tools.'}</h3><p>${state.lang==='es'?'Coregenisis mantendrá gratuita la búsqueda pública básica y monetizará funciones futuras como alertas, organización familiar y planificación de reingreso.':'Coregenisis will keep basic public search free and monetize future features such as alerts, family organization, and reentry planning.'}</p></div><a class="btn btn-dark" href="#/pricing">${state.lang==='es'?'Ver planes':'See plans'}</a></div>
-      <div style="height:1rem"></div>
-      <div class="card monetization-teaser"><div><span class="status-chip status-green">${state.lang==='es'?'Recurso gratis':'Free family resource'}</span><h3>${state.lang==='es'?'Lista familiar de custodia federal':'Free Federal Custody Family Checklist'}</h3><p>${state.lang==='es'?'Organice número BOP, institución, fechas, fuentes oficiales, preguntas FSA y preparación de reingreso.':'Organize the BOP number, facility, important dates, official sources, FSA questions, and reentry preparation in one printable checklist.'}</p></div><div><a class="btn btn-dark" href="/family-checklist/">${state.lang==='es'?'Abrir lista':'Get the free checklist'}</a><div style="height:.55rem"></div><a class="btn btn-light" href="/updates-guides/">${state.lang==='es'?'Ver guías':'Browse Updates & Guides'}</a></div></div>
-      <div style="height:1rem"></div>
-      <div class="value-strip">
-        <div><span class="status-chip status-green">${state.lang==='es'?'Acceso básico gratuito':'Basic access stays free'}</span><h3>${state.lang==='es'?'Información pública primero':'Public information first'}</h3><p>${state.lang==='es'?'La búsqueda pública, instituciones, políticas, reglas y enlaces oficiales permanecen disponibles sin suscripción.':'Public search, facilities, policies, rules, and official-source links remain available without a subscription.'}</p></div>
-        <div><span class="status-chip status-blue">${state.lang==='es'?'Opcional':'Optional'}</span><h3>${state.lang==='es'?'Comodidad y organización':'Convenience & organization'}</h3><p>${state.lang==='es'?'Los ingresos futuros provendrán de alertas, perfiles familiares, planificación de reingreso y servicios de formato — no de bloquear registros públicos.':'Future revenue comes from alerts, family profiles, reentry planning, and formatting services — not from putting public records behind a paywall.'}</p></div>
+    <section class="hero home-hero"><div class="container hero-grid">
+      <div>
+        <span class="eyebrow">FEDERAL CUSTODY GUIDE • BY COREGENISIS</span>
+        <h1>${es?'Busque. Entienda. Prepárese.':'Search. Understand. Prepare.'}</h1>
+        <p class="hero-lead">${es
+          ?'Información federal de custodia en un solo lugar: búsqueda de reclusos, directorio de prisiones, calculadora First Step Act, políticas BOP y recursos de reingreso.'
+          :'Federal custody information in one place: inmate search, federal prison directory, First Step Act calculator, BOP policies, and reentry resources.'}</p>
+        <div class="hero-buttons core-actions">
+          <a class="btn btn-primary" href="#/search">${es?'Buscar un recluso':'Search an Inmate'}</a>
+          <a class="btn btn-secondary" href="/federal-prison-directory/">${es?'Directorio de prisiones':'Prison Directory'}</a>
+          <a class="btn btn-secondary" href="/first-step-act-calculator/">${es?'Calculadora FSA':'FSA Calculator'}</a>
+        </div>
+        <div class="hero-trust-row">
+          <span>✓ ${es?'Recursos de búsqueda gratuitos':'Free search resources'}</span>
+          <span>✓ ${es?'Fuentes oficiales enlazadas':'Official-source links'}</span>
+          <span>✓ EN / ES</span>
+        </div>
       </div>
+      <aside class="hero-panel home-identity-card">
+        <span class="status-chip status-green">${es?'Independiente':'Independent'}</span>
+        <h3>${es?'Hecho para familias que necesitan respuestas claras':'Built for families who need clear answers'}</h3>
+        <p>${es
+          ?'No somos BOP ni DOJ. Organizamos información pública, herramientas educativas y enlaces oficiales para que usted pueda verificar lo importante.'
+          :'We are not BOP or DOJ. We organize public information, educational tools, and official links so you can verify what matters.'}</p>
+        <a class="identity-link" href="/updates-guides/">${es?'Ver Actualizaciones y Guías →':'Browse Updates & Guides →'}</a>
+      </aside>
+    </div></section>
+
+    <section class="section white quick-tools-section"><div class="container">
+      <div class="section-title"><div><span class="section-kicker">${es?'EMPIECE AQUÍ':'START HERE'}</span><h2>${es?'Las herramientas más útiles, primero':'The most useful tools, first'}</h2><p>${es?'Tres caminos rápidos para la mayoría de las familias.':'Three fast paths for the needs families have most often.'}</p></div></div>
+      <div class="core-tool-grid">
+        <a class="core-tool-card" href="#/search"><span class="tool-number">01</span><div><h3>${es?'Buscar recluso federal':'Federal Inmate Search'}</h3><p>${es?'Busque por nombre o número de registro BOP y verifique con BOP.gov.':'Search by name or BOP register number and verify with BOP.gov.'}</p><strong>${es?'Buscar ahora →':'Search now →'}</strong></div></a>
+        <a class="core-tool-card featured-tool" href="/federal-prison-directory/"><span class="tool-number">02</span><div><h3>${es?'Directorio federal de prisiones':'Federal Prison Directory'}</h3><p>${es?'Encuentre instituciones, contactos, visitas y enlaces oficiales por prisión.':'Find facilities, contacts, visiting information, and official links by prison.'}</p><strong>${es?'Explorar directorio →':'Browse directory →'}</strong></div></a>
+        <a class="core-tool-card" href="/first-step-act-calculator/"><span class="tool-number">03</span><div><h3>${es?'Calculadora First Step Act':'First Step Act Calculator'}</h3><p>${es?'Modele FSA, GCT y RDAP para planificación, con límites claramente explicados.':'Model FSA, GCT, and RDAP for planning, with clear limitations.'}</p><strong>${es?'Usar calculadora →':'Use calculator →'}</strong></div></a>
+      </div>
+    </div></section>
+
+    <section class="section question-section"><div class="container">
+      <div class="section-title"><div><span class="section-kicker">${es?'PREGUNTAS IMPORTANTES':'IMPORTANT QUESTIONS'}</span><h2>${es?'¿Qué necesita saber hoy?':'What do you need to know today?'}</h2><p>${es?'Vaya directamente a la respuesta o herramienta más relevante.':'Go directly to the answer or tool most relevant to you.'}</p></div></div>
+      <div class="question-grid">${questions.map((q,i)=>`<a class="question-card" href="${q[1]}"><span class="question-index">${String(i+1).padStart(2,'0')}</span><div><h3>${q[0]}</h3><p>${q[2]}</p></div><span class="question-arrow">→</span></a>`).join('')}</div>
+    </div></section>
+
+    <section class="section white directory-spotlight"><div class="container directory-layout">
+      <div>
+        <span class="section-kicker">${es?'DIRECTORIO FEDERAL DE PRISIONES':'FEDERAL PRISON DIRECTORY'}</span>
+        <h2>${es?'Una guía práctica para cada institución':'A practical guide to federal facilities'}</h2>
+        <p>${es
+          ?'El directorio conecta a las familias con páginas oficiales de instituciones, direcciones, teléfonos, información de visitas y recursos que necesitan antes de llamar, escribir o viajar.'
+          :'The directory connects families with official institution pages, addresses, phone numbers, visiting information, and resources they need before calling, writing, or traveling.'}</p>
+        <div class="state-pills">${states.map(x=>`<span>${x}</span>`).join('')}</div>
+        <div class="hero-buttons">
+          <a class="btn btn-dark" href="/federal-prison-directory/">${es?'Explorar todas las prisiones':'Browse All Federal Prisons'}</a>
+          <a class="btn btn-light" href="#/facilities">${es?'Buscar instituciones BOP':'Search BOP Facilities'}</a>
+        </div>
+      </div>
+      <div class="directory-info-card">
+        <h3>${es?'Información que las familias buscan':'Information families look for'}</h3>
+        <div class="directory-facts">
+          <span>⌖ ${es?'Ubicación y dirección':'Location & address'}</span>
+          <span>☎ ${es?'Teléfono e institución':'Phone & institution details'}</span>
+          <span>◫ ${es?'Visitas y páginas oficiales':'Visiting & official pages'}</span>
+          <span>✉ ${es?'Correo y recursos familiares':'Mail & family resources'}</span>
+        </div>
+        <p class="notice">${es?'Los procedimientos cambian. Verifique siempre la página oficial del BOP antes de viajar o enviar artículos.':'Procedures can change. Always verify the official BOP institution page before traveling or sending items.'}</p>
+      </div>
+    </div></section>
+
+    <section class="section"><div class="container">
+      <div class="search-shell"><form id="knowledgeForm"><label><b>${es?'Buscar en el centro de conocimiento':'Search the Federal Custody Guide knowledge center'}</b><div class="search-row" style="margin-top:.55rem"><input id="knowledgeQuery" class="field" placeholder="${es?'Política, institución, regla, documento...':'Policy, facility, rule, document...'}"><button class="btn btn-dark" type="submit">${es?'Buscar':'Search'}</button></div></label><div class="helper">${es?'Busca en políticas BOP, instituciones y documentos regulatorios indexados.':'Search indexed BOP policies, facilities, and regulatory documents.'}</div></form><div id="knowledgeStatus" class="helper" role="status" aria-live="polite"></div><div id="knowledgeResults" class="results"></div></div>
+
       <div style="height:1rem"></div>
-      <div class="card"><div class="rule-head"><div><h3>${state.lang==='es'?'Actualizaciones recientes':'Recent official-source updates'}</h3><p>${state.lang==='es'?'Documentos y políticas indexados recientemente por fecha de publicación o emisión.':'Recently indexed regulations and BOP policies ordered by publication or issue date.'}</p></div><a class="btn btn-light" href="#/resources">${state.lang==='es'?'Ver estado de datos':'View data status'}</a></div><div id="updateStatus" class="helper" role="status" aria-live="polite"></div><div id="updateFeed" class="results"></div></div>
+      <div class="banner"><strong>${es?'Diseño basado en fuentes':'Source-first design'}:</strong> ${es?'Los resúmenes son informativos. Las publicaciones gubernamentales y los registros oficiales controlan.':'Summaries are informational. Official government publications and agency records control.'}</div>
+
+      <div style="height:1rem"></div>
+      <div class="card monetization-teaser"><div><span class="status-chip status-green">${es?'Recurso gratis':'Free family resource'}</span><h3>${es?'Lista familiar de custodia federal':'Free Federal Custody Family Checklist'}</h3><p>${es?'Organice número BOP, institución, fechas, fuentes oficiales, preguntas FSA y preparación de reingreso.':'Organize the BOP number, facility, important dates, official sources, FSA questions, and reentry preparation in one printable checklist.'}</p></div><div><a class="btn btn-dark" href="/family-checklist/">${es?'Abrir lista':'Get the free checklist'}</a><div style="height:.55rem"></div><a class="btn btn-light" href="/updates-guides/">${es?'Ver guías':'Browse Updates & Guides'}</a></div></div>
+
+      <div style="height:1rem"></div>
+      <div class="card"><div class="rule-head"><div><h3>${es?'Actualizaciones recientes':'Recent official-source updates'}</h3><p>${es?'Documentos y políticas indexados recientemente por fecha de publicación o emisión.':'Recently indexed regulations and BOP policies ordered by publication or issue date.'}</p></div><a class="btn btn-light" href="#/resources">${es?'Ver estado de datos':'View data status'}</a></div><div id="updateStatus" class="helper" role="status" aria-live="polite"></div><div id="updateFeed" class="results"></div></div>
     </div></section>
   </main>`;
 }
