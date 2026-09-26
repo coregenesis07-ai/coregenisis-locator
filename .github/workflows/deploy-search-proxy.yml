@@ -2,6 +2,11 @@ name: Deploy Federal Custody Guide Search Proxy
 
 on:
   workflow_dispatch:
+  push:
+    branches: [coregenisis-v2]
+    paths:
+      - 'search-proxy-worker.js'
+      - '.github/workflows/deploy-search-proxy.yml'
 
 permissions:
   contents: read
