@@ -41,3 +41,10 @@ main{min-height:70vh}.container{max-width:1180px;margin:auto;padding:0 1rem}
 
 .checklist{display:grid;gap:.55rem;margin-top:.8rem}.check-row{display:flex;align-items:center;gap:.75rem;padding:.75rem;border:1px solid var(--line);border-radius:12px;background:#fff}.check-row input{width:20px;height:20px;flex:0 0 auto}.check-row:has(input:checked){background:#f0fdf4;border-color:#bbf7d0}.check-row:has(input:checked) span{text-decoration:line-through;color:#64748b}
 @media print{.site-header,.footer,.btn,.banner{display:none!important}.card{box-shadow:none;border:1px solid #bbb}.section{padding:0}.container{max-width:none}}
+
+
+.value-strip{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.value-strip>div{background:linear-gradient(180deg,#fff,#f8fbfe);border:1px solid var(--line);border-radius:18px;padding:1.2rem}
+.value-strip h3{margin:.55rem 0 .35rem}.value-strip p{margin:0;color:var(--muted)}
+.launch-status .card{box-shadow:none}
+@media(max-width:760px){.value-strip{grid-template-columns:1fr}}
