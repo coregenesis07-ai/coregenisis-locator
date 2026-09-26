@@ -22,6 +22,7 @@ async function check(name,path,opts={}){
 
 await check("health","/api/health");
 await check("data status","/api/data-status");
+await check("plans","/api/plans");
 await check("facilities","/api/facilities?q=Beckley");
 await check("policies","/api/policies?q=compassionate");
 await check("rules","/api/rules");
