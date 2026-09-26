@@ -102,3 +102,21 @@ INSERT OR IGNORE INTO regulatory_documents (
   'https://www.federalregister.gov/documents/2026/08/31/2026-17752/first-step-act-time-credits-revisions',
   datetime('now')
 );
+
+
+CREATE TABLE IF NOT EXISTS bop_policies (
+  record_number TEXT PRIMARY KEY,
+  policy_number TEXT,
+  title TEXT NOT NULL,
+  document_type TEXT,
+  series TEXT,
+  issue_date TEXT,
+  active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0,1)),
+  source_url TEXT NOT NULL,
+  secondary_url TEXT,
+  last_verified_at DATETIME
+);
+
+CREATE INDEX IF NOT EXISTS idx_bop_policies_number ON bop_policies(policy_number);
+CREATE INDEX IF NOT EXISTS idx_bop_policies_series ON bop_policies(series);
+CREATE INDEX IF NOT EXISTS idx_bop_policies_issue_date ON bop_policies(issue_date);
