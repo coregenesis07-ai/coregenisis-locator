@@ -120,3 +120,17 @@ The FSA/Second Chance center explicitly flags the current official-source incons
 - BOP's public FAQ still describes the pilot and application path.
 
 Coregenisis links all three rather than presenting the pilot as unquestionably available.
+
+
+### Refund & Cancellation Policy
+V2 now includes a bilingual Refund & Cancellation Policy covering:
+- free services,
+- subscription cancellation,
+- duplicate/incorrect billing review,
+- one-time custom services before and after work begins,
+- delivered digital/custom files,
+- refund request handling and processing,
+- no guarantee of BOP/court/release outcomes,
+- preservation of non-waivable consumer rights.
+
+The policy is visible in the footer but clearly states that checkout and billing are not active yet.
