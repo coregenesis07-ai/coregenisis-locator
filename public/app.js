@@ -65,11 +65,16 @@ function navItems(){ return [
 ];}
 
 function header(){
+  const navMarkup=navItems().map(([r,l])=>`<button data-route="${r}" class="${state.route===r?'active':''}">${l}</button>`).join('');
   return `<header class="site-header"><div class="header-inner">
     <a class="brand" href="#/home"><span class="brand-mark">C</span><span class="brand-copy"><strong>Coregenisis</strong><small>${t('subtitle')}</small></span></a>
-    <nav class="nav" aria-label="Primary">${navItems().map(([r,l])=>`<button data-route="${r}" class="${state.route===r?'active':''}">${l}</button>`).join('')}</nav>
-    <div class="header-actions"><div class="lang-toggle"><button data-lang="en" class="${state.lang==='en'?'active':''}">EN</button><button data-lang="es" class="${state.lang==='es'?'active':''}">ES</button></div><a class="btn btn-dark" href="#/search">${t('search')}</a></div>
-  </div></header>`;
+    <nav class="nav" aria-label="Primary">${navMarkup}</nav>
+    <div class="header-actions">
+      <div class="lang-toggle"><button data-lang="en" class="${state.lang==='en'?'active':''}">EN</button><button data-lang="es" class="${state.lang==='es'?'active':''}">ES</button></div>
+      <a class="btn btn-dark" href="#/search">${t('search')}</a>
+      <button id="menuToggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="${state.lang==='es'?'Abrir menú':'Open menu'}">☰ <span>${state.lang==='es'?'Menú':'Menu'}</span></button>
+    </div>
+  </div><nav id="mobileNav" class="mobile-nav hidden" aria-label="${state.lang==='es'?'Navegación móvil':'Mobile navigation'}">${navMarkup}</nav></header>`;
 }
 
 function footer(){
@@ -240,8 +245,9 @@ function app(){
 }
 
 function bind(){
- $$('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route});
- $$('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
+ $('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route;const m=$('#mobileNav');if(m)m.classList.add('hidden');const tgl=$('#menuToggle');if(tgl)tgl.setAttribute('aria-expanded','false')});
+ $('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
+ const mt=$('#menuToggle'); if(mt) mt.addEventListener('click',()=>{const m=$('#mobileNav');if(!m)return;const opening=m.classList.contains('hidden');m.classList.toggle('hidden');mt.setAttribute('aria-expanded',String(opening));});
  const sf=$('#searchForm'); if(sf) sf.addEventListener('submit',doSearch);
  const kf=$('#knowledgeForm'); if(kf) kf.addEventListener('submit',doKnowledgeSearch);
  const af=$('#alertForm'); if(af) af.addEventListener('submit',saveAlert);
