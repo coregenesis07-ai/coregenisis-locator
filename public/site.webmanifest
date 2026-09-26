@@ -1,11 +1,11 @@
 {
-  "name": "Coregenisis Federal Custody Information Center",
-  "short_name": "Coregenisis",
-  "description": "Independent, source-linked federal custody, BOP policy, facility, First Step Act, and regulatory information.",
-  "start_url": "/#/home",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#f6f9fc",
-  "theme_color": "#082f49",
-  "lang": "en"
+  "name":"Federal Custody Guide",
+  "short_name":"Custody Guide",
+  "description":"Independent federal inmate, First Step Act, Second Chance, BOP policy, facility, and reentry information.",
+  "start_url":"/",
+  "scope":"/",
+  "display":"standalone",
+  "background_color":"#f6f9fc",
+  "theme_color":"#082f49",
+  "lang":"en"
 }
