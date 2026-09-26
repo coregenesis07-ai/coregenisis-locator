@@ -3,12 +3,17 @@
 
 ALTER TABLE tracked_inmates ADD COLUMN active INTEGER NOT NULL DEFAULT 1;
 ALTER TABLE tracked_inmates ADD COLUMN notification_status TEXT NOT NULL DEFAULT 'active';
+ALTER TABLE tracked_inmates ADD COLUMN verification_token TEXT;
+ALTER TABLE tracked_inmates ADD COLUMN unsubscribe_token TEXT;
+ALTER TABLE tracked_inmates ADD COLUMN verified_at DATETIME;
 ALTER TABLE tracked_inmates ADD COLUMN last_alerted_at DATETIME;
 ALTER TABLE tracked_inmates ADD COLUMN failure_count INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE tracked_inmates ADD COLUMN last_error TEXT;
 ALTER TABLE tracked_inmates ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_tracked_active ON tracked_inmates(active);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tracked_verification_token ON tracked_inmates(verification_token) WHERE verification_token IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tracked_unsubscribe_token ON tracked_inmates(unsubscribe_token) WHERE unsubscribe_token IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS alert_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
