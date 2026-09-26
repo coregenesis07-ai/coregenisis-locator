@@ -177,7 +177,12 @@ function alertsPage(){
  </form></div><div style="height:1rem"></div><div class="banner"><strong>Important:</strong> Alert enrollment uses email confirmation. Tracking does not begin until the recipient verifies the request. Every alert email includes an unsubscribe link.</div></div></section></main>`;
 }
 function resourcesPage(){
- return `<main id="main">${pageHeader(t('resources'),t('sourcesDesc'))}<section class="section"><div class="container grid grid-2">${sourceLinks()}<div class="card"><h3>Coregenisis use principles</h3><p>1. Show the official source.</p><p>2. Separate source text from explanation.</p><p>3. Date summaries and updates.</p><p>4. Avoid implying government affiliation.</p><p>5. Do not present individualized legal conclusions as fact.</p></div></div></section></main>`;
+ const es=state.lang==='es';
+ return `<main id="main">${pageHeader(t('resources'),t('sourcesDesc'))}<section class="section"><div class="container">
+   <div class="grid grid-2">${sourceLinks()}<div class="card"><h3>Coregenisis use principles</h3><p>1. Show the official source.</p><p>2. Separate source text from explanation.</p><p>3. Date summaries and updates.</p><p>4. Avoid implying government affiliation.</p><p>5. Do not present individualized legal conclusions as fact.</p></div></div>
+   <div style="height:1rem"></div>
+   <div class="card"><div class="rule-head"><div><h3>${es?'Estado y frescura de datos':'Data status & freshness'}</h3><p>${es?'Transparencia sobre cuándo se verificaron por última vez las fuentes indexadas.':'Transparency about when indexed sources were last verified.'}</p></div><span id="alertConfigChip" class="status-chip status-blue">Checking…</span></div><div id="dataStatus" class="grid grid-3" style="margin-top:1rem"><div class="empty-state">Loading status…</div></div></div>
+ </div></section></main>`;
 }
 
 function legalPage(kind){
@@ -233,6 +238,30 @@ function bind(){
  if(state.route==='facilities') loadFacilities('');
  if(state.route==='rules') loadRules();
  if(state.route==='policies') loadPolicies();
+ if(state.route==='resources') loadDataStatus();
+}
+
+async function loadDataStatus(){
+ const out=$('#dataStatus'), chip=$('#alertConfigChip');
+ if(!out) return;
+ try{
+   const res=await fetch('/api/data-status',{headers:{Accept:'application/json'}});
+   const data=await res.json();
+   if(!res.ok) throw new Error(data.error||'Unable to load data status');
+   if(chip){
+     chip.textContent=data.alerts_configured?(state.lang==='es'?'Alertas configuradas':'Alerts configured'):(state.lang==='es'?'Alertas pendientes':'Alerts not configured');
+     chip.className='status-chip '+(data.alerts_configured?'status-green':'status-amber');
+   }
+   const items=[
+     [state.lang==='es'?'Instituciones':'Facilities',data.facilities],
+     [state.lang==='es'?'Políticas BOP':'BOP policies',data.policies],
+     [state.lang==='es'?'Documentos regulatorios':'Regulatory documents',data.regulatory_documents]
+   ];
+   out.innerHTML=items.map(([label,v])=>`<div class="card"><div class="feature-icon">${esc(v?.count??0)}</div><h3>${esc(label)}</h3><p class="notice">${state.lang==='es'?'Última verificación':'Last verified'}: ${esc(formatDateTime(v?.last_verified_at))}</p></div>`).join('');
+ }catch(err){
+   if(chip){chip.textContent='Unavailable';chip.className='status-chip status-amber';}
+   out.innerHTML='<div class="empty-state">Status data is unavailable until the V2 database is connected.</div>';
+ }
 }
 
 async function loadPolicies(){
