@@ -100,8 +100,13 @@ function home(){
       <div style="height:2rem"></div>
       <div class="section-title"><div><h2>One place for the information families actually need</h2><p>Coregenisis 2.0 organizes public custody and regulatory information around practical questions instead of government-site structure.</p></div></div><div class="grid grid-3">${features.map((x,i)=>`<div class="card"><div class="feature-icon">${i+1}</div><h3>${x}</h3><p>Clear, source-linked information designed for mobile use.</p></div>`).join('')}</div>
     </div></section>
-    <section class="section"><div class="container"><div class="banner"><strong>Source-first design:</strong> summaries are informational. Official government publications and agency records control.</div><div style="height:1rem"></div>
-      <div class="grid grid-2"><div class="card"><span class="status-chip status-blue">Featured rule</span><h3>${t('ruleTitle')}</h3><p>${t('summary')}</p><a class="btn btn-light" href="#/rules">Read the rule summary</a></div>${sourceLinks()}</div></div></section>
+    <section class="section"><div class="container">
+      <div class="banner"><strong>Source-first design:</strong> summaries are informational. Official government publications and agency records control.</div>
+      <div style="height:1rem"></div>
+      <div class="grid grid-2"><div class="card"><span class="status-chip status-blue">Featured rule</span><h3>${t('ruleTitle')}</h3><p>${t('summary')}</p><a class="btn btn-light" href="#/rules">Read the rule summary</a></div>${sourceLinks()}</div>
+      <div style="height:1rem"></div>
+      <div class="card"><div class="rule-head"><div><h3>${state.lang==='es'?'Actualizaciones recientes':'Recent official-source updates'}</h3><p>${state.lang==='es'?'Documentos y políticas indexados recientemente por fecha de publicación o emisión.':'Recently indexed regulations and BOP policies ordered by publication or issue date.'}</p></div><a class="btn btn-light" href="#/resources">${state.lang==='es'?'Ver estado de datos':'View data status'}</a></div><div id="updateStatus" class="helper"></div><div id="updateFeed" class="results"></div></div>
+    </div></section>
   </main>`;
 }
 
@@ -246,6 +251,32 @@ function bind(){
  if(state.route==='rules'){ loadRules(); loadDeadlines(); }
  if(state.route==='policies') loadPolicies();
  if(state.route==='resources') loadDataStatus();
+ if(state.route==='home') loadRecentUpdates();
+}
+
+async function loadRecentUpdates(){
+ const status=$('#updateStatus'), out=$('#updateFeed');
+ if(!status||!out) return;
+ status.textContent=state.lang==='es'?'Cargando actualizaciones…':'Loading updates…';
+ try{
+   const res=await fetch('/api/updates',{headers:{Accept:'application/json'}});
+   const data=await res.json();
+   if(!res.ok) throw new Error(data.error||'Unable to load updates');
+   const rows=(Array.isArray(data.results)?data.results:[]).slice(0,6);
+   status.textContent=rows.length
+     ? (state.lang==='es'?'Mostrando las actualizaciones indexadas más recientes.':'Showing the most recent indexed updates.')
+     : (state.lang==='es'?'No hay actualizaciones indexadas todavía.':'No indexed updates yet.');
+   out.innerHTML=rows.length?rows.map(renderUpdate).join(''):'<div class="empty-state">No indexed updates yet.</div>';
+ }catch(err){
+   status.textContent=state.lang==='es'?'Las actualizaciones aparecerán cuando la base de datos V2 esté conectada.':'Updates will appear after the V2 database is connected.';
+   out.innerHTML='';
+ }
+}
+function renderUpdate(u){
+ const href=safeHref(u.source_url,'https://www.bop.gov/');
+ const isPolicy=u.source_type==='bop_policy';
+ const label=isPolicy?(state.lang==='es'?'Política BOP':'BOP Policy'):(state.lang==='es'?'Documento regulatorio':'Regulatory Document');
+ return `<div class="result-card"><div><span class="status-chip ${isPolicy?'status-blue':'status-amber'}">${esc(label)}</span><div style="height:.35rem"></div><b>${esc(u.title||u.identifier||'Official-source update')}</b><div class="result-meta">${esc(u.identifier||'')}</div></div><div><b>${esc(formatDate(u.published_date))}</b><div class="result-meta">${state.lang==='es'?'Última verificación':'Last verified'}: ${esc(formatDateTime(u.last_verified_at))}</div></div><a class="btn btn-light" href="${href}" target="_blank" rel="noopener">${state.lang==='es'?'Fuente ↗':'Source ↗'}</a></div>`;
 }
 
 async function doKnowledgeSearch(e){
