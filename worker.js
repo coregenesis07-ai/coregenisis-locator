@@ -171,10 +171,11 @@ export default {
       return json({ error: "Not found." }, 404, headers);
     } catch (error) {
       console.error("Coregenisis API error", error);
+      const status = error instanceof ApiError ? error.status : 500;
       return json({
-        error: "The service could not complete this request.",
-        code: "SERVER_ERROR"
-      }, 500, headers);
+        error: error instanceof ApiError ? error.message : "The service could not complete this request.",
+        code: error instanceof ApiError ? "UPSTREAM_OR_INPUT_ERROR" : "SERVER_ERROR"
+      }, status, headers);
     }
   },
 
