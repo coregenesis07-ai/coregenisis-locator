@@ -68,7 +68,7 @@ function header(){
   const homeLabel=state.lang==='es'?'Inicio':'Home';
   const navMarkup=`<button data-route="home" class="home-nav-item ${state.route==='home'?'active':''}" aria-label="${homeLabel}">⌂ <span>${homeLabel}</span></button><a class="nav-link" href="/first-step-act-calculator/">${state.lang==='es'?'Calculadora FSA':'FSA Calculator'}</a>`+navItems().map(([r,l])=>`<button data-route="${r}" class="${state.route===r?'active':''}">${l}</button>`).join('');
   return `<header class="site-header"><div class="header-inner">
-    <a class="brand" href="#/home"><span class="brand-mark">C</span><span class="brand-copy"><strong>Federal Custody Guide</strong><small>${t('subtitle')}</small></span></a>
+    <a class="brand brand-lockup" href="#/home" aria-label="Federal Custody Guide home"><img class="brand-logo-img" src="/brand-logo.svg" alt="Federal Custody Guide"></a>
     <nav class="nav" aria-label="Primary">${navMarkup}</nav>
     <div class="header-actions">
       <div class="lang-toggle"><button data-lang="en" class="${state.lang==='en'?'active':''}">EN</button><button data-lang="es" class="${state.lang==='es'?'active':''}">ES</button></div>
