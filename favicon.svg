@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#082f49"/><path d="M24 7 38 13v10c0 9.2-5.7 15.1-14 18-8.3-2.9-14-8.8-14-18V13L24 7Z" fill="#e0f2fe"/><path d="M17 24h14M24 17v14" stroke="#082f49" stroke-width="3" stroke-linecap="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-labelledby="t d">
+<title id="t">Federal Custody Guide</title><desc id="d">Blue shield with open book and courthouse columns</desc>
+<defs>
+  <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0ea5e9"/><stop offset=".42" stop-color="#0b4f8a"/><stop offset="1" stop-color="#082f49"/></linearGradient>
+  <linearGradient id="book" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#dbeafe"/></linearGradient>
+</defs>
+<path d="M110 8 198 44v63c0 53-33 87-88 105C55 194 22 160 22 107V44L110 8Z" fill="url(#shield)"/>
+<path d="M110 25 181 54v52c0 42-25 70-71 87-46-17-71-45-71-87V54l71-29Z" fill="#062a4b" opacity=".55"/>
+<path d="M68 72 110 48l42 24v10H68V72Z" fill="#eaf4ff"/>
+<path d="M73 84h74v9H73z" fill="#d8e8f6"/>
+<path d="M81 94h11v43H81zM104.5 94h11v43h-11zM128 94h11v43h-11z" fill="#f8fbff"/>
+<path d="M70 138c18-6 32-5 40 1v48c-13-10-27-14-46-10l-20-21c10-9 19-15 26-18Z" fill="url(#book)"/>
+<path d="M150 138c-18-6-32-5-40 1v48c13-10 27-14 46-10l20-21c-10-9-19-15-26-18Z" fill="url(#book)"/>
+<path d="M53 153c19-5 36-3 52 7M48 164c20-5 38-3 57 7M167 153c-19-5-36-3-52 7M172 164c-20-5-38-3-57 7" fill="none" stroke="#2a85bf" stroke-width="5" stroke-linecap="round"/>
+<path d="M110 139v50" stroke="#d2e8f7" stroke-width="4"/>
+</svg>
