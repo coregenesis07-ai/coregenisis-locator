@@ -1,5 +1,7 @@
 const BOP_ENDPOINT = "https://www.bop.gov/PublicInfo/execute/inmateloc";
+const BOP_LOCATIONS_ENDPOINT = "https://www.bop.gov/PublicInfo/execute/locations/?todo=query&output=json";
 const BOP_LOCATOR = "https://www.bop.gov/inmateloc/";
+const BOP_LOCATIONS = "https://www.bop.gov/locations/";
 
 export default {
   async fetch(request) {
@@ -20,9 +22,64 @@ export default {
     };
 
     if (request.method === "OPTIONS") return new Response(null,{status:204,headers:cors});
-    if (request.method !== "GET" || url.pathname !== "/api/bop-search") {
-      return json({error:"Not found"},404,cors);
+    if (request.method !== "GET") return json({error:"Not found"},404,cors);
+
+    if (url.pathname === "/api/facilities") {
+      try{
+        const response=await fetch(BOP_LOCATIONS_ENDPOINT,{
+          headers:{
+            "Accept":"application/json,text/plain;q=0.9,*/*;q=0.1",
+            "User-Agent":"FederalCustodyGuide/1.0 (+independent public information service)"
+          },
+          redirect:"follow"
+        });
+        if(!response.ok) return json({error:"The official BOP locations service did not return a successful response."},502,cors);
+        const text=await response.text();
+        let data;
+        try{data=JSON.parse(text)}catch{return json({error:"The official BOP locations service returned an unexpected response."},502,cors)}
+        const q=(url.searchParams.get("q")||"").trim().toLowerCase();
+        const state=(url.searchParams.get("state")||"").trim().toUpperCase();
+        const type=(url.searchParams.get("type")||"").trim().toUpperCase();
+        const security=(url.searchParams.get("security")||"").trim().toLowerCase();
+        const rows=(Array.isArray(data?.Locations)?data.Locations:[]).filter(row=>{
+          if(row?.locationtype && row.locationtype!=="inst") return false;
+          if(state && String(row?.state||"").toUpperCase()!==state) return false;
+          if(type && String(row?.type||"").toUpperCase()!==type) return false;
+          if(security && String(row?.securityLevel||"").toLowerCase()!==security) return false;
+          if(!q) return true;
+          const hay=[row?.code,row?.name,row?.nameTitle,row?.nameDisplay,row?.city,row?.state,row?.zipCode,row?.type,row?.securityLevel,row?.region]
+            .filter(Boolean).join(" ").toLowerCase();
+          return hay.includes(q);
+        });
+        return json({
+          source:"Federal Bureau of Prisons",
+          source_url:BOP_LOCATIONS,
+          checked_at:new Date().toISOString(),
+          count:rows.length,
+          results:rows.map(row=>({
+            code:String(row?.code||""),
+            name:String(row?.nameTitle||row?.nameDisplay||row?.name||"Federal facility"),
+            short_name:String(row?.name||""),
+            state:String(row?.state||""),
+            type:String(row?.type||""),
+            security_level:String(row?.securityLevel||""),
+            city:String(row?.city||""),
+            address:String(row?.address||""),
+            zip_code:String(row?.zipCode||""),
+            phone_number:String(row?.phoneNumber||""),
+            region:String(row?.region||""),
+            gender:String(row?.gender||""),
+            has_camp:row?.hasCamp===true?1:0,
+            official_url:row?.url ? new URL(row.url,"https://www.bop.gov").toString() : BOP_LOCATIONS,
+            last_verified_at:new Date().toISOString()
+          }))
+        },200,{...cors,"Cache-Control":"public, max-age=1800"});
+      }catch{
+        return json({error:"Unable to reach the official BOP locations service right now."},502,cors);
+      }
     }
+
+    if (url.pathname !== "/api/bop-search") return json({error:"Not found"},404,cors);
 
     const q=(url.searchParams.get("q")||"").trim();
     if(q.length<2 || q.length>100) return json({error:"Enter a valid BOP register number or full name."},400,cors);
