@@ -355,15 +355,33 @@ function policiesPage(){
 }
 
 function facilitiesPage(){
- return `<main id="main">${pageHeader(t('facilities'),t('facilitiesDesc'))}<section class="section"><div class="container">
-   <div class="search-shell">
-     <form id="facilityForm"><label><b>Search federal facilities</b><div class="search-row" style="margin-top:.55rem"><input id="facilityQuery" class="field" placeholder="Facility, city, state, or code"><button class="btn btn-dark" type="submit">Search</button></div></label></form>
-     <div class="helper">Directory entries are refreshed from the public BOP locations source when the scheduled refresh is enabled.</div>
+ const es=state.lang==='es';
+ const states=['','AL','AZ','CA','CO','FL','GA','IL','KY','MN','MS','NC','OH','PA','SC','TX','VA','WV'];
+ return `<main id="main">${pageHeader(es?'Directorio Federal de Prisiones':'Federal Prison Directory',es?'Busque instituciones federales por nombre, ciudad, estado, código, tipo o nivel de seguridad.':'Search federal facilities by name, city, state, code, type, or security level.')}<section class="section"><div class="container">
+   <div class="directory-toolbar card">
+     <form id="facilityForm">
+       <div class="grid grid-3">
+         <label><b>${es?'Prisión, ciudad, estado o código':'Facility, city, state, or code'}</b><input id="facilityQuery" class="field" placeholder="${es?'Ej. Beckley, WV, BEC':'e.g. Beckley, WV, BEC'}"></label>
+         <label><b>${es?'Estado':'State'}</b><select id="facilityState" class="field">${states.map(x=>`<option value="${x}">${x|| (es?'Todos los estados':'All states')}</option>`).join('')}</select></label>
+         <label><b>${es?'Tipo':'Facility type'}</b><select id="facilityType" class="field"><option value="">${es?'Todos los tipos':'All types'}</option><option>FPC</option><option>FCI</option><option>USP</option><option>FMC</option><option>FDC</option><option>FCC</option></select></label>
+       </div>
+       <div style="height:.75rem"></div>
+       <div class="grid grid-2">
+         <label><b>${es?'Nivel de seguridad':'Security level'}</b><select id="facilitySecurity" class="field"><option value="">${es?'Todos los niveles':'All levels'}</option><option value="Minimum">Minimum</option><option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option></select></label>
+         <div style="display:flex;align-items:end;gap:.55rem"><button class="btn btn-dark" type="submit">${es?'Buscar directorio':'Search Directory'}</button><button id="facilityClear" class="btn btn-light" type="button">${es?'Limpiar':'Clear'}</button></div>
+       </div>
+     </form>
+     <div class="helper" style="margin-top:.7rem">${es?'Los registros se cargan en vivo desde la fuente pública de ubicaciones del Bureau of Prisons.':'Records load live from the Bureau of Prisons public locations source.'}</div>
    </div>
-   <div id="facilityStatus" class="helper" role="status" aria-live="polite" style="margin:.8rem 0"></div>
-   <div id="facilityResults" class="grid grid-2"><div class="card"><h3>Official BOP Locations</h3><p>Use the official BOP directory to verify current institution information.</p><a class="btn btn-dark" href="https://www.bop.gov/locations/" target="_blank" rel="noopener">Open BOP Locations ↗</a></div></div>
+   <div class="state-quick-row" aria-label="${es?'Estados populares':'Popular states'}">
+     ${[['WV','West Virginia'],['TX','Texas'],['CA','California'],['PA','Pennsylvania'],['FL','Florida']].map(([code,name])=>`<button type="button" class="state-quick" data-facility-state="${code}">${name}</button>`).join('')}
+   </div>
+   <div class="directory-summary"><div id="facilityStatus" class="helper" role="status" aria-live="polite"></div><a href="https://www.bop.gov/locations/" target="_blank" rel="noopener">${es?'Directorio oficial BOP ↗':'Official BOP directory ↗'}</a></div>
+   <div id="facilityResults" class="grid grid-2"><div class="empty-state">${es?'Cargando directorio federal…':'Loading federal prison directory…'}</div></div>
  </div></section></main>`;
 }
+
+
 function alertsPage(){
  const es=state.lang==='es';
  return `<main id="main">${pageHeader(
@@ -638,9 +656,12 @@ function bind(){
  const sf=$('#searchForm'); if(sf) sf.addEventListener('submit',doSearch);
  const kf=$('#knowledgeForm'); if(kf) kf.addEventListener('submit',doKnowledgeSearch);
  const af=$('#alertForm'); if(af) af.addEventListener('submit',saveAlert);
- const ff=$('#facilityForm'); if(ff) ff.addEventListener('submit',e=>{e.preventDefault();loadFacilities($('#facilityQuery')?.value||'')});
+ const ff=$('#facilityForm'); if(ff) ff.addEventListener('submit',e=>{e.preventDefault();loadFacilities()});
+ const fc=$('#facilityClear'); if(fc) fc.addEventListener('click',()=>{if($('#facilityQuery'))$('#facilityQuery').value='';if($('#facilityState'))$('#facilityState').value='';if($('#facilityType'))$('#facilityType').value='';if($('#facilitySecurity'))$('#facilitySecurity').value='';loadFacilities()});
+ $('[data-facility-state]').forEach(b=>b.addEventListener('click',()=>{if($('#facilityState'))$('#facilityState').value=b.dataset.facilityState||'';loadFacilities()}));
+ ['#facilityState','#facilityType','#facilitySecurity'].forEach(sel=>{const el=$(sel);if(el)el.addEventListener('change',()=>loadFacilities())});
  const pf=$('#policyForm'); if(pf) pf.addEventListener('submit',e=>{e.preventDefault();loadPolicies()});
- if(state.route==='facilities') loadFacilities('');
+ if(state.route==='facilities') loadFacilities();
  if(state.route==='rules'){ loadRules(); loadDeadlines(); }
  if(state.route==='policies') loadPolicies();
  if(state.route==='resources') loadDataStatus();
@@ -801,27 +822,42 @@ function formatPolicyDate(v){
  return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString();
 }
 
-async function loadFacilities(q=''){
+async function loadFacilities(){
  const status=$('#facilityStatus'), out=$('#facilityResults');
  if(!status||!out) return;
- status.textContent='Loading public facility directory…';
+ const es=state.lang==='es';
+ const q=($('#facilityQuery')?.value||'').trim();
+ const stateCode=$('#facilityState')?.value||'';
+ const type=$('#facilityType')?.value||'';
+ const security=$('#facilitySecurity')?.value||'';
+ status.textContent=es?'Cargando directorio público…':'Loading public facility directory…';
+ out.innerHTML='<div class="empty-state">'+(es?'Consultando la fuente pública BOP…':'Checking the public BOP source…')+'</div>';
  try{
-   const res=await fetch('/api/facilities?'+new URLSearchParams({q}).toString(),{headers:{Accept:'application/json'}});
+   const params=new URLSearchParams();
+   if(q)params.set('q',q);
+   if(stateCode)params.set('state',stateCode);
+   if(type)params.set('type',type);
+   if(security)params.set('security',security);
+   const res=await fetch('https://federalcustodyguide-search.coregenesis07.workers.dev/api/facilities?'+params.toString(),{headers:{Accept:'application/json'}});
    const data=await res.json();
    if(!res.ok) throw new Error(data.error||'Unable to load facilities');
    const rows=Array.isArray(data.results)?data.results:[];
-   status.textContent=rows.length?`${rows.length} facility record(s). Verify details at BOP.gov.`:'No matching facilities found.';
-   out.innerHTML=rows.length?rows.map(renderFacilityCard).join(''):'<div class="empty-state">No matching facilities found.</div>';
+   status.textContent=rows.length
+     ? (es?`${rows.length} registro(s) público(s) BOP. Verifique detalles antes de viajar o enviar artículos.`:`${rows.length} public BOP facility record(s). Verify details before traveling or sending items.`)
+     : (es?'No se encontraron instituciones con esos filtros.':'No facilities matched those filters.');
+   out.innerHTML=rows.length?rows.map(renderFacilityCard).join(''):'<div class="empty-state">'+(es?'No se encontraron instituciones.':'No matching facilities found.')+'</div>';
  }catch(err){
-   status.textContent=err.message||'Facility directory is unavailable.';
-   out.innerHTML='<div class="card"><h3>Official BOP Locations</h3><p>Use the official directory while the Coregenisis index is unavailable.</p><a class="btn btn-dark" href="https://www.bop.gov/locations/" target="_blank" rel="noopener">Open BOP Locations ↗</a></div>';
+   status.textContent=es?'El directorio en vivo no está disponible en este momento.':'The live directory is unavailable right now.';
+   out.innerHTML='<div class="card"><h3>Official BOP Locations</h3><p>'+esc(err?.message||'Directory unavailable')+'</p><a class="btn btn-dark" href="https://www.bop.gov/locations/" target="_blank" rel="noopener">Open BOP Locations ↗</a></div>';
  }
 }
+
 function renderFacilityCard(f){
+ const es=state.lang==='es';
  const href=safeHref(f.official_url,'https://www.bop.gov/locations/');
- const camp=Number(f.has_camp)===1?' • Camp available':'';
+ const camp=Number(f.has_camp)===1?(es?' • Campamento asociado':' • Camp available'):'';
  const contact=[f.address,[f.city,f.state,f.zip_code].filter(Boolean).join(', '),f.phone_number].filter(Boolean).map(esc).join('<br>');
- return `<article class="card"><div class="rule-head"><div><span class="status-chip status-blue">${esc(f.type||'BOP')}</span><h3>${esc(f.name||f.code||'Federal facility')}</h3><p>${esc(f.security_level||'Security level not listed')}${camp}</p></div></div><div class="result-meta">${contact}</div><p class="notice">Region: ${esc(f.region||'Not listed')} • Last verified: ${esc(formatDateTime(f.last_verified_at))}</p><a class="btn btn-light" href="${href}" target="_blank" rel="noopener">Official BOP page ↗</a></article>`;
+ return `<article class="card facility-card"><div class="rule-head"><div><span class="status-chip status-blue">${esc(f.type||'BOP')}</span><h3>${esc(f.name||f.code||'Federal facility')}</h3><p>${esc(f.security_level|| (es?'Nivel no indicado':'Security level not listed'))}${camp}</p></div><span class="facility-code">${esc(f.code||'')}</span></div><div class="result-meta">${contact}</div><div class="facility-meta"><span>${esc(f.region||'')}</span>${f.gender?`<span>${esc(String(f.gender).replace(/^./,c=>c.toUpperCase()))}</span>`:''}</div><div class="facility-actions"><a class="btn btn-light" href="${href}" target="_blank" rel="noopener">${es?'Página oficial BOP ↗':'Official BOP page ↗'}</a><a class="btn btn-light" href="#/search">${es?'Buscar recluso':'Search inmate'}</a></div><p class="notice">${es?'Datos públicos BOP consultados':'Public BOP data checked'}: ${esc(formatDateTime(f.last_verified_at))}</p></article>`;
 }
 
 async function loadDeadlines(){
