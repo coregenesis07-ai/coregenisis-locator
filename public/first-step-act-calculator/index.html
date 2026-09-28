@@ -12,7 +12,44 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../styles.css">
 <style>
 .tool-wrap{max-width:1000px;margin:auto}.wizard-card{max-width:780px;margin:auto}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:1.2rem}.step-pill{padding:.75rem;border-radius:12px;background:#e2e8f0;color:#475569;text-align:center;font-weight:800;font-size:.85rem}.step-pill.active{background:#082f49;color:#fff}.step-pill.done{background:#dcfce7;color:#166534}.wizard-step{display:none}.wizard-step.active{display:block}.wizard-actions{display:flex;justify-content:space-between;gap:.7rem;margin-top:1.2rem}.choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}.choice{border:1px solid var(--line);padding:.8rem;border-radius:12px;background:#fff}.choice input{margin-right:.45rem}.unit-toggle{display:inline-flex;background:#f1f5f9;border-radius:10px;padding:3px;gap:3px}.unit-toggle button{border:0;background:transparent;padding:.55rem .8rem;border-radius:8px;font-weight:800}.unit-toggle button.active{background:#fff;box-shadow:0 1px 5px rgba(15,23,42,.12);color:#082f49}.calc-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin-top:1rem}.calc-summary>div{border:1px solid var(--line);border-radius:14px;padding:.9rem;background:#f8fafc}.calc-summary small{display:block;color:var(--muted);margin-bottom:.25rem}.calc-summary strong{display:block;font-size:1.16rem;color:var(--navy)}.calc-summary .wide{grid-column:1/-1;background:#eff6ff}.timeline-result{display:grid;gap:.55rem;margin-top:1rem}.timeline-row{display:grid;grid-template-columns:1fr auto;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--line)}.timeline-row:last-child{border-bottom:0}.result-hidden{display:none}.subtle{font-size:.84rem;color:var(--muted)}.comparison.good{background:#f0fdf4}.comparison.attn{background:#fff7ed}.quick-chart{width:100%;border-collapse:collapse}.quick-chart th,.quick-chart td{padding:.65rem;border-bottom:1px solid var(--line);text-align:left}.quick-chart th{background:#f8fafc}.field-group{display:grid;gap:.75rem}.field-group label>b{display:block;margin-bottom:.35rem}
-@media(max-width:700px){.choice-grid,.calc-summary{grid-template-columns:1fr}.calc-summary .wide{grid-column:auto}.steps{grid-template-columns:1fr 1fr 1fr}.step-pill{font-size:.72rem;padding:.6rem .3rem}.wizard-actions{flex-direction:column-reverse}.wizard-actions .btn{width:100%}.timeline-row{grid-template-columns:1fr}}
+.result-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap}
+.analysis-toggle{display:inline-flex;background:#f1f5f9;border:1px solid var(--line);border-radius:12px;padding:3px}
+.analysis-toggle button{border:0;background:transparent;padding:.58rem .78rem;border-radius:9px;font-weight:800;color:#475569}
+.analysis-toggle button.active{background:#082f49;color:white}
+.result-panel{margin-top:1rem}
+.result-panel.full-only{display:none}
+.results-full .result-panel.full-only{display:block}
+.results-full .summary-only{display:none}
+.privacy-chip{display:flex;align-items:center;gap:.5rem;padding:.7rem .85rem;border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;color:#166534;font-weight:700;font-size:.85rem}
+.sentence-scale{border:1px solid var(--line);border-radius:16px;padding:1rem;background:#fff}
+.scale-legend{display:flex;flex-wrap:wrap;gap:.8rem;font-size:.82rem;color:#475569;margin:.7rem 0}
+.scale-legend b{color:#0f172a}
+.scale-bar{height:15px;background:#e2e8f0;border-radius:999px;overflow:hidden;display:flex}
+.scale-served{background:#0f766e}
+.scale-credit{background:#d69e2e}
+.scale-labels{display:flex;justify-content:space-between;gap:.5rem;font-size:.78rem;color:#64748b;margin-top:.45rem}
+.date-ladder{position:relative;margin:.6rem 0 0 .5rem;padding-left:2rem}
+.date-ladder:before{content:"";position:absolute;left:.52rem;top:.4rem;bottom:.5rem;width:3px;background:linear-gradient(#0f766e,#d69e2e,#94a3b8)}
+.ladder-item{position:relative;padding:0 0 1.05rem}
+.ladder-item:before{content:"";position:absolute;left:-1.82rem;top:.3rem;width:14px;height:14px;border-radius:50%;background:white;border:3px solid #0f766e}
+.ladder-item.modeled:before{border-color:#d69e2e}
+.ladder-item.reference:before{border-color:#64748b}
+.ladder-date{font-weight:900;letter-spacing:.035em;color:#0f172a}
+.ladder-title{font-weight:800;font-size:1rem;margin:.18rem 0}
+.ladder-note{font-size:.8rem;color:#64748b}
+.status-tag{display:inline-block;margin-left:.4rem;padding:.18rem .45rem;border-radius:999px;font-size:.67rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;vertical-align:middle}
+.status-entered{background:#dcfce7;color:#166534}.status-calculated{background:#e0f2fe;color:#075985}.status-modeled{background:#fef3c7;color:#92400e}.status-verify{background:#f1f5f9;color:#475569}
+.credit-meter{height:12px;background:#f1f5f9;border-radius:999px;overflow:hidden;margin:.7rem 0}
+.credit-meter span{display:block;height:100%;background:#d69e2e}
+.analysis-card{border:1px solid var(--line);border-radius:16px;padding:1rem;background:#fff;margin-top:.8rem}
+.analysis-card h3{margin-top:0}
+.assumption-list{display:grid;gap:.55rem}.assumption-row{display:grid;grid-template-columns:1fr auto;gap:.7rem;padding:.55rem 0;border-bottom:1px solid var(--line)}.assumption-row:last-child{border-bottom:0}
+.math-details{border-top:1px solid var(--line);padding-top:.65rem;margin-top:.65rem}.math-details summary{cursor:pointer;font-weight:800;color:#0f766e}
+.next-move{background:#082f49;color:white;border-radius:18px;padding:1.1rem}.next-move h3,.next-move p{color:white}.next-move .timeline-row{border-color:rgba(255,255,255,.18)}.next-move .subtle{color:#cbd5e1}
+.result-actions{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1rem}
+.result-actions .btn{min-width:150px}
+@media print{header,.footer,.wizard-card,#editInputs,.analysis-toggle,.result-actions,.banner{display:none!important}#resultsSection{box-shadow:none!important;border:0!important}.result-panel.full-only{display:block!important}.summary-only{display:block!important}}
+@media(max-width:700px){.choice-grid,.calc-summary{grid-template-columns:1fr}.calc-summary .wide{grid-column:auto}.steps{grid-template-columns:1fr 1fr 1fr}.step-pill{font-size:.72rem;padding:.6rem .3rem}.wizard-actions{flex-direction:column-reverse}.wizard-actions .btn{width:100%}.timeline-row,.assumption-row{grid-template-columns:1fr}.result-head{display:block}.analysis-toggle{margin-top:.7rem}.result-actions .btn{width:100%}.scale-labels{font-size:.7rem}}
 </style>
 </head>
 <body>
@@ -26,6 +63,8 @@
 
 <section class="section"><div class="container tool-wrap">
 <div class="banner"><strong>Not an official BOP calculation:</strong> this is an independent planning tool. It does not determine eligibility, award credits, account for every sentence-computation factor, or replace the BOP's Projected Release Date.</div>
+<div style="height:.65rem"></div>
+<div class="privacy-chip">🔒 Calculator inputs are processed in your browser and are not saved by this tool.</div>
 <div style="height:1rem"></div>
 
 <section class="card wizard-card">
@@ -100,11 +139,11 @@
 </section>
 
 <section id="resultsSection" class="card wizard-card result-hidden" style="margin-top:1rem">
-<span class="status-chip status-blue">Planning result</span><h2>Your illustrative timeline</h2>
+<div class="result-head"><div><span class="status-chip status-blue">Planning result</span><h2>Your federal custody planning timeline</h2><p class="subtle">Separate entered facts, calculations, and future scenarios so you can see what is known versus what still needs verification.</p></div>
+<div class="analysis-toggle" role="group" aria-label="Result detail"><button id="summaryView" class="active" type="button">Summary</button><button id="fullView" type="button">Full analysis</button></div></div>
 <div id="resultSummary"></div>
 <div id="resultWarnings"></div>
-<div style="height:.8rem"></div>
-<button id="editInputs" class="btn btn-light" type="button">Edit inputs</button>
+<div class="result-actions"><button id="editInputs" class="btn btn-light" type="button">Edit inputs</button><button id="printResults" class="btn btn-light" type="button">Print / Save PDF</button><button id="copyResults" class="btn btn-light" type="button">Copy summary</button></div>
 </section>
 
 <div style="height:1rem"></div>
@@ -123,7 +162,8 @@
 <h2>Official sources</h2>
 <a class="resource-link" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener"><b>BOP First Step Act FAQ</b><span>Eligibility & credits ↗</span></a>
 <a class="resource-link" href="https://www.bop.gov/news/20231205-release-date-calculator.jsp" target="_blank" rel="noopener"><b>BOP Conditional FSA Calculator notice</b><span>Planning tool ↗</span></a>
-<a class="resource-link" href="https://uscode.house.gov/view.xhtml?req=%28title%3A18+section%3A3624+edition%3Aprelim%29" target="_blank" rel="noopener"><b>18 U.S.C. § 3624</b><span>GCT & release ↗</span></a>
+<a class="resource-link" href="https://uscode.house.gov/view.xhtml?req=%28title%3A18+section%3A3624+edition%3Aprelim%29" target="_blank" rel="noopener"><b>18 U.S.C. § 3624</b><span>GCT, prerelease custody & FSA application ↗</span></a>
+<a class="resource-link" href="https://www.bop.gov/PublicInfo/execute/rrc?todo=query" target="_blank" rel="noopener"><b>BOP Residential Reentry Management</b><span>RRC referral timing & placement factors ↗</span></a>
 <a class="resource-link" href="/#/calculator-disclaimer"><b>Calculator & Estimate Disclaimer</b><span>Limits →</span></a>
 </section>
 </div>
@@ -155,5 +195,5 @@
 </main>
 
 <footer class="footer"><div class="container footer-grid"><div><strong>Federal Custody Guide</strong><p>Independent informational service by Coregenisis. Not affiliated with BOP, DOJ, or any government agency.</p></div><div><h4>Tools</h4><a href="/federal-inmate-search/">Federal inmate search</a><a href="/first-step-act-calculator/">FSA calculator</a><a href="/family-checklist/">Family checklist</a></div></div></footer>
-<script src="./calculator.js" defer></script>
+<script src="./calculator.js?v=20260928-0735" defer></script>
 </body></html>
