@@ -269,6 +269,26 @@ $('#copyResults')?.addEventListener('click',async()=>{
  catch{alert('Copy was not available. Use Print / Save PDF instead.')}
 });
 
+function updateSavedEstimateStatus(){
+ const el=$('#savedEstimateStatus'); if(!el)return;
+ try{
+   const saved=JSON.parse(localStorage.getItem('fcg_saved_calculator_result')||'null');
+   el.textContent=saved?.savedAt
+     ? 'Saved on this device: '+new Date(saved.savedAt).toLocaleString()+'. This copy stays in this browser until you clear it.'
+     : 'No saved estimate on this device.';
+ }catch{el.textContent='No saved estimate on this device.'}
+}
+$('#saveResults')?.addEventListener('click',()=>{
+ if(!lastCopyText)return;
+ localStorage.setItem('fcg_saved_calculator_result',JSON.stringify({savedAt:new Date().toISOString(),summary:lastCopyText}));
+ updateSavedEstimateStatus();
+});
+$('#clearSavedResults')?.addEventListener('click',()=>{
+ localStorage.removeItem('fcg_saved_calculator_result');
+ updateSavedEstimateStatus();
+});
+updateSavedEstimateStatus();
+
 const chart=[13,18,24,30,36,48,60,84,120,180,240];
 const tbody=$('#gctChart');
 if(tbody) tbody.innerHTML=chart.map(m=>{const g=gctForMonths(m,0), approx=Math.max(0,m*30.4375-g);return '<tr><td>'+m+' months</td><td>'+g+' days</td><td>'+Math.round(approx/30.4375)+' months</td></tr>';}).join('');
