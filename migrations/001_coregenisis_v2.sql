@@ -1,30 +1,16 @@
--- Coregenisis 2.0 D1 schema
--- Fresh-install schema. Keep migrations/ for an existing database.
+-- Coregenisis 2.0 migration for the original D1 schema.
+-- Run ONCE against the existing Coregenisis D1 database.
 
-CREATE TABLE IF NOT EXISTS tracked_inmates (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  register_number TEXT NOT NULL,
-  inmate_name TEXT,
-  email TEXT NOT NULL,
-  lang TEXT NOT NULL DEFAULT 'en' CHECK (lang IN ('en','es')),
-  last_facility TEXT,
-  last_release_date TEXT,
-  last_checked DATETIME,
-  last_alerted_at DATETIME,
-  active INTEGER NOT NULL DEFAULT 0 CHECK (active IN (0,1)),
-  notification_status TEXT NOT NULL DEFAULT 'pending_verification',
-  verification_token TEXT,
-  unsubscribe_token TEXT,
-  verified_at DATETIME,
-  failure_count INTEGER NOT NULL DEFAULT 0,
-  last_error TEXT,
-  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(register_number, email)
-);
+ALTER TABLE tracked_inmates ADD COLUMN active INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE tracked_inmates ADD COLUMN notification_status TEXT NOT NULL DEFAULT 'active';
+ALTER TABLE tracked_inmates ADD COLUMN verification_token TEXT;
+ALTER TABLE tracked_inmates ADD COLUMN unsubscribe_token TEXT;
+ALTER TABLE tracked_inmates ADD COLUMN verified_at DATETIME;
+ALTER TABLE tracked_inmates ADD COLUMN last_alerted_at DATETIME;
+ALTER TABLE tracked_inmates ADD COLUMN failure_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE tracked_inmates ADD COLUMN last_error TEXT;
+ALTER TABLE tracked_inmates ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP;
 
-CREATE INDEX IF NOT EXISTS idx_tracked_email ON tracked_inmates(email);
-CREATE INDEX IF NOT EXISTS idx_tracked_register ON tracked_inmates(register_number);
 CREATE INDEX IF NOT EXISTS idx_tracked_active ON tracked_inmates(active);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_tracked_verification_token ON tracked_inmates(verification_token) WHERE verification_token IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_tracked_unsubscribe_token ON tracked_inmates(unsubscribe_token) WHERE unsubscribe_token IS NOT NULL;
@@ -42,22 +28,16 @@ CREATE TABLE IF NOT EXISTS alert_events (
 
 CREATE INDEX IF NOT EXISTS idx_alert_events_tracked ON alert_events(tracked_inmate_id);
 
-CREATE TABLE IF NOT EXISTS facilities (
-  code TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  state TEXT,
-  city TEXT,
-  type TEXT,
-  security_level TEXT,
-  address TEXT,
-  zip_code TEXT,
-  phone_number TEXT,
-  region TEXT,
-  gender TEXT,
-  has_camp INTEGER NOT NULL DEFAULT 0,
-  official_url TEXT,
-  last_verified_at DATETIME
-);
+ALTER TABLE facilities ADD COLUMN city TEXT;
+ALTER TABLE facilities ADD COLUMN security_level TEXT;
+ALTER TABLE facilities ADD COLUMN address TEXT;
+ALTER TABLE facilities ADD COLUMN zip_code TEXT;
+ALTER TABLE facilities ADD COLUMN phone_number TEXT;
+ALTER TABLE facilities ADD COLUMN region TEXT;
+ALTER TABLE facilities ADD COLUMN gender TEXT;
+ALTER TABLE facilities ADD COLUMN has_camp INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE facilities ADD COLUMN official_url TEXT;
+ALTER TABLE facilities ADD COLUMN last_verified_at DATETIME;
 
 CREATE TABLE IF NOT EXISTS regulatory_documents (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
