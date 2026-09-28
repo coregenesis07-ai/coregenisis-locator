@@ -66,8 +66,23 @@ function navItems(){ return [
 
 function header(){
   const homeLabel=state.lang==='es'?'Inicio':'Home';
+  const bilingualBanner=`<div class="bilingual-top-banner" role="region" aria-label="${state.lang==='es'?'Selector de idioma bilingüe':'Bilingual language selector'}">
+    <div class="bilingual-top-inner">
+      <div class="bilingual-message">
+        <span class="bilingual-globe" aria-hidden="true">🌐</span>
+        <div>
+          <strong>${state.lang==='es'?'ESTE SITIO ESTÁ DISPONIBLE EN ESPAÑOL • THIS SITE IS AVAILABLE IN ENGLISH':'THIS SITE IS AVAILABLE IN ENGLISH • ESTE SITIO ESTÁ DISPONIBLE EN ESPAÑOL'}</strong>
+          <span>Federal Custody Guide • Guía de Custodia Federal</span>
+        </div>
+      </div>
+      <div class="bilingual-actions">
+        <button data-lang="en" class="${state.lang==='en'?'active':''}" aria-label="View site in English">🇺🇸 ENGLISH</button>
+        <button data-lang="es" class="${state.lang==='es'?'active':''}" aria-label="Ver el sitio en español">🇪🇸 ESPAÑOL</button>
+      </div>
+    </div>
+  </div>`;
   const navMarkup=`<button data-route="home" class="home-nav-item ${state.route==='home'?'active':''}" aria-label="${homeLabel}">⌂ <span>${homeLabel}</span></button><a class="nav-link" href="/first-step-act-calculator/">${state.lang==='es'?'Calculadora FSA':'FSA Calculator'}</a>`+navItems().map(([r,l])=>`<button data-route="${r}" class="${state.route===r?'active':''}">${l}</button>`).join('');
-  return `<header class="site-header"><div class="header-inner">
+  return bilingualBanner+`<header class="site-header"><div class="header-inner">
     <a class="brand brand-lockup" href="#/home" aria-label="Federal Custody Guide home"><img class="brand-logo-img" src="/brand-logo.svg" alt="Federal Custody Guide"></a>
     <nav class="nav" aria-label="Primary">${navMarkup}</nav>
     <div class="header-actions">
