@@ -165,6 +165,63 @@ function home(){
       </aside>
     </div></section>
 
+    <section class="section policy-update-section"><div class="container">
+      <div class="section-title"><div>
+        <span class="section-kicker">${es?'ACTUALIZACIONES OFICIALES':'OFFICIAL UPDATES'}</span>
+        <h2>${es?'Últimas actualizaciones del BOP y First Step Act':'Latest BOP & First Step Act Updates'}</h2>
+        <p>${es?'Cambios recientes verificados con fuentes oficiales. Revise siempre el documento original para la aplicación individual.':'Recent developments verified against official sources. Always review the controlling source for individual application.'}</p>
+      </div><a class="btn btn-light" href="#/fsa">${es?'Centro FSA':'FSA Center'}</a></div>
+
+      <div class="grid grid-3">
+        <article class="card">
+          <span class="status-chip status-amber">09/30/2026</span>
+          <h3>${es?'Revisión de Créditos de Tiempo FSA':'FSA Time Credits Revision'}</h3>
+          <p>${es
+            ?'Una regla interina del BOP entra en vigor el 30 de septiembre de 2026. Aclara cuándo un recluso elegible comienza a ganar créditos FSA y aborda ciertos casos de sentencias impuestas en el extranjero.'
+            :'A BOP interim final rule takes effect September 30, 2026. It clarifies when an eligible inmate begins earning FSA Time Credits and addresses specified foreign-sentence transfer cases.'}</p>
+          <a class="resource-link" href="https://www.federalregister.gov/documents/2026/08/31/2026-17752/first-step-act-time-credits-revisions" target="_blank" rel="noopener"><b>${es?'Documento oficial':'Official rule'}</b><span>Federal Register ↗</span></a>
+        </article>
+
+        <article class="card">
+          <span class="status-chip status-green">09/03/2026</span>
+          <h3>${es?'Nueva política 5162.07':'New Program Statement 5162.07'}</h3>
+          <p>${es
+            ?'El BOP publicó Program Statement 5162.07, “Categorization of Offenses”, con fecha del 3 de septiembre de 2026. Las categorías de delitos pueden afectar distintos programas y beneficios del BOP; la elegibilidad debe revisarse bajo la autoridad específica aplicable.'
+            :'BOP published Program Statement 5162.07, “Categorization of Offenses,” dated September 3, 2026. Offense categories can affect multiple BOP programs and benefits; eligibility must be checked under the specific authority involved.'}</p>
+          <a class="resource-link" href="https://www.bop.gov/resources/policy_and_forms.jsp" target="_blank" rel="noopener"><b>${es?'Biblioteca oficial BOP':'Official BOP policy library'}</b><span>BOP.gov ↗</span></a>
+        </article>
+
+        <article class="card">
+          <span class="status-chip status-green">2026</span>
+          <h3>${es?'Oficina dedicada al First Step Act':'Dedicated First Step Act Office'}</h3>
+          <p>${es
+            ?'La estructura organizacional 2026 del BOP ahora muestra una First Step Act Office. Esto confirma una unidad dedicada dentro de la organización, pero no significa que los créditos o fechas individuales se corrijan automáticamente.'
+            :'BOP’s 2026 organizational chart now shows a First Step Act Office. This confirms a dedicated organizational unit, but it does not mean an individual person’s credits or dates will be corrected automatically.'}</p>
+          <a class="resource-link" href="https://www.justice.gov/doj/federal-bureau-prisons" target="_blank" rel="noopener"><b>${es?'Estructura oficial':'Official organization page'}</b><span>Justice.gov ↗</span></a>
+        </article>
+      </div>
+
+      <div style="height:1rem"></div>
+      <div class="card monetization-teaser">
+        <div>
+          <span class="status-chip status-green">${es?'GUÍA DE REVISIÓN':'RECORD REVIEW GUIDE'}</span>
+          <h3>${es?'¿Sus créditos FSA o fechas no parecen correctos?':'Do the FSA credits or dates not look right?'}</h3>
+          <p>${es
+            ?'Compare el inicio de acumulación, la participación en programas asignados, el historial de riesgo PATTERN, los créditos ganados y cómo el BOP los está aplicando. Una calculadora es una estimación; los registros y decisiones oficiales controlan.'
+            :'Compare the earning-start date, assigned-program participation, PATTERN risk history, credits earned, and how BOP is applying those credits. A calculator is an estimate; official records and determinations control.'}</p>
+        </div>
+        <div>
+          <a class="btn btn-dark" href="#/fsa">${es?'Revisar guía FSA':'Check Your FSA Credit Record'}</a>
+          <div style="height:.55rem"></div>
+          <a class="btn btn-light" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener">${es?'FAQ oficial BOP ↗':'Official BOP FAQ ↗'}</a>
+        </div>
+      </div>
+
+      <p class="notice" style="margin-top:1rem">${es
+        ?'Federal Custody Guide es un recurso educativo independiente. No garantiza una fecha de liberación, elegibilidad o colocación específica y no ofrece asesoría legal.'
+        :'Federal Custody Guide is an independent educational resource. It does not guarantee a release date, eligibility determination, or placement and does not provide legal advice.'}</p>
+    </div></section>
+
     <section class="section white quick-tools-section"><div class="container">
       <div class="section-title"><div><span class="section-kicker">${es?'EMPIECE AQUÍ':'START HERE'}</span><h2>${es?'Las herramientas más útiles, primero':'The most useful tools, first'}</h2><p>${es?'Tres caminos rápidos para la mayoría de las familias.':'Three fast paths for the needs families have most often.'}</p></div></div>
       <div class="core-tool-grid">
