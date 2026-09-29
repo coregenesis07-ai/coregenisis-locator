@@ -408,6 +408,57 @@ function fsaPage(){
    </div>
 
    <div style="height:1.4rem"></div>
+   <section class="card" aria-labelledby="hcUpdateTitle">
+     <span class="status-chip status-green">${es?'ACTUALIZACIÓN VERIFICADA':'VERIFIED UPDATE'}</span>
+     <h2 id="hcUpdateTitle">${es?'Confinamiento domiciliario y colocación previa a la liberación — qué ha cambiado realmente':'Home Confinement & Prerelease Placement — What Has Actually Changed'}</h2>
+     <p>${es
+       ?'Estas son tendencias y directivas documentadas por el BOP. No garantizan una colocación específica para una persona.'
+       :'These are documented BOP directives and operational changes. They do not guarantee a particular placement for any individual.'}</p>
+
+     <div class="grid grid-2">
+       <div class="card">
+         <h3>1. ${es?'Prioridad al confinamiento domiciliario directo':'Direct home confinement prioritized'}</h3>
+         <p>${es
+           ?'La directiva del BOP del 28 de mayo de 2025 indica que el confinamiento domiciliario debe ser una prioridad para personas elegibles que no necesitan el apoyo estructurado de un RRC. El RRC se reserva principalmente para quienes tienen mayor necesidad de servicios de transición.'
+           :'BOP’s May 28, 2025 directive says home confinement should be prioritized for eligible individuals who do not require the structured support of an RRC. RRC placement is primarily reserved for those with the greatest need for transitional services.'}</p>
+         <a class="resource-link" href="https://www.bop.gov/news/pdfs/20250528-home-confinement-expansioin.pdf" target="_blank" rel="noopener"><b>${es?'Directiva oficial':'Official directive'}</b><span>BOP.gov ↗</span></a>
+       </div>
+
+       <div class="card">
+         <h3>2. ${es?'Fechas condicionales para planificación':'Conditional placement dates used in planning'}</h3>
+         <p>${es
+           ?'Los equipos de unidad deben utilizar fechas condicionales FSA y SCA, basadas en créditos proyectados y otras reglas aplicables, para orientar la planificación previa a la liberación y las referencias.'
+           :'Unit Teams are directed to use FSA and SCA conditional placement dates, based on projected credits and applicable rules, to guide prerelease planning and referrals.'}</p>
+         <a class="resource-link" href="https://www.bop.gov/news/20241004-fbop-updates-to-phone-call-policies-and-time-credit-system.jsp" target="_blank" rel="noopener"><b>${es?'Explicación oficial de fechas':'Official date explanation'}</b><span>BOP.gov ↗</span></a>
+       </div>
+
+       <div class="card">
+         <h3>3. ${es?'Traslados a campamentos para preparación de reingreso':'Camp transfers for reentry preparation'}</h3>
+         <p>${es
+           ?'Desde mayo de 2026, el BOP anunció que personas elegibles con una fecha aprobada de RRC o confinamiento domiciliario pueden ser trasladadas a instalaciones de seguridad mínima como parte de la preparación para regresar a la comunidad.'
+           :'Since May 2026, BOP has announced that eligible individuals with an approved RRC or home-confinement placement date may be transitioned to minimum-security camps as part of preparation for community reentry.'}</p>
+         <a class="resource-link" href="https://www.bop.gov/news/20260528-strategic-expansion-of-minimum-security-camp-utilization.jsp" target="_blank" rel="noopener"><b>${es?'Iniciativa oficial de campamentos':'Official camp initiative'}</b><span>BOP.gov ↗</span></a>
+       </div>
+
+       <div class="card">
+         <h3>4. ${es?'Revisión y mejora de cálculos FSA':'FSA calculation review and updated tools'}</h3>
+         <p>${es
+           ?'El BOP creó un equipo especializado para revisar fechas de confinamiento domiciliario y lanzó un programa actualizado de aplicación de créditos que combina información FSA y SCA para producir fechas condicionales de planificación.'
+           :'BOP created a specialized team to review home-confinement dates and launched an updated Time Credit Application Program that combines FSA and SCA information to produce conditional planning dates.'}</p>
+         <a class="resource-link" href="https://www.bop.gov/news/20250801-message-from-director-william-k-marshall-iii.jsp" target="_blank" rel="noopener"><b>${es?'Programa actualizado':'Updated program'}</b><span>BOP.gov ↗</span></a>
+       </div>
+     </div>
+
+     <div class="banner" style="margin-top:1rem">
+       <strong>${es?'Importante':'Important'}:</strong>
+       ${es
+         ?'No existe actualmente un límite general de 60 días para colocaciones SCA en RRC. El BOP rescindió esa propuesta el 10 de abril de 2025. La duración de RRC o confinamiento domiciliario depende de la autoridad aplicable, elegibilidad y evaluación individual.'
+         :'There is currently no general 60-day cap on SCA RRC placements. BOP rescinded that proposed limit on April 10, 2025. RRC or home-confinement duration depends on the applicable authority, eligibility, and individualized review.'}
+     </div>
+     <p style="margin-top:.8rem"><a class="btn btn-light" href="https://www.bop.gov/news/20250410-second-chance-act-sca-placements.jsp" target="_blank" rel="noopener">${es?'Ver rescisión del límite de 60 días ↗':'View 60-day-limit rescission ↗'}</a></p>
+   </section>
+
+   <div style="height:1.4rem"></div>
    <div class="section-title"><div><h2>${es?'Cambios recientes importantes':'Important recent changes'}</h2><p>${es?'Cronología de cambios y orientación pública que Coregenisis debe mantener visible.':'A timeline of public changes and guidance Coregenisis should keep visible.'}</p></div></div>
    <div class="timeline">${changes.map(c=>`<article class="timeline-item card"><div class="timeline-date">${esc(formatDate(c.date))}</div><div><span class="status-chip status-blue">${esc(c.tag)}</span><h3>${esc(c.title)}</h3><p>${esc(c.text)}</p><a class="btn btn-light" href="${c.href}" target="_blank" rel="noopener">${es?'Fuente oficial ↗':'Official source ↗'}</a></div></article>`).join('')}</div>
 
