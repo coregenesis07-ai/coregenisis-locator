@@ -271,6 +271,46 @@ function home(){
       <div class="card monetization-teaser"><div><span class="status-chip status-green">${es?'Recurso gratis':'Free family resource'}</span><h3>${es?'Lista familiar de custodia federal':'Free Federal Custody Family Checklist'}</h3><p>${es?'Organice número BOP, institución, fechas, fuentes oficiales, preguntas FSA y preparación de reingreso.':'Organize the BOP number, facility, important dates, official sources, FSA questions, and reentry preparation in one printable checklist.'}</p></div><div><a class="btn btn-dark" href="/family-checklist/">${es?'Abrir lista':'Get the free checklist'}</a><div style="height:.55rem"></div><a class="btn btn-light" href="/updates-guides/">${es?'Ver guías':'Browse Updates & Guides'}</a></div></div>
 
       <div style="height:1rem"></div>
+      <section class="card private-suggestion-card" aria-labelledby="privateSuggestionTitle">
+        <div class="rule-head"><div>
+          <span class="status-chip status-green">${es?'GRATIS • PRIVADO':'FREE • PRIVATE'}</span>
+          <h3 id="privateSuggestionTitle">${es?'¿Falta algo importante? Envíenos una sugerencia privada.':'Are we missing something important? Send us a private suggestion.'}</h3>
+          <p>${es
+            ?'Ayúdenos a mejorar Federal Custody Guide recomendando información, políticas, recursos o preguntas que las familias necesitan. Su mensaje no se publica en el sitio.'
+            :'Help improve Federal Custody Guide by recommending information, policies, resources, or questions families need. Your message is not posted on the website.'}</p>
+        </div></div>
+        <form id="privateSuggestionForm">
+          <div class="grid grid-2">
+            <label><b>${es?'Tema':'Topic'}</b>
+              <select id="suggestionTopic" class="field">
+                <option value="Missing information">${es?'Información que falta':'Missing information'}</option>
+                <option value="BOP policy or update">${es?'Política o actualización BOP':'BOP policy or update'}</option>
+                <option value="Family resource">${es?'Recurso para familias':'Family resource'}</option>
+                <option value="Website improvement">${es?'Mejora del sitio':'Website improvement'}</option>
+                <option value="Correction">${es?'Corrección':'Correction'}</option>
+                <option value="Other">${es?'Otro':'Other'}</option>
+              </select>
+            </label>
+            <label><b>${es?'Enlace de fuente (opcional)':'Source link (optional)'}</b>
+              <input id="suggestionSource" class="field" type="url" inputmode="url" placeholder="https://">
+            </label>
+          </div>
+          <div style="height:.75rem"></div>
+          <label><b>${es?'Su recomendación':'Your recommendation'}</b>
+            <textarea id="suggestionMessage" class="field" rows="5" required placeholder="${es?'Describa qué información cree que debemos agregar o revisar.':'Tell us what information you think we should add or review.'}"></textarea>
+          </label>
+          <div class="banner" style="margin:.8rem 0">
+            <strong>🔒 ${es?'Privacidad':'Privacy'}:</strong>
+            ${es
+              ?'Nada de lo que escriba aquí se mostrará públicamente. Al enviar, se abrirá su aplicación de correo electrónico para que usted revise y envíe el mensaje. Federal Custody Guide no guarda esta solicitud en una lista pública.'
+              :'Nothing you write here is displayed publicly. When you submit, your email app opens so you can review and send the message. Federal Custody Guide does not place this request in a public list.'}
+          </div>
+          <button class="btn btn-dark" type="submit">${es?'Enviar sugerencia privada por email':'Send Private Suggestion by Email'}</button>
+          <div id="privateSuggestionStatus" class="helper" role="status" aria-live="polite"></div>
+        </form>
+      </section>
+
+      <div style="height:1rem"></div>
       <div class="card"><div class="rule-head"><div><h3>${es?'Actualizaciones recientes':'Recent official-source updates'}</h3><p>${es?'Documentos y políticas indexados recientemente por fecha de publicación o emisión.':'Recently indexed regulations and BOP policies ordered by publication or issue date.'}</p></div><a class="btn btn-light" href="#/resources">${es?'Ver estado de datos':'View data status'}</a></div><div id="updateStatus" class="helper" role="status" aria-live="polite"></div><div id="updateFeed" class="results"></div></div>
     </div></section>
   </main>`;
@@ -733,6 +773,7 @@ function bind(){
  $('[data-facility-state]').forEach(b=>b.addEventListener('click',()=>{if($('#facilityState'))$('#facilityState').value=b.dataset.facilityState||'';loadFacilities()}));
  ['#facilityState','#facilityType','#facilitySecurity'].forEach(sel=>{const el=$(sel);if(el)el.addEventListener('change',()=>loadFacilities())});
  const pf=$('#policyForm'); if(pf) pf.addEventListener('submit',e=>{e.preventDefault();loadPolicies()});
+ const psf=$('#privateSuggestionForm'); if(psf) psf.addEventListener('submit',sendPrivateSuggestion);
  if(state.route==='facilities') loadFacilities();
  if(state.route==='rules'){ loadRules(); loadDeadlines(); }
  if(state.route==='policies') loadPolicies();
@@ -740,6 +781,28 @@ function bind(){
  if(state.route==='home') loadRecentUpdates();
  if(state.route==='family') initFamilyPreview();
  if(state.route==='reentry') initReentryPreview();
+}
+
+function sendPrivateSuggestion(e){
+ e.preventDefault();
+ const topic=$('#suggestionTopic')?.value||'Website suggestion';
+ const source=$('#suggestionSource')?.value?.trim()||'';
+ const message=$('#suggestionMessage')?.value?.trim()||'';
+ const status=$('#privateSuggestionStatus');
+ if(!message){if(status)status.textContent=state.lang==='es'?'Escriba su recomendación antes de enviar.':'Please enter your recommendation before sending.';return;}
+ const recipient=['coregenesis07','gmail.com'].join('@');
+ const subject='Federal Custody Guide — Private Resource Suggestion';
+ const body=[
+   'Topic: '+topic,
+   source?'Source/link: '+source:'',
+   '',
+   'Suggestion:',
+   message,
+   '',
+   'Sent from the private suggestion section at FederalCustodyGuide.com.'
+ ].filter(Boolean).join('\n');
+ if(status)status.textContent=state.lang==='es'?'Abriendo su aplicación de correo…':'Opening your email app…';
+ window.location.href='mailto:'+recipient+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
 }
 
 function readLocalJson(key,fallback){
