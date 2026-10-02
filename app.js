@@ -66,12 +66,26 @@ function navItems(){ return [
 
 function header(){
   const homeLabel=state.lang==='es'?'Inicio':'Home';
+  const bilingualBanner=`<div class="bilingual-top-banner" role="region" aria-label="${state.lang==='es'?'Selector de idioma bilingüe':'Bilingual language selector'}">
+    <div class="bilingual-top-inner">
+      <div class="bilingual-branding">
+        <img src="/brand-mark.svg" class="bilingual-brand-mark" alt="" aria-hidden="true">
+        <div class="bilingual-copy">
+          <strong>Federal Custody Guide <span class="bilingual-divider">|</span> <em>Guía de Custodia Federal</em></strong>
+          <span>${state.lang==='es'?'Disponible en Inglés y Español • Available in English & Spanish':'Available in English & Spanish • Disponible en Inglés y Español'}</span>
+        </div>
+      </div>
+      <div class="bilingual-actions" aria-label="${state.lang==='es'?'Cambiar idioma':'Change language'}">
+        <button data-lang="en" class="${state.lang==='en'?'active':''}" aria-pressed="${state.lang==='en'}">🇺🇸 <span>ENGLISH</span></button>
+        <button data-lang="es" class="${state.lang==='es'?'active':''}" aria-pressed="${state.lang==='es'}">🇪🇸 <span>ESPAÑOL</span></button>
+      </div>
+    </div>
+  </div>`;
   const navMarkup=`<button data-route="home" class="home-nav-item ${state.route==='home'?'active':''}" aria-label="${homeLabel}">⌂ <span>${homeLabel}</span></button><a class="nav-link" href="/first-step-act-calculator/">${state.lang==='es'?'Calculadora FSA':'FSA Calculator'}</a>`+navItems().map(([r,l])=>`<button data-route="${r}" class="${state.route===r?'active':''}">${l}</button>`).join('');
-  return `<header class="site-header"><div class="header-inner">
+  return bilingualBanner+`<header class="site-header"><div class="header-inner">
     <a class="brand brand-lockup" href="#/home" aria-label="Federal Custody Guide home"><img class="brand-logo-img" src="/brand-logo.svg" alt="Federal Custody Guide"></a>
     <nav class="nav" aria-label="Primary">${navMarkup}</nav>
     <div class="header-actions">
-      <div class="lang-toggle"><button data-lang="en" class="${state.lang==='en'?'active':''}">EN</button><button data-lang="es" class="${state.lang==='es'?'active':''}">ES</button></div>
       <a class="btn btn-dark" href="#/search">${t('search')}</a>
       <button id="menuToggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="${state.lang==='es'?'Abrir menú':'Open menu'}">☰ <span>${state.lang==='es'?'Menú':'Menu'}</span></button>
     </div>
