@@ -28,7 +28,16 @@ export default {
       }
     }
 
-    // Alert enrollment is intentionally paused pending verified-email, consent,\n    // unsubscribe, retention, and abuse-prevention controls.\n    if (url.pathname === "/api/track" && request.method === "POST") {\n      return new Response(JSON.stringify({error: "Alert enrollment temporarily unavailable"}), {\n        status: 503,\n        headers: {"Content-Type": "application/json", "Cache-Control": "no-store"}\n      });\n    }\n\n    // Legacy enrollment implementation retained below for reference but unreachable.\n    if (false && url.pathname === "/api/track" && request.method === "POST") {
+    // Alert enrollment is intentionally paused pending verified-email, consent,
+    // unsubscribe, retention, and abuse-prevention controls.
+    if (url.pathname === "/api/track" && request.method === "POST") {
+      return new Response(JSON.stringify({error: "Alert enrollment temporarily unavailable"}), {
+        status: 503,
+        headers: {"Content-Type": "application/json", "Cache-Control": "no-store"}
+      });
+    }
+
+    // Legacy enrollment implementation retained below for reference but unreachable.
       const body = await request.json();
       const { register_number, inmate_name, email, phone, lang } = body;
       
