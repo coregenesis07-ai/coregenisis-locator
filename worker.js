@@ -28,28 +28,16 @@ export default {
       }
     }
 
-    // API: Subscribe for alerts
+    // Alert enrollment is intentionally paused pending verified-email, consent,
+    // unsubscribe, retention, and abuse-prevention controls.
     if (url.pathname === "/api/track" && request.method === "POST") {
-      const body = await request.json();
-      const { register_number, inmate_name, email, phone, lang } = body;
-      
-      if (!register_number || !email) {
-        return new Response(JSON.stringify({error: "Missing fields"}), {status: 400});
-      }
-
-      // Save to D1
-      await env.DB.prepare(
-        `INSERT INTO tracked_inmates (register_number, inmate_name, email, phone, lang, last_checked, created_at) 
-         VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-         ON CONFLICT(register_number, email) DO UPDATE SET inmate_name=excluded.inmate_name`
-      ).bind(register_number, inmate_name, email, phone || "", lang || "en").run();
-
-      return new Response(JSON.stringify({ok: true, message: "Tracking enabled"}), {
-        headers: { "Content-Type": "application/json" }
+      return new Response(JSON.stringify({error: "Alert enrollment temporarily unavailable"}), {
+        status: 503,
+        headers: {"Content-Type": "application/json", "Cache-Control": "no-store"}
       });
     }
 
-    return new Response("Coregenisis API - Use /api/bop-search or /api/track", {status: 404});
+    // Enrollment code removed until the verified opt-in flow is implemented.\n\n    return new Response("Coregenisis API - Use /api/bop-search or /api/track", {status: 404});
   },
 
   // CRON: Runs daily 6am - Checks for changes and sends alerts via MailChannels (FREE)
