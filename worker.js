@@ -8,9 +8,14 @@ export default {
     
     // API: Proxy to BOP.gov to avoid CORS
     if (url.pathname === "/api/bop-search") {
-      const q = url.searchParams.toString();
-      // Official public BOP endpoint
-      const bopUrl = `https://www.bop.gov/PublicInfo/execute/inmateloc?${q}`;
+      const q = (url.searchParams.get("q") || "").trim();
+      if (!q) return json({error: "Missing search query"}, 400);
+      const isRegister = /^\\d{5}-\\d{3}$/.test(q);
+      const params = new URLSearchParams({todo: "query", output: "json"});
+      if (isRegister) params.set("inmateNum", q);
+      else params.set("nameLast", q);
+      // Official public BOP inmate-locator endpoint
+      const bopUrl = `https://www.bop.gov/PublicInfo/execute/inmateloc?${params.toString()}`;
       try {
         const res = await fetch(bopUrl, {
           headers: { "User-Agent": "Coregenisis/1.0 (helps families)" }
