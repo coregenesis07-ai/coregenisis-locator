@@ -37,7 +37,7 @@ export default {
       });
     }
 
-    // Enrollment code removed until the verified opt-in flow is implemented.\n\n    return new Response("Coregenisis API - Use /api/bop-search or /api/track", {status: 404});
+    // Enrollment code removed until the verified opt-in flow is implemented.    return new Response("Coregenisis API - Use /api/bop-search or /api/track", {status: 404});
   },
 
   // CRON: Runs daily 6am - Checks for changes and sends alerts via MailChannels (FREE)
@@ -47,7 +47,9 @@ export default {
 };
 
 async function checkAllInmates(env) {
-  const { results } = await env.DB.prepare("SELECT * FROM tracked_inmates").all();
+  const { results } = await env.DB.prepare(
+    "SELECT * FROM tracked_inmates WHERE status = 'active' AND verified_at IS NOT NULL AND unsubscribed_at IS NULL AND (expires_at IS NULL OR expires_at > datetime('now'))"
+  ).all();
   
   for (const row of results) {
     try {
@@ -85,21 +87,21 @@ async function sendAlertEmail(env, tracked, current) {
     : `BOP Update: ${tracked.inmate_name} - Change Detected`;
 
   const html = isSpanish ? `
-    <h2>Coregenisis - Alerta Gratuita</h2>
+    <h2>Federal Custody Guide - Alerta Solicitada</h2>
     <p>Hola, hay un cambio para <strong>${tracked.inmate_name} (${tracked.register_number})</strong>:</p>
     <ul>
       <li><strong>Instalación Actual:</strong> ${current.facility}</li>
       <li><strong>Fecha de Liberación:</strong> ${current.releaseDate}</li>
     </ul>
-    <p>Revisar en BOP.gov y en Coregenisis. Este es un servicio gratuito para familias.</p>
+    <p>Confirme la información en BOP.gov. Federal Custody Guide es un recurso educativo independiente.</p>
   ` : `
-    <h2>Coregenisis - Free Alert</h2>
+    <h2>Federal Custody Guide - Requested Alert</h2>
     <p>Hi, there is an update for <strong>${tracked.inmate_name} (${tracked.register_number})</strong>:</p>
     <ul>
       <li><strong>Current Facility:</strong> ${current.facility}</li>
       <li><strong>Release Date:</strong> ${current.releaseDate}</li>
     </ul>
-    <p>Check BOP.gov and Coregenisis. This is a free service for families.</p>
+    <p>Confirm the information at BOP.gov. Federal Custody Guide is an independent educational resource.</p>
   `;
 
   // MailChannels free email - no API key needed in Workers
@@ -108,7 +110,7 @@ async function sendAlertEmail(env, tracked, current) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       personalizations: [{ to: [{ email: tracked.email }] }],
-      from: { email: env.ALERT_FROM_EMAIL || "alerts@coregenisis.pages.dev", name: "Coregenisis Alerts" },
+      from: { email: env.ALERT_FROM_EMAIL || "alerts@coregenisis.pages.dev", name: "Federal Custody Guide Alerts" },
       subject,
       content: [{ type: "text/html", value: html }]
     })
