@@ -195,10 +195,11 @@ Error generating stack: `+u.message+`
   <script>(function(){function m(a){var h=a.getAttribute("href");if(!h)return;try{var u=new URL(h,document.baseURI);if((u.protocol==="http:"||u.protocol==="https:")&&u.host!==location.host){a.target="_blank";a.rel="noopener noreferrer";}}catch(e){}}function s(){document.querySelectorAll("a[href]").forEach(m);}if(document.readyState!=="loading"){s();}else{document.addEventListener("DOMContentLoaded",s);}document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(a){m(a);}},true);})();</script>
   
 <style>
-#fcg-legal-update-link{position:fixed;right:16px;bottom:18px;z-index:9999;background:#0A192F;color:#fff;text-decoration:none;border:1px solid #3B82F6;border-radius:999px;padding:11px 16px;font:700 13px/1.2 system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 8px 24px rgba(10,25,47,.22)}
-#fcg-legal-update-link:hover{background:#1e3a5f}
-@media(max-width:520px){#fcg-legal-update-link{right:10px;bottom:10px;padding:10px 13px;font-size:12px}}
+/* Public-site cleanup: development/prototype sections stay out of the visitor experience. */
+#fcg-legal-update-link{position:static!important;display:inline-block!important;margin:14px auto 6px!important}
+#fcg-public-links{text-align:center;margin:22px auto 26px;padding:0 16px;font:14px system-ui;color:#475569}
+#fcg-public-links a{margin:0 8px;text-decoration:underline;color:#334155}
+@media(max-width:520px){#fcg-legal-update-link{font-size:12px!important;padding:10px 13px!important}}
 </style>
-<a id="fcg-legal-update-link" href="/legal-updates.html" aria-label="Verified Legal and First Step Act Updates">Legal & FSA Updates • Actualizaciones</a>
-<footer style="max-width:980px;margin:32px auto 90px;padding:16px;text-align:center;font:14px system-ui;color:#475569"><a href="/privacy.html" style="margin:0 10px;text-decoration:underline">Privacy / Privacidad</a><a href="/terms.html" style="margin:0 10px;text-decoration:underline">Terms / Términos</a><p>Federal Custody Guide is an independent educational resource and is not affiliated with the Federal Bureau of Prisons or any government agency.</p></footer></body>
+<div id="fcg-public-links"><a id="fcg-legal-update-link" href="/legal-updates.html" aria-label="Verified Legal and First Step Act Updates">Legal & FSA Updates • Actualizaciones</a><div style="margin-top:14px"><a href="/privacy.html">Privacy / Privacidad</a><a href="/terms.html">Terms / Términos</a></div><p style="margin:14px auto 0;max-width:680px;line-height:1.5">Federal Custody Guide is an independent educational resource and is not affiliated with the Federal Bureau of Prisons or any government agency.</p></div><footer style="display:none"><a href="/privacy.html" style="margin:0 10px;text-decoration:underline">Privacy / Privacidad</a><a href="/terms.html" style="margin:0 10px;text-decoration:underline">Terms / Términos</a><p>Federal Custody Guide is an independent educational resource and is not affiliated with the Federal Bureau of Prisons or any government agency.</p></footer></body>
 </html>
