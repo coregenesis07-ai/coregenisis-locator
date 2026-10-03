@@ -57,6 +57,7 @@ export default {
 
   // CRON: Runs daily 6am - Checks for changes and sends alerts via MailChannels (FREE)
   async scheduled(event, env, ctx) {
+    if (env.ALERTS_ENABLED !== "true" || !env.DB) return;
     ctx.waitUntil(checkAllInmates(env));
   }
 };
