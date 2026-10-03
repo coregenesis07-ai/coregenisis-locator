@@ -14,11 +14,6 @@
   "vars": {
     "ALERTS_ENABLED": "false"
   },
-  "triggers": {
-    "crons": [
-      "0 6 * * *"
-    ]
-  },
   "previews": {
     "vars": {
       "ALERTS_ENABLED": "false"
