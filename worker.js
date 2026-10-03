@@ -46,7 +46,7 @@ export default {
       if (url.pathname === "/api/alerts/delete" && request.method === "POST") return deleteAlert(request, env);
     }
 
-    return new Response("Federal Custody Guide API", {status: 404});
+    if (env.ASSETS) return env.ASSETS.fetch(request);\n    return new Response("Federal Custody Guide", {status: 404});
   },
 
   // CRON: Runs daily 6am - Checks for changes and sends alerts via MailChannels (FREE)
