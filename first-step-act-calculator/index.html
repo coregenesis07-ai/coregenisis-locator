@@ -50,9 +50,18 @@
 .result-actions .btn{min-width:150px}
 @media print{header,.footer,.wizard-card,#editInputs,.analysis-toggle,.result-actions,.banner{display:none!important}#resultsSection{box-shadow:none!important;border:0!important}.result-panel.full-only{display:block!important}.summary-only{display:block!important}}
 @media(max-width:700px){.choice-grid,.calc-summary{grid-template-columns:1fr}.calc-summary .wide{grid-column:auto}.steps{grid-template-columns:1fr 1fr 1fr}.step-pill{font-size:.72rem;padding:.6rem .3rem}.wizard-actions{flex-direction:column-reverse}.wizard-actions .btn{width:100%}.timeline-row,.assumption-row{grid-template-columns:1fr}.result-head{display:block}.analysis-toggle{margin-top:.7rem}.result-actions .btn{width:100%}.scale-labels{font-size:.7rem}}
+
+.language-awareness-bar{background:#082f49;color:#fff;border-bottom:3px solid #d69e2e}
+.language-awareness-inner{max-width:1180px;margin:auto;padding:.72rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.language-awareness-copy{display:flex;align-items:center;gap:.7rem}.language-awareness-copy strong{display:block}.language-awareness-copy small{display:block;color:#cbd5e1}
+.language-awareness-globe{font-size:1.55rem}.language-awareness-actions{display:flex;gap:.4rem}
+.language-awareness-actions button{min-height:44px;border:1px solid rgba(255,255,255,.35);border-radius:10px;background:transparent;color:#fff;padding:.5rem .75rem;font-weight:800}
+.language-awareness-actions button.active{background:#fff;color:#082f49}
+.language-code{display:inline-block;margin-right:.28rem;font-size:.72rem;opacity:.8}
+@media(max-width:600px){.language-awareness-inner{align-items:flex-start;flex-direction:column}.language-awareness-actions{width:100%}.language-awareness-actions button{flex:1}}
 </style>
 </head>
-<body>
+<body>\n<div class="language-awareness-bar" role="region" aria-label="Bilingual calculator and language selector"><div class="language-awareness-inner"><div class="language-awareness-copy"><span class="language-awareness-globe" aria-hidden="true">🌐</span><div><strong>English + Español</strong><small>First Step Act Calculator • Calculadora First Step Act</small></div></div><div class="language-awareness-actions" aria-label="Change language / Cambiar idioma"><button id="calcLangEn" type="button"><span class="language-code">EN</span>English</button><button id="calcLangEs" type="button"><span class="language-code">ES</span>Español</button></div></div></div>
 <header class="site-header"><div class="header-inner">
 <a class="brand" href="/"><span class="brand-mark">F</span><span class="brand-copy"><strong>Federal Custody Guide</strong><small>by Coregenisis</small></span></a>
 <nav class="nav" aria-label="Primary"><a href="/federal-inmate-search/">Inmate Search</a><a href="/first-step-act-calculator/">FSA Calculator</a><a href="/first-step-act/">FSA Guide</a><a href="/federal-prison-directory/">Facilities</a><a href="/updates-guides/">Guides</a></nav>
@@ -195,5 +204,5 @@
 </main>
 
 <footer class="footer"><div class="container footer-grid"><div><strong>Federal Custody Guide</strong><p>Independent informational service by Coregenisis. Not affiliated with BOP, DOJ, or any government agency.</p></div><div><h4>Tools</h4><a href="/federal-inmate-search/">Federal inmate search</a><a href="/first-step-act-calculator/">FSA calculator</a><a href="/family-checklist/">Family checklist</a></div></div></footer>
-<script src="./calculator.js?v=20260928-0915" defer></script>
+<script src="./calculator-lang.js?v=20261004-1" defer></script>\n<script src="./calculator.js?v=20260928-0915" defer></script>
 </body></html>
