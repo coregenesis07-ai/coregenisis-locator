@@ -54,16 +54,27 @@ The Worker/backend has handled API functions such as BOP search/facility-related
 4. Make and inspect changes there.
 5. Compare the feature branch against gh-pages.
 6. Open a pull request into gh-pages.
-7. Review before merge.
+7. Review checks and the exact diff before merge.
 8. After merge, verify the live custom domain.
 
-Current improvement branch as of 2026-10-04:
-- improve-family-start-here
+## Deployment history — 2026-10-04
+- PR #6: `Improve bilingual family pathways and mobile guidance`
+  - Merged into `gh-pages`
+  - Merge commit: `a407afb5f70df28a89cf57e698701d372708db4a`
+  - 8 commits; 7 changed files
+  - Live mobile verification confirmed the four family pathways and independent-resource messaging.
+- PR #7: `Fix policy navigation and bilingual inline display`
+  - Merged into `gh-pages`
+  - Merge commit: `466025eb3856b2db4906df100fca70b48d82da7e`
+  - 5 commits; 5 changed files; 6 additions / 6 deletions
+  - Removed stale `/#/policies` link in favor of `/updates-guides/`.
+  - Corrected Spanish translated `span.lang-es` content to render inline.
+- Cloudflare Pages preview checks succeeded on these PRs while the separate Cloudflare Workers build check failed. The Worker is not attached to the custom production domain; do not alter production DNS/Worker architecture merely to satisfy that preview check.
 
-At last verification it was 8 commits ahead of gh-pages and 0 behind, with only intended front-end/content files changed.
+The former feature branches `improve-family-start-here` and `fix-policy-route-bilingual-display` are completed and may be deleted after production verification. They are not production branches.
 
 ## Current improvement package
-Files intentionally changed on improve-family-start-here:
+Files deployed through PR #6:
 - app.js
 - styles.css
 - family-checklist/index.html
@@ -109,6 +120,16 @@ SPA/hash routes include:
 - /#/copyright
 
 Do not replace these with old-style .html routes.
+
+## Post-deployment QA — 2026-10-04
+- Production `gh-pages` contains the PR #6 and PR #7 changes.
+- `bop-policies/index.html` no longer links to stale `/#/policies`; it links to `/updates-guides/`.
+- Reentry interactive route `/#/reentry` is present in the app.
+- FSA interactive route `/#/fsa` is present in the app.
+- Search and facility routes are present in the app.
+- All five bilingual static resource pages use `cg_lang` and the corrected inline Spanish span display.
+- Main live mobile screenshot verification confirmed the four-path Start Here layout.
+- Continue to preserve alerts/email as disabled until the backend/privacy/consent workflow is ready.
 
 ## Language architecture
 - Main app stores language in localStorage key: cg_lang
