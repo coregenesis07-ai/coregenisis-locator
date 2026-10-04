@@ -6,25 +6,43 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     
-    // API: Proxy to BOP.gov to avoid CORS
+    // API: Proxy the official public BOP inmate locator without exposing a browser CORS dependency.
     if (url.pathname === "/api/bop-search") {
-      const q = url.searchParams.toString();
-      // Official public BOP endpoint
-      const bopUrl = `https://www.bop.gov/PublicInfo/execute/inmateloc?${q}`;
+      if (request.method !== "GET") return json({error: "Method not allowed"}, 405);
+      const q = (url.searchParams.get("q") || "").trim();
+      if (!q) return json({error: "Missing search query"}, 400);
+      if (q.length > 100) return json({error: "Search query too long"}, 400);
+
+      const isRegister = /^[0-9]{5}-[0-9]{3}$/.test(q);
+      const params = new URLSearchParams({todo: "query", output: "json"});
+      if (isRegister) params.set("inmateNum", q);
+      else params.set("nameLast", q);
+
+      const bopUrl = `https://www.bop.gov/PublicInfo/execute/inmateloc?${params.toString()}`;
       try {
         const res = await fetch(bopUrl, {
-          headers: { "User-Agent": "Coregenisis/1.0 (helps families)" }
-        });
-        const data = await res.text();
-        return new Response(data, {
           headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Cache-Control": "public, max-age=300"
+            "Accept": "application/json",
+            "User-Agent": "FederalCustodyGuide/1.0"
           }
         });
-      } catch (e) {
-        return new Response(JSON.stringify({error: "BOP fetch failed"}), {status: 500});
+        if (!res.ok) return json({error: "BOP service unavailable", upstream_status: res.status}, 502);
+
+        const raw = await res.text();
+        let data;
+        try { data = JSON.parse(raw); }
+        catch { return json({error: "BOP returned an unexpected response"}, 502); }
+
+        return new Response(JSON.stringify({ok: true, source: "bop.gov", data}), {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff"
+          }
+        });
+      } catch {
+        return json({error: "BOP service unavailable"}, 502);
       }
     }
 
@@ -46,11 +64,15 @@ export default {
       if (url.pathname === "/api/alerts/delete" && request.method === "POST") return deleteAlert(request, env);
     }
 
-    return new Response("Federal Custody Guide API", {status: 404});
+    if (url.pathname.startsWith("/api/")) return json({error: "API route not found"}, 404);
+
+    if (env.ASSETS) return env.ASSETS.fetch(request);
+    return new Response("Federal Custody Guide", {status: 404});
   },
 
   // CRON: Runs daily 6am - Checks for changes and sends alerts via MailChannels (FREE)
   async scheduled(event, env, ctx) {
+    if (env.ALERTS_ENABLED !== "true" || !env.DB) return;
     ctx.waitUntil(checkAllInmates(env));
   }
 };
