@@ -1157,7 +1157,7 @@ async function doSearch(e){
  }
 }
 function normalizeResults(data){
- const candidates=Array.isArray(data?.InmateLocator) ? data.InmateLocator : (Array.isArray(data?.results)?data.results:[]);
+ const candidates=Array.isArray(data?.InmateLocator) ? data.InmateLocator : (Array.isArray(data?.data?.InmateLocator) ? data.data.InmateLocator : (Array.isArray(data?.results)?data.results:[]));
  return candidates.map(x=>({
    name:x.name || [x.nameFirst,x.nameMiddle,x.nameLast,x.suffix].filter(Boolean).join(' ') || 'Name unavailable',
    bop:x.register_number || x.inmateNum || '—',
