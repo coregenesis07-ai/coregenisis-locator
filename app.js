@@ -1044,7 +1044,17 @@ function renderFacilityCard(f){
  const href=safeHref(f.official_url,'https://www.bop.gov/locations/');
  const camp=Number(f.has_camp)===1?(es?' • Campamento asociado':' • Camp available'):'';
  const contact=[f.address,[f.city,f.state,f.zip_code].filter(Boolean).join(', '),f.phone_number].filter(Boolean).map(esc).join('<br>');
- return `<article class="card facility-card"><div class="rule-head"><div><span class="status-chip status-blue">${esc(f.type||'BOP')}</span><h3>${esc(f.name||f.code||'Federal facility')}</h3><p>${esc(f.security_level|| (es?'Nivel no indicado':'Security level not listed'))}${camp}</p></div><span class="facility-code">${esc(f.code||'')}</span></div><div class="result-meta">${contact}</div><div class="facility-meta"><span>${esc(f.region||'')}</span>${f.gender?`<span>${esc(String(f.gender).replace(/^./,c=>c.toUpperCase()))}</span>`:''}</div><div class="facility-actions"><a class="btn btn-light" href="${href}" target="_blank" rel="noopener">${es?'Página oficial BOP ↗':'Official BOP page ↗'}</a><a class="btn btn-light" href="#/search">${es?'Buscar recluso':'Search inmate'}</a></div><p class="notice">${es?'Datos públicos BOP consultados':'Public BOP data checked'}: ${esc(formatDateTime(f.last_verified_at))}</p></article>`;
+ return `<article class="card facility-card"><div class="rule-head"><div><span class="status-chip status-blue">${esc(f.type||'BOP')}</span><h3>${esc(f.name||f.code||'Federal facility')}</h3><p>${esc(f.security_level|| (es?'Nivel no indicado':'Security level not listed'))}${camp}</p></div><span class="facility-code">${esc(f.code||'')}</span></div><div class="result-meta">${contact}</div><div class="facility-meta"><span>${esc(f.region||'')}</span>${f.gender?`<span>${esc(String(f.gender).replace(/^./,c=>c.toUpperCase()))}</span>`:''}</div><div class="facility-actions"><a class="btn btn-dark" href="${href}" target="_blank" rel="noopener">${es?'Verificar institución en BOP ↗':'Verify facility with BOP ↗'}</a><a class="btn btn-light" href="#/search">${es?'Buscar recluso':'Search inmate'}</a></div>
+<div class="facility-family-actions" style="margin-top:.85rem;padding-top:.85rem;border-top:1px solid #e2e8f0">
+  <strong>${es?'Antes de visitar, llamar o enviar correo':'Before visiting, calling, or sending mail'}</strong>
+  <div class="grid grid-3" style="margin-top:.55rem">
+    <div><b>${es?'Visitas':'Visiting'}</b><p class="result-meta">${es?'Confirme días, horarios, aprobación y avisos de la institución en la página oficial.':'Confirm days, hours, approval requirements, and institution notices on the official page.'}</p></div>
+    <div><b>${es?'Correo y paquetes':'Mail & packages'}</b><p class="result-meta">${es?'Verifique la dirección y las reglas actuales antes de enviar cualquier artículo.':'Verify the mailing address and current rules before sending any item.'}</p></div>
+    <div><b>${es?'Contacto':'Contact'}</b><p class="result-meta">${es?'Use el teléfono y los datos oficiales para confirmar cambios recientes.':'Use official phone and institution information to confirm recent changes.'}</p></div>
+  </div>
+  <div class="facility-actions"><a class="btn btn-light" href="/family-checklist/">${es?'Lista familiar':'Family checklist'}</a><a class="btn btn-light" href="/reentry-resources/">${es?'Recursos de reingreso':'Reentry resources'}</a></div>
+</div>
+<p class="notice">${es?'Datos públicos BOP consultados':'Public BOP data checked'}: ${esc(formatDateTime(f.last_verified_at))}. ${es?'La página oficial del BOP controla la información actual de la institución.':'The official BOP institution page controls current facility information.'}</p></article>`;
 }
 
 async function loadDeadlines(){
