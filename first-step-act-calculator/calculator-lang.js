@@ -1,0 +1,43 @@
+(()=> {
+const map=new Map([
+["Inmate Search","Buscar Recluso"],["FSA Calculator","Calculadora FSA"],["FSA Guide","Guía FSA"],["Facilities","Instituciones"],["Guides","Guías"],
+["Free planning tool","Herramienta gratuita de planificación"],["First Step Act Calculator","Calculadora First Step Act"],
+["Answer three short sections to build an illustrative federal sentence timeline using GCT, FSA Time Credits and an optional RDAP reduction.","Complete tres secciones breves para crear una cronología ilustrativa de una sentencia federal usando GCT, Créditos de Tiempo FSA y una reducción RDAP opcional."],
+["Not an official BOP calculation:","No es un cálculo oficial del BOP:"],["Calculator inputs stay in your browser. Nothing is saved unless you choose “Save on this device” after calculating.","Los datos de la calculadora permanecen en su navegador. Nada se guarda a menos que elija “Guardar en este dispositivo” después de calcular."],
+["1 · Sentence","1 · Sentencia"],["2 · Programs","2 · Programas"],["3 · Details","3 · Detalles"],["Sentence","Sentencia"],["Programs & FSA earning rate","Programas y tasa de acumulación FSA"],["Details","Detalles"],
+["Sentence length","Duración de la sentencia"],["Years","Años"],["Months","Meses"],["Sentence length in years","Duración de la sentencia en años"],["Sentence length in months","Duración de la sentencia en meses"],["Federal sentence start date","Fecha de inicio de la sentencia federal"],
+["Next: Programs →","Siguiente: Programas →"],["← Back","← Atrás"],["Next: Details →","Siguiente: Detalles →"],["Calculate estimate","Calcular estimación"],
+["FSA Time Credit eligibility","Elegibilidad para Créditos de Tiempo FSA"],["Not sure / verify with BOP","No estoy seguro / verificar con BOP"],["Eligible for FSA Time Credits","Elegible para Créditos de Tiempo FSA"],["Not eligible for FSA Time Credits","No elegible para Créditos de Tiempo FSA"],
+["PATTERN risk level / earning-rate scenario","Nivel de riesgo PATTERN / escenario de acumulación"],["Unknown — show both 10-day and 15-day scenarios","Desconocido — mostrar escenarios de 10 y 15 días"],["Medium — model 10 days / 30 days","Medio — modelar 10 días / 30 días"],["High — model 10 days / 30 days","Alto — modelar 10 días / 30 días"],
+["How should we model qualifying FSA participation?","¿Cómo debemos modelar la participación FSA que califica?"],["Best-case continuous qualifying participation","Participación continua que califica — mejor escenario"],["Use a known number of qualifying 30-day periods","Usar un número conocido de períodos de 30 días que califican"],["Known qualifying 30-day periods","Períodos conocidos de 30 días que califican"],
+["RDAP reduction to model","Reducción RDAP a modelar"],["None / not known","Ninguna / desconocida"],["Known GCT lost to disciplinary sanctions (days)","GCT conocido perdido por sanciones disciplinarias (días)"],["Known FSA Time Credit balance from BOP worksheet (optional)","Saldo conocido de Créditos FSA de la hoja del BOP (opcional)"],["Current BOP projected release date (optional)","Fecha de liberación proyectada actual del BOP (opcional)"],["Detainer / hold / other factor that may affect release?","¿Detainer, retención u otro factor que pueda afectar la liberación?"],["Not sure","No estoy seguro"],["No known detainer/hold","No se conoce detainer/retención"],["Yes / possible","Sí / posible"],
+["Planning result","Resultado de planificación"],["Your federal custody planning timeline","Su cronología de planificación de custodia federal"],["Summary","Resumen"],["Full analysis","Análisis completo"],["Edit inputs","Editar datos"],["Print / Save PDF","Imprimir / Guardar PDF"],["Copy summary","Copiar resumen"],["Save on this device","Guardar en este dispositivo"],["Clear saved","Borrar guardado"],
+["How we calculate it","Cómo lo calculamos"],["Official sources","Fuentes oficiales"],["Good Conduct Time quick chart","Tabla rápida de Good Conduct Time"],["Sentence","Sentencia"],["Approx. max GCT","GCT máximo aprox."],["Sentence less GCT (approx.)","Sentencia menos GCT (aprox.)"],
+["Companion worksheet","Hoja complementaria"],["Security / Custody Score Worksheet","Hoja de puntuación de seguridad / custodia"],["Offense / severity points","Puntos por delito / gravedad"],["Criminal-history points","Puntos de historial criminal"],["Violence / escape / detainer points","Puntos por violencia / fuga / detainer"],["Other static points","Otros puntos estáticos"],["Dynamic / custody adjustments","Ajustes dinámicos / de custodia"],["Total worksheet points","Totalizar puntos de la hoja"],
+["Tools","Herramientas"],["Federal inmate search","Búsqueda federal de reclusos"],["FSA calculator","Calculadora FSA"],["Family checklist","Lista familiar"],
+["Sentence, to scale","Sentencia a escala"],["FSA Time Credits","Créditos de Tiempo FSA"],["Good Conduct Time","Good Conduct Time"],["How firm is each date?","¿Qué tan firme es cada fecha?"],["Key assumptions to verify","Supuestos clave que debe verificar"],["Prerelease-custody references","Referencias de custodia previa a la liberación"],["Planning reference","Referencia de planificación"],["Your next move: prepare before the RRC referral window","Su próximo paso: prepárese antes del período de referido RRC"],["Verify these items:","Verifique estos puntos:"],["Worksheet total","Total de la hoja"]
+]);
+let lang=localStorage.getItem("cg_lang")||"en";
+const originals=new WeakMap();
+function translateTextNode(n){
+ if(n.nodeType!==3)return;
+ const raw=n.nodeValue, trimmed=raw.trim(); if(!trimmed)return;
+ if(!originals.has(n)) originals.set(n,raw);
+ const base=originals.get(n), key=base.trim();
+ if(lang==="es"&&map.has(key)) n.nodeValue=base.replace(key,map.get(key));
+ else if(lang==="en") n.nodeValue=base;
+}
+function walk(root=document.body){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode())translateTextNode(n)}
+function apply(){
+ document.documentElement.lang=lang;
+ document.querySelector("#calcLangEn")?.classList.toggle("active",lang==="en");
+ document.querySelector("#calcLangEs")?.classList.toggle("active",lang==="es");
+ walk();
+}
+document.querySelector("#calcLangEn")?.addEventListener("click",()=>{lang="en";localStorage.setItem("cg_lang","en");apply()});
+document.querySelector("#calcLangEs")?.addEventListener("click",()=>{lang="es";localStorage.setItem("cg_lang","es");apply()});
+const mo=new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){if(n.nodeType===3)translateTextNode(n);else if(n.nodeType===1)walk(n)}});
+mo.observe(document.body,{childList:true,subtree:true});
+window.FCG_CALC_LANG=()=>lang;
+apply();
+})();
