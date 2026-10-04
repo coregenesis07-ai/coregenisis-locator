@@ -12,14 +12,25 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../styles.css">
 </head>
 <body>
+<div class="language-awareness-bar" style="background:#082f49;color:#fff;border-bottom:3px solid #d69e2e">
+  <div style="max-width:1180px;margin:auto;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:.65rem"><span style="font-size:1.5rem">🌐</span><div><strong>English + Español</strong><small style="display:block;color:#cbd5e1">Federal Prison Directory • Directorio Federal de Prisiones</small></div></div>
+    <div style="display:flex;gap:.4rem"><button id="dirLangEn" class="btn btn-light" type="button">EN · English</button><button id="dirLangEs" class="btn btn-light" type="button">ES · Español</button></div>
+  </div>
+</div>
 <header class="site-header"><div class="header-inner">
 <a class="brand" href="/"><span class="brand-mark">F</span><span class="brand-copy"><strong>Federal Custody Guide</strong><small>by Coregenisis</small></span></a>
 <nav class="nav" aria-label="Primary">
 <a href="/federal-inmate-search/">Inmate Search</a><a href="/first-step-act/">First Step Act</a><a href="/second-chance/">Second Chance</a><a href="/bop-policies/">BOP Policies</a><a href="/federal-prison-directory/">Facilities</a><a href="/reentry-resources/">Reentry</a>
 </nav></div></header>
 <main id="main">
-<section class="page-header"><div class="container"><h1>Federal Prison Directory</h1><p>Find federal prison facility information, addresses, contact details, security information, visiting resources, and official BOP facility pages.</p></div></section>
+<section class="page-header"><div class="container"><span class="section-kicker">FOR FAMILIES • PARA FAMILIAS</span><h1 data-en="Federal Prison Directory" data-es="Directorio Federal de Prisiones">Federal Prison Directory</h1><p data-en="Find federal prison facility information, addresses, contact details, security information, visiting resources, and official BOP facility pages." data-es="Encuentre información de instituciones federales, direcciones, datos de contacto, información de seguridad, recursos de visitas y páginas oficiales del BOP.">Find federal prison facility information, addresses, contact details, security information, visiting resources, and official BOP facility pages.</p><p><small data-en="Last reviewed: October 4, 2026 • Verify current institution information with BOP before traveling or sending mail." data-es="Última revisión: 4 de octubre de 2026 • Verifique la información actual de la institución con el BOP antes de viajar o enviar correo.">Last reviewed: October 4, 2026 • Verify current institution information with BOP before traveling or sending mail.</small></p></div></section>
 <section class="section"><div class="container"><div class="card" style="max-width:900px;margin:auto">
+<div class="grid grid-3" style="margin-bottom:1rem">
+<div><strong data-en="1 · Find the facility" data-es="1 · Encuentre la institución">1 · Find the facility</strong><p data-en="Use the directory or interactive facility search." data-es="Use el directorio o la búsqueda interactiva de instituciones.">Use the directory or interactive facility search.</p></div>
+<div><strong data-en="2 · Verify with BOP" data-es="2 · Verifique con BOP">2 · Verify with BOP</strong><p data-en="Confirm address, phone, visiting rules and institution notices." data-es="Confirme dirección, teléfono, reglas de visitas y avisos de la institución.">Confirm address, phone, visiting rules and institution notices.</p></div>
+<div><strong data-en="3 · Plan before travel" data-es="3 · Planifique antes de viajar">3 · Plan before travel</strong><p data-en="Check visiting status and current procedures before leaving home." data-es="Revise el estado de visitas y los procedimientos actuales antes de salir de casa.">Check visiting status and current procedures before leaving home.</p></div>
+</div>
 <p>Use the directory to find federal prison facilities and connect to official BOP institution pages for current contact and visiting information.</p><h2>Facility information can change</h2><p>Addresses, contact details, programs, visiting procedures, and custody information should be confirmed on the official institution page before relying on them.</p><p><a class="resource-link" href="https://www.bop.gov/locations/" target="_blank" rel="noopener"><b>Official BOP Locations</b><span>bop.gov ↗</span></a></p>
 <div class="banner" style="margin-top:1rem"><strong>Independent resource:</strong> Federal Custody Guide is not affiliated with the Federal Bureau of Prisons or Department of Justice. Verify important information with the official source.</div>
 <p style="margin-top:1rem"><a class="btn btn-dark" href="/#/facilities">Open the interactive section</a></p>
@@ -34,4 +45,7 @@
 </div></div></section>
 </main>
 <footer class="footer"><div class="container"><strong>Federal Custody Guide</strong> by Coregenisis<p>Public information and educational summaries only; not legal advice.</p></div></footer>
+<script>
+(()=>{let lang=localStorage.getItem('cg_lang')||'en';const apply=()=>{document.documentElement.lang=lang;document.querySelectorAll('[data-en][data-es]').forEach(el=>el.textContent=el.dataset[lang]);document.getElementById('dirLangEn')?.classList.toggle('btn-dark',lang==='en');document.getElementById('dirLangEs')?.classList.toggle('btn-dark',lang==='es');};document.getElementById('dirLangEn')?.addEventListener('click',()=>{lang='en';localStorage.setItem('cg_lang',lang);apply()});document.getElementById('dirLangEs')?.addEventListener('click',()=>{lang='es';localStorage.setItem('cg_lang',lang);apply()});apply()})();
+</script>
 </body></html>
