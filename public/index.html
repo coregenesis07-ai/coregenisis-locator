@@ -179,6 +179,28 @@ body {
     .fcg-banner-text span{font-size:10.5px;}
   }
 </style>
+
+<style id="mobile-bop-results">
+@media (max-width: 640px) {
+  .overflow-x-auto.max-w-full { overflow-x: visible !important; }
+  .overflow-x-auto.max-w-full table { min-width: 0 !important; width: 100% !important; }
+  .overflow-x-auto.max-w-full thead { display: none !important; }
+  .overflow-x-auto.max-w-full tbody,
+  .overflow-x-auto.max-w-full tr,
+  .overflow-x-auto.max-w-full td { display: block !important; width: 100% !important; }
+  .overflow-x-auto.max-w-full tbody tr { padding: 14px 16px; border-bottom: 1px solid #e2e8f0; }
+  .overflow-x-auto.max-w-full tbody td { padding: 7px 0 !important; }
+  .overflow-x-auto.max-w-full tbody td:not([colspan])::before {
+    display: block; margin-bottom: 3px; font-size: 10px; line-height: 1.2;
+    font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #64748b;
+  }
+  .overflow-x-auto.max-w-full tbody td:nth-child(1)::before { content: "Name / Nombre"; }
+  .overflow-x-auto.max-w-full tbody td:nth-child(2)::before { content: "BOP #"; }
+  .overflow-x-auto.max-w-full tbody td:nth-child(3)::before { content: "Facility / Institución"; }
+  .overflow-x-auto.max-w-full tbody td:nth-child(4)::before { content: "Release / Liberación"; }
+  .overflow-x-auto.max-w-full tbody td:nth-child(5)::before { content: "Status / Estado"; }
+}
+</style>
 </head>
 <body>
   <div id="root"></div>
