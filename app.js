@@ -1152,8 +1152,8 @@ async function doSearch(e){
      ? (state.lang==='es'?rows.length+' resultado(s) público(s). Verifique en BOP.gov.':rows.length+' public result(s) returned. Verify at BOP.gov.')
      : t('noResults');
  }catch(err){
-   status.textContent=state.lang==='es'?'La búsqueda directa BOP no está disponible en este momento.':'Direct BOP search is unavailable right now.';
-   out.innerHTML='<div class="empty-state">'+esc(err?.message||'Search unavailable')+'<div style="height:.7rem"></div><a class="btn btn-light" href="https://www.bop.gov/inmateloc/" target="_blank" rel="noopener">Official BOP Inmate Locator ↗</a></div>';
+   status.textContent=state.lang==='es'?'No pudimos conectar con la búsqueda pública del BOP en este momento. Puede intentarlo de nuevo o verificar directamente en BOP.gov.':'We could not connect to the public BOP search right now. You can try again or verify directly at BOP.gov.';
+   out.innerHTML='<div class="empty-state"><strong>'+(state.lang==='es'?'La búsqueda temporalmente no está disponible.':'Search is temporarily unavailable.')+'</strong><p>'+(state.lang==='es'?'Esto puede ser una interrupción temporal de la conexión. No significa que el registro BOP no exista.':'This may be a temporary connection interruption. It does not mean the BOP record does not exist.')+'</p><button class="btn btn-dark" type="button" onclick="document.getElementById(\'searchForm\').requestSubmit()">'+(state.lang==='es'?'Intentar de nuevo':'Try again')+'</button><div style="height:.7rem"></div><a class="btn btn-light" href="https://www.bop.gov/inmateloc/" target="_blank" rel="noopener">'+(state.lang==='es'?'Localizador Oficial de Reclusos BOP ↗':'Official BOP Inmate Locator ↗')+'</a></div>';
  }
 }
 function normalizeResults(data){
