@@ -1141,7 +1141,7 @@ async function doSearch(e){
  }
  try{
    const searchValue=digits.length===8 ? (digits.slice(0,5)+'-'+digits.slice(5)) : q;
-   const url='https://federalcustodyguide-search.coregenesis07.workers.dev/api/bop-search?'+new URLSearchParams({q:searchValue}).toString();
+   const url='/api/bop-search?'+new URLSearchParams({q:searchValue}).toString();
    const res=await fetch(url,{headers:{Accept:'application/json'}});
    const data=await res.json();
    if(!res.ok)throw new Error(data.error||('Search service HTTP '+res.status));
