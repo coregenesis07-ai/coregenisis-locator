@@ -13,16 +13,17 @@ export default {
 
       const isRegister = /^[0-9]{5}-[0-9]{3}$/.test(q);
       const params = new URLSearchParams({todo: "query", output: "json"});
-      if (isRegister) params.set("inmateNum", q);
+      if (isRegister) { params.set("inmateNumType", "IRN"); params.set("inmateNum", q); }
       else params.set("nameLast", q);
 
       const bopUrl = `https://www.bop.gov/PublicInfo/execute/inmateloc?${params.toString()}`;
       try {
         const res = await fetch(bopUrl, {
           headers: {
-            "Accept": "application/json",
-            "User-Agent": "FederalCustodyGuide/1.0"
-          }
+            "Accept": "application/json,text/plain;q=0.9,*/*;q=0.1",
+            "User-Agent": "FederalCustodyGuide/1.0 (+public federal information service)"
+          },
+          redirect: "follow"
         });
         if (!res.ok) return json({error: "BOP service unavailable", upstream_status: res.status}, 502);
 
@@ -30,6 +31,8 @@ export default {
         let data;
         try { data = JSON.parse(raw); }
         catch { return json({error: "BOP returned an unexpected response"}, 502); }
+
+        if (data?.Captcha === true) return json({error: "BOP requires additional verification right now. Please verify directly at BOP.gov."}, 503);
 
         return new Response(JSON.stringify({ok: true, source: "bop.gov", data}), {
           status: 200,
