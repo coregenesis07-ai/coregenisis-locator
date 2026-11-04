@@ -8,6 +8,7 @@ const map=new Map([
 ["Selecting an RDAP reduction does not determine RDAP eligibility. BOP makes the eligibility and reduction decision.","Seleccionar una reducción RDAP no determina la elegibilidad para RDAP. El BOP decide la elegibilidad y la reducción."],
 ["Separate entered facts, calculations, and future scenarios so you can see what is known versus what still needs verification.","Distinga los datos ingresados, los cálculos y los escenarios futuros para identificar lo conocido y lo que aún requiere verificación."],
 ["10-day earning scenario · date ladder","Escenario de acumulación de 10 días · cronología de fechas"],
+["10-day earning · date ladder","Acumulación de 10 días · cronología de fechas"],["15-day earning · date ladder","Acumulación de 15 días · cronología de fechas"],
 ["10-day earning scenario","Escenario de acumulación de 10 días"],
 ["days elapsed since entered start date","días transcurridos desde la fecha de inicio ingresada"],
 ["days calendar sentence remaining","días restantes de la sentencia calendario"],
