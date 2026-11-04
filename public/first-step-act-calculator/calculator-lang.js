@@ -3,6 +3,15 @@ const map=new Map([
 ["Inmate Search","Buscar Recluso"],["FSA Calculator","Calculadora FSA"],["FSA Guide","Guía FSA"],["Facilities","Instituciones"],["Guides","Guías"],
 ["Free planning tool","Herramienta gratuita de planificación"],["First Step Act Calculator","Calculadora First Step Act"],
 ["Answer three short sections to build an illustrative federal sentence timeline using GCT, FSA Time Credits and an optional RDAP reduction.","Complete tres secciones breves para crear una cronología ilustrativa de una sentencia federal usando GCT, Créditos de Tiempo FSA y una reducción RDAP opcional."],
+["this is an independent planning tool. It does not determine eligibility, award credits, account for every sentence-computation factor, or replace the BOP's Projected Release Date.","Esta es una herramienta independiente de planificación. No determina la elegibilidad, concede créditos, contempla todos los factores del cálculo de la sentencia ni sustituye la fecha proyectada de liberación del BOP."],
+["Start with the sentence imposed by the court and the date the federal sentence began. Prior-custody credit and unusual sentence structures can change the official computation.","Comience con la sentencia impuesta por el tribunal y la fecha en que comenzó la sentencia federal. Los créditos por detención previa y las estructuras de sentencia inusuales pueden modificar el cálculo oficial."],
+["Selecting an RDAP reduction does not determine RDAP eligibility. BOP makes the eligibility and reduction decision.","Seleccionar una reducción RDAP no determina la elegibilidad para RDAP. El BOP decide la elegibilidad y la reducción."],
+["Separate entered facts, calculations, and future scenarios so you can see what is known versus what still needs verification.","Distinga los datos ingresados, los cálculos y los escenarios futuros para identificar lo conocido y lo que aún requiere verificación."],
+["10-day earning scenario · date ladder","Escenario de acumulación de 10 días · cronología de fechas"],
+["10-day earning scenario","Escenario de acumulación de 10 días"],
+["days elapsed since entered start date","días transcurridos desde la fecha de inicio ingresada"],
+["days calendar sentence remaining","días restantes de la sentencia calendario"],
+["days GCT + FTC shown separately as modeled credits","días de GCT y FTC mostrados por separado como créditos estimados"],
 ["Not an official BOP calculation:","No es un cálculo oficial del BOP:"],["Calculator inputs stay in your browser. Nothing is saved unless you choose “Save on this device” after calculating.","Los datos de la calculadora permanecen en su navegador. Nada se guarda a menos que elija “Guardar en este dispositivo” después de calcular."],
 ["1 · Sentence","1 · Sentencia"],["2 · Programs","2 · Programas"],["3 · Details","3 · Detalles"],["Sentence","Sentencia"],["Programs & FSA earning rate","Programas y tasa de acumulación FSA"],["Details","Detalles"],
 ["Sentence length","Duración de la sentencia"],["Years","Años"],["Months","Meses"],["Sentence length in years","Duración de la sentencia en años"],["Sentence length in months","Duración de la sentencia en meses"],["Federal sentence start date","Fecha de inicio de la sentencia federal"],
@@ -28,11 +37,16 @@ function translateTextNode(n){
  else if(lang==="en") n.nodeValue=base;
 }
 function walk(root=document.body){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode())translateTextNode(n)}
+function translatePlaceholders(){
+ const input=document.querySelector("#knownFtc");
+ if(input) input.placeholder=lang==="es"?"Deje en blanco para estimar según la participación":"Leave blank to estimate from participation";
+}
 function apply(){
  document.documentElement.lang=lang;
  document.querySelector("#calcLangEn")?.classList.toggle("active",lang==="en");
  document.querySelector("#calcLangEs")?.classList.toggle("active",lang==="es");
  walk();
+ translatePlaceholders();
 }
 document.querySelector("#calcLangEn")?.addEventListener("click",()=>{lang="en";localStorage.setItem("cg_lang","en");apply()});
 document.querySelector("#calcLangEs")?.addEventListener("click",()=>{lang="es";localStorage.setItem("cg_lang","es");apply()});
