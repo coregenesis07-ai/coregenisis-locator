@@ -1,5 +1,6 @@
 (()=> {
 const map=new Map([
+["Enter point values that you already have from an official form or have verified under the current BOP classification policy. This worksheet totals them but does not independently assign policy points or an official security level.","Ingrese los valores de puntos que ya tenga de un formulario oficial o que haya verificado conforme a la política vigente de clasificación del BOP. Esta hoja suma los puntos, pero no asigna por sí sola puntos conforme a la política ni determina un nivel oficial de seguridad."],
 ["Inmate Search","Buscar Recluso"],["FSA Calculator","Calculadora FSA"],["FSA Guide","Guía FSA"],["Facilities","Instituciones"],["Guides","Guías"],
 ["Free planning tool","Herramienta gratuita de planificación"],["First Step Act Calculator","Calculadora First Step Act"],
 ["Answer three short sections to build an illustrative federal sentence timeline using GCT, FSA Time Credits and an optional RDAP reduction.","Complete tres secciones breves para crear una cronología ilustrativa de una sentencia federal usando GCT, Créditos de Tiempo FSA y una reducción RDAP opcional."],
