@@ -1,5 +1,15 @@
 (()=> {
 const map=new Map([
+["Sentence start & length","Inicio y duración de la sentencia"],
+["Entered by user","Ingresado por el usuario"],
+["Illustrative date if the modeled/entered FTC amount were earned and applied under applicable FSA rules.","Fecha ilustrativa si la cantidad de FTC modelada o ingresada se hubiera obtenido y aplicado conforme a las reglas FSA correspondientes."],
+["Illustrative date using no more than 365 FTC days toward supervised release.","Fecha ilustrativa utilizando un máximo de 365 días FTC para la libertad supervisada."],
+["Calculation: approximate GCT date minus FTC scenario.","Cálculo: fecha aproximada con GCT menos el escenario FTC."],
+["Calculation: approximate GCT date minus up to 365 FTC days.","Cálculo: fecha aproximada con GCT menos hasta 365 días FTC."],
+["Shown separately so it is not silently combined with FSA credit assumptions.","Se muestra por separado para no combinarlo implícitamente con los supuestos de créditos FSA."],
+["Calculator estimate only; BOP sentence computation controls.","Solo estimación de la calculadora; prevalece el cálculo de sentencia del BOP."],
+["Calendar sentence end from the entered start date and sentence length.","Fin de sentencia calendario según la fecha de inicio y la duración ingresadas."],
+["Planning estimate only — BOP records and determinations control.","Solo estimación de planificación; prevalecen los registros y las determinaciones del BOP."],
 ["Enter point values that you already have from an official form or have verified under the current BOP classification policy. This worksheet totals them but does not independently assign policy points or an official security level.","Ingrese los valores de puntos que ya tenga de un formulario oficial o que haya verificado conforme a la política vigente de clasificación del BOP. Esta hoja suma los puntos, pero no asigna por sí sola puntos conforme a la política ni determina un nivel oficial de seguridad."],
 ["Inmate Search","Buscar Recluso"],["FSA Calculator","Calculadora FSA"],["FSA Guide","Guía FSA"],["Facilities","Instituciones"],["Guides","Guías"],
 ["Free planning tool","Herramienta gratuita de planificación"],["First Step Act Calculator","Calculadora First Step Act"],
