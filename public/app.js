@@ -807,6 +807,7 @@ function legalPage(kind){
 }
 
 function app(){
+ document.documentElement.lang = state.lang === 'es' ? 'es' : 'en';
  const routes={home:home,search:searchPage,fsa:fsaPage,rules:rulesPage,policies:policiesPage,facilities:facilitiesPage,alerts:alertsPage,resources:resourcesPage,services:servicesPage,pricing:pricingPage,family:familyPage,reentry:reentryPage,privacy:()=>legalPage('privacy'),terms:()=>legalPage('terms'),disclaimer:()=>legalPage('disclaimer'),accuracy:()=>legalPage('accuracy'),'calculator-disclaimer':()=>legalPage('calculatorDisclaimer'),refunds:()=>legalPage('refunds'),copyright:()=>legalPage('copyright')};
  const view=(routes[state.route]||home)();
  $('#app').innerHTML=header()+previewNotice()+view+footer();
