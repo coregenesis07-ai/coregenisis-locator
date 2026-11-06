@@ -1,0 +1,41 @@
+name: FSA calculator static QA
+on:
+  pull_request:
+    paths:
+      - 'public/first-step-act-calculator/**'
+      - '.github/workflows/calculator-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  calculator-static-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check calculator JavaScript syntax
+        run: |
+          node --check public/first-step-act-calculator/calculator.js
+          node --check public/first-step-act-calculator/calculator-lang.js
+      - name: Check bilingual repair wiring
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const assert = require('node:assert/strict');
+          const base='public/first-step-act-calculator/';
+          const html=fs.readFileSync(base+'index.html','utf8');
+          const lang=fs.readFileSync(base+'calculator-lang.js','utf8');
+          assert(!html.includes('</script>\\n<script'), 'Literal backslash-n remains between scripts');
+          assert(html.includes('calculator-lang.js?v=20261103-1'), 'Translation script cache version not updated');
+          for (const key of [
+            'this is an independent planning tool.',
+            'Selecting an RDAP reduction does not determine RDAP eligibility.',
+            'Separate entered facts, calculations, and future scenarios',
+            '10-day earning scenario · date ladder',
+            '15-day earning scenario · date ladder'
+          ]) assert(lang.includes(key), 'Missing translation: '+key);
+          assert(lang.includes('input.placeholder=lang==="es"'), 'FSA placeholder language toggle missing');
+          console.log('Static bilingual wiring checks passed; browser behavior and legal accuracy still require separate review.');
+          NODE
