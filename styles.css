@@ -500,3 +500,9 @@ main{min-height:70vh}.container{max-width:1180px;margin:auto;padding:0 1rem}
   .family-pathway-grid .core-tool-card h3{font-size:1.08rem}
   .family-pathway-grid .core-tool-card p{font-size:.92rem;line-height:1.55}
 }
+
+/* Accessible keyboard focus without changing pointer/touch appearance */
+:where(a, button, input, select, textarea, summary):focus-visible{
+  outline:3px solid #f59e0b;
+  outline-offset:3px;
+}
