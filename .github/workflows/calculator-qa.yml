@@ -1,0 +1,162 @@
+name: FSA calculator static QA
+on:
+  pull_request:
+    paths:
+      - 'public/first-step-act-calculator/**'
+      - '.github/workflows/calculator-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  calculator-static-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Package draft calculator for isolated preview
+        run: |
+          test -f public/first-step-act-calculator/index.html
+          test -f public/first-step-act-calculator/calculator.js
+          test -f public/first-step-act-calculator/calculator-lang.js
+      - name: Upload draft calculator preview files
+        uses: actions/upload-artifact@v4
+        with:
+          name: fsa-calculator-pr-preview
+          path: public/first-step-act-calculator/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Install Chromium browser test runner
+        run: |
+          npm install --no-save --prefix /tmp/fsa-browser-qa playwright@1.56.1
+          /tmp/fsa-browser-qa/node_modules/.bin/playwright install --with-deps chromium
+      - name: Browser smoke test draft calculator EN/ES
+        run: |
+          NODE_PATH=/tmp/fsa-browser-qa/node_modules node <<'NODE'
+          const {chromium}=require('playwright');
+          const assert=require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const page=await browser.newPage({viewport:{width:390,height:844}});
+              const errors=[];
+              page.on('pageerror',e=>errors.push(e.message));
+              await page.goto('file://'+process.cwd()+'/public/first-step-act-calculator/index.html');
+              await page.waitForLoadState('load');
+              assert(await page.locator('#calcLangEs').count(), 'Spanish toggle missing');
+              await page.locator('#calcLangEs').click();
+              assert.equal(await page.locator('html').getAttribute('lang'),'es');
+              await page.locator('#calcLangEn').click();
+              assert.equal(await page.locator('html').getAttribute('lang'),'en');
+              // Fictional 60-month case: verify wizard, results, and language persistence.
+              await page.locator('#sentenceLength').fill('5');
+              await page.locator('#sentenceStart').fill('2025-09-03');
+              await page.locator('[data-next="2"]').click();
+              await page.locator('#fsaEligibility').selectOption('yes');
+              await page.locator('#patternRisk').selectOption('medium');
+              await page.locator('#participationMode').selectOption('known');
+              await page.locator('#knownPeriods').fill('20');
+              await page.locator('[data-next="3"]').click();
+              await page.locator('#knownFtc').fill('200');
+              await page.locator('button[type="submit"]').first().click();
+              assert(!(await page.locator('#resultsSection').getAttribute('class')).includes('result-hidden'),'No results displayed');
+              const resultText=await page.locator('#resultSummary').textContent();
+              assert(resultText.includes('270 days'),'Expected illustrative 270-day GCT for 60 months');
+              assert(resultText.includes('200 days'),'Entered FTC amount missing from results');
+              assert(resultText.includes('Sep 3, 2030'),'Full-term date mismatch');
+              assert(resultText.includes('Dec 7, 2029'),'Approximate GCT date mismatch');
+              const resultEn=await page.locator('#resultSummary').innerText();
+              assert(resultEn.length>50,'Result summary unexpectedly empty');
+              const warningEn=await page.locator('#resultWarnings').innerText();
+              assert(warningEn.includes('Earning FSA Time Credits does not automatically authorize their application.'),'Earned-vs-applied warning missing');
+              await page.locator('#calcLangEs').click();
+              const warningEs=await page.locator('#resultWarnings').innerText();
+              assert(warningEs.includes('Ganar créditos de tiempo FSA no autoriza automáticamente su aplicación.'),'Spanish earned-vs-applied warning missing');
+              assert(!warningEs.includes('Earning FSA Time Credits does not automatically authorize'),'Warning left in English');
+              assert(warningEs.includes('Un riesgo PATTERN medio o alto'),'Medium PATTERN Spanish warning missing');
+              assert.equal(await page.locator('#sentenceStart').inputValue(),'2025-09-03');
+              assert.equal(await page.locator('#knownFtc').inputValue(),'200');
+              assert.equal(await page.locator('#patternRisk').inputValue(),'medium');
+              assert((await page.locator('#resultSummary').innerText()).length>50,'Spanish result missing');
+              await page.locator('#calcLangEn').click();
+              assert.equal(await page.locator('#sentenceLength').inputValue(),'5');
+              assert.equal(await page.locator('#knownPeriods').inputValue(),'20');
+              assert.equal(await page.locator('#resultSummary').innerText(),resultEn,'English results changed after toggle');
+              assert.deepEqual(errors,[],'Browser JavaScript errors: '+errors.join('; '));
+              console.log('Chromium mobile-viewport EN/ES smoke test passed');
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          NODE
+      - name: Check calculator JavaScript syntax
+        run: |
+          node --check public/first-step-act-calculator/calculator.js
+          node --check public/first-step-act-calculator/calculator-lang.js
+      - name: Exercise translation on changing text nodes
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+          const source=fs.readFileSync('public/first-step-act-calculator/calculator-lang.js','utf8');
+          let observer;
+          const handlers={};
+          const node={nodeType:3,nodeValue:'Start date entered: Sep 3, 2025'};
+          const store={cg_lang:'es'};
+          const buttons={
+            '#calcLangEn':{addEventListener:(type,fn)=>handlers.en=fn,classList:{toggle(){}}},
+            '#calcLangEs':{addEventListener:(type,fn)=>handlers.es=fn,classList:{toggle(){}}}
+          };
+          const doc={
+            body:{},documentElement:{lang:'en'},
+            querySelector:selector=>buttons[selector]||null,
+            createTreeWalker:()=>{let used=false;return {nextNode:()=>used?null:(used=true,node)}}
+          };
+          const ctx={
+            localStorage:{getItem:k=>store[k],setItem:(k,v)=>store[k]=v},
+            document:doc,NodeFilter:{SHOW_TEXT:4},
+            MutationObserver:class{constructor(fn){observer=fn}observe(){}},
+            window:{},WeakMap,Map
+          };
+          vm.runInNewContext(source,ctx);
+          observer([{type:'childList',addedNodes:[node]}]);
+          assert.equal(node.nodeValue,'Fecha de inicio ingresada: Sep 3, 2025');
+          node.nodeValue='Start date entered: Oct 4, 2025';
+          observer([{type:'characterData',target:node}]);
+          assert.equal(node.nodeValue,'Fecha de inicio ingresada: Oct 4, 2025');
+          observer([{type:'characterData',target:node}]);
+          assert.equal(node.nodeValue,'Fecha de inicio ingresada: Oct 4, 2025');
+          handlers.en();
+          assert.equal(node.nodeValue,'Start date entered: Oct 4, 2025');
+          handlers.es();
+          assert.equal(node.nodeValue,'Fecha de inicio ingresada: Oct 4, 2025');
+          assert.equal(doc.documentElement.lang,'es');
+          console.log('Dynamic text-node translation regression passed');
+          NODE
+      - name: Check bilingual repair wiring
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const assert = require('node:assert/strict');
+          const base='public/first-step-act-calculator/';
+          const html=fs.readFileSync(base+'index.html','utf8');
+          const lang=fs.readFileSync(base+'calculator-lang.js','utf8');
+          assert(!html.includes('</script>\\n<script'), 'Literal backslash-n remains between scripts');
+          assert(html.includes('calculator-lang.js?v=20261103-1'), 'Translation script cache version not updated');
+          for (const key of [
+            'this is an independent planning tool.',
+            'Selecting an RDAP reduction does not determine RDAP eligibility.',
+            'Separate entered facts, calculations, and future scenarios',
+            '10-day earning scenario · date ladder',
+            '15-day earning scenario · date ladder'
+          ]) assert(lang.includes(key), 'Missing translation: '+key);
+          assert(lang.includes('input.placeholder=lang==="es"'), 'FSA placeholder language toggle missing');
+          for (const key of [
+            'const dynamicPrefixes=',
+            'key.startsWith(en)',
+            'prefix[1]+key.slice(prefix[0].length)',
+            'Start date entered: ',
+            'FTC toward supervised release in this scenario: ',
+            'Modeled FSA prerelease threshold: ',
+            'Separate RDAP scenario: '
+          ]) assert(lang.includes(key), 'Missing variable-text translation support: '+key);
+          console.log('Static bilingual wiring checks passed; browser behavior and legal accuracy still require separate review.');
+          NODE
