@@ -15,6 +15,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Package draft calculator for isolated preview
+        run: |
+          test -f public/first-step-act-calculator/index.html
+          test -f public/first-step-act-calculator/calculator.js
+          test -f public/first-step-act-calculator/calculator-lang.js
+      - name: Upload draft calculator preview files
+        uses: actions/upload-artifact@v4
+        with:
+          name: fsa-calculator-pr-preview
+          path: public/first-step-act-calculator/
+          if-no-files-found: error
+          retention-days: 7
       - name: Check calculator JavaScript syntax
         run: |
           node --check public/first-step-act-calculator/calculator.js
