@@ -59,16 +59,21 @@ const map=new Map([
 const dynamicPrefixes=[["Start date entered: ","Fecha de inicio ingresada: "],["Approximate GCT date: ","Fecha aproximada con GCT: "],["FTC used in this scenario: ","FTC utilizado en este escenario: "],["FTC toward supervised release in this scenario: ","FTC aplicado a libertad supervisada en este escenario: "],["User-selected RDAP reduction: ","Reducción RDAP seleccionada por el usuario: "],["Full term: ","Sentencia completa: "],["Approximate GCT modeled: ","GCT aproximado modelado: "],["Sentence start: ","Inicio de sentencia: "],["Approximate GCT: ","GCT aproximado: "],["Modeled FSA prerelease threshold: ","Umbral FSA modelado para custodia previa a liberación: "],["Modeled supervised-release threshold: ","Umbral modelado para libertad supervisada: "],["Separate RDAP scenario: ","Escenario RDAP independiente: "]];
 let lang=localStorage.getItem("cg_lang")||"en";
 const originals=new WeakMap();
+const lastRendered=new WeakMap();
 function translateTextNode(n){
  if(n.nodeType!==3)return;
  const raw=n.nodeValue, trimmed=raw.trim(); if(!trimmed)return;
- if(!originals.has(n)) originals.set(n,raw);
+ // Distinguish an external text update from our own translation write.
+ if(!originals.has(n) || (lastRendered.has(n) && raw!==lastRendered.get(n))) originals.set(n,raw);
  const base=originals.get(n), key=base.trim();
+ let desired=base;
  if(lang==="es"){
    const prefix=dynamicPrefixes.find(([en])=>key.startsWith(en));
    const translated=map.has(key)?map.get(key):prefix?prefix[1]+key.slice(prefix[0].length):null;
-   if(translated!==null) n.nodeValue=base.replace(key,translated);
- }else if(lang==="en") n.nodeValue=base;
+   if(translated!==null) desired=base.replace(key,translated);
+ }
+ lastRendered.set(n,desired);
+ if(n.nodeValue!==desired) n.nodeValue=desired;
 }
 function walk(root=document.body){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode())translateTextNode(n)}
 function translatePlaceholders(){
@@ -84,7 +89,7 @@ function apply(){
 }
 document.querySelector("#calcLangEn")?.addEventListener("click",()=>{lang="en";localStorage.setItem("cg_lang","en");apply()});
 document.querySelector("#calcLangEs")?.addEventListener("click",()=>{lang="es";localStorage.setItem("cg_lang","es");apply()});
-const mo=new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){if(n.nodeType===3)translateTextNode(n);else if(n.nodeType===1)walk(n)}});
+const mo=new MutationObserver(ms=>{for(const m of ms){if(m.type==="characterData") translateTextNode(m.target);else for(const n of m.addedNodes){if(n.nodeType===3)translateTextNode(n);else if(n.nodeType===1)walk(n)}}});
 mo.observe(document.body,{childList:true,subtree:true,characterData:true});
 window.FCG_CALC_LANG=()=>lang;
 apply();
