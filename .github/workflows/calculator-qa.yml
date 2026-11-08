@@ -27,6 +27,33 @@ jobs:
           path: public/first-step-act-calculator/
           if-no-files-found: error
           retention-days: 7
+      - name: Install Chromium browser test runner
+        run: |
+          npm install --no-save --prefix /tmp/fsa-browser-qa playwright@1.56.1
+          /tmp/fsa-browser-qa/node_modules/.bin/playwright install --with-deps chromium
+      - name: Browser smoke test draft calculator EN/ES
+        run: |
+          NODE_PATH=/tmp/fsa-browser-qa/node_modules node <<'NODE'
+          const {chromium}=require('playwright');
+          const assert=require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const page=await browser.newPage({viewport:{width:390,height:844}});
+              const errors=[];
+              page.on('pageerror',e=>errors.push(e.message));
+              await page.goto('file://'+process.cwd()+'/public/first-step-act-calculator/index.html');
+              await page.waitForLoadState('load');
+              assert(await page.locator('#calcLangEs').count(), 'Spanish toggle missing');
+              await page.locator('#calcLangEs').click();
+              assert.equal(await page.locator('html').getAttribute('lang'),'es');
+              await page.locator('#calcLangEn').click();
+              assert.equal(await page.locator('html').getAttribute('lang'),'en');
+              assert.deepEqual(errors,[],'Browser JavaScript errors: '+errors.join('; '));
+              console.log('Chromium mobile-viewport EN/ES smoke test passed');
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          NODE
       - name: Check calculator JavaScript syntax
         run: |
           node --check public/first-step-act-calculator/calculator.js
