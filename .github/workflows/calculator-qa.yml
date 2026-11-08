@@ -44,14 +44,24 @@ jobs:
           assert.equal(node.nodeValue,'Fecha de inicio ingresada: Oct 4, 2025');
           observer([{type:'characterData',target:node}]);
           assert.equal(node.nodeValue,'Fecha de inicio ingresada: Oct 4, 2025');
-          store.cg_lang='en';
-          // Reloading the script in English exercises language restoration separately.
-          const node2={nodeType:3,nodeValue:'Start date entered: Oct 4, 2025'};
-          const ctx2={...ctx,document:{...ctx.document,documentElement:{lang:'es'}},
-            MutationObserver:class{constructor(fn){observer=fn}observe(){}}};
+          // Exercise actual language-toggle callbacks without reloading the script.
+          const handlers={};
+          const buttons={
+            '#calcLangEn':{addEventListener:(type,fn)=>handlers.en=fn,classList:{toggle(){}}},
+            '#calcLangEs':{addEventListener:(type,fn)=>handlers.es=fn,classList:{toggle(){}}}
+          };
+          const doc={
+            body,documentElement:{lang:'es'},
+            querySelector:selector=>buttons[selector]||null,
+            createTreeWalker:()=>{let used=false;return {nextNode:()=>used?null:(used=true,node)}}
+          };
+          const ctx2={...ctx,document:doc,MutationObserver:class{constructor(fn){observer=fn}observe(){}}};
           vm.runInNewContext(source,ctx2);
-          observer([{type:'childList',addedNodes:[node2]}]);
-          assert.equal(node2.nodeValue,'Start date entered: Oct 4, 2025');
+          handlers.en();
+          assert.equal(node.nodeValue,'Start date entered: Oct 4, 2025');
+          handlers.es();
+          assert.equal(node.nodeValue,'Fecha de inicio ingresada: Oct 4, 2025');
+          assert.equal(doc.documentElement.lang,'es');
           console.log('Dynamic text-node translation regression passed');
           NODE
       - name: Check bilingual repair wiring
