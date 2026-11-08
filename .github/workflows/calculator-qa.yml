@@ -63,7 +63,13 @@ jobs:
               assert(!(await page.locator('#resultsSection').getAttribute('class')).includes('result-hidden'),'No results displayed');
               const resultEn=await page.locator('#resultSummary').innerText();
               assert(resultEn.length>50,'Result summary unexpectedly empty');
+              const warningEn=await page.locator('#resultWarnings').innerText();
+              assert(warningEn.includes('Earning FSA Time Credits does not automatically authorize their application.'),'Earned-vs-applied warning missing');
               await page.locator('#calcLangEs').click();
+              const warningEs=await page.locator('#resultWarnings').innerText();
+              assert(warningEs.includes('Ganar créditos de tiempo FSA no autoriza automáticamente su aplicación.'),'Spanish earned-vs-applied warning missing');
+              assert(!warningEs.includes('Earning FSA Time Credits does not automatically authorize'),'Warning left in English');
+              assert(warningEs.includes('Un riesgo PATTERN medio o alto'),'Medium PATTERN Spanish warning missing');
               assert.equal(await page.locator('#sentenceStart').inputValue(),'2025-09-03');
               assert.equal(await page.locator('#knownFtc').inputValue(),'200');
               assert.equal(await page.locator('#patternRisk').inputValue(),'medium');
