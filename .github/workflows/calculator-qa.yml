@@ -19,6 +19,41 @@ jobs:
         run: |
           node --check public/first-step-act-calculator/calculator.js
           node --check public/first-step-act-calculator/calculator-lang.js
+      - name: Exercise translation on changing text nodes
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+          const source=fs.readFileSync('public/first-step-act-calculator/calculator-lang.js','utf8');
+          let observer;
+          const node={nodeType:3,nodeValue:'Start date entered: Sep 3, 2025'};
+          const body={};
+          const store={cg_lang:'es'};
+          const ctx={
+            localStorage:{getItem:k=>store[k],setItem:(k,v)=>store[k]=v},
+            document:{body,documentElement:{lang:'en'},querySelector:()=>null,
+              createTreeWalker:()=>({nextNode:()=>null})},
+            NodeFilter:{SHOW_TEXT:4},
+            MutationObserver:class{constructor(fn){observer=fn}observe(){}},
+            window:{},WeakMap,Map
+          };
+          vm.runInNewContext(source,ctx);
+          observer([{type:'childList',addedNodes:[node]}]);
+          assert.equal(node.nodeValue,'Fecha de inicio ingresada: Sep 3, 2025');
+          node.nodeValue='Start date entered: Oct 4, 2025';
+          observer([{type:'characterData',target:node}]);
+          assert.equal(node.nodeValue,'Fecha de inicio ingresada: Oct 4, 2025');
+          observer([{type:'characterData',target:node}]);
+          assert.equal(node.nodeValue,'Fecha de inicio ingresada: Oct 4, 2025');
+          store.cg_lang='en';
+          // Reloading the script in English exercises language restoration separately.
+          const node2={nodeType:3,nodeValue:'Start date entered: Oct 4, 2025'};
+          const ctx2={...ctx,document:{...ctx.document,documentElement:{lang:'es'}},
+            MutationObserver:class{constructor(fn){observer=fn}observe(){}}};
+          vm.runInNewContext(source,ctx2);
+          observer([{type:'childList',addedNodes:[node2]}]);
+          assert.equal(node2.nodeValue,'Start date entered: Oct 4, 2025');
+          console.log('Dynamic text-node translation regression passed');
+          NODE
       - name: Check bilingual repair wiring
         run: |
           node <<'NODE'
