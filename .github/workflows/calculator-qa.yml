@@ -61,6 +61,11 @@ jobs:
               await page.locator('#knownFtc').fill('200');
               await page.locator('button[type="submit"]').first().click();
               assert(!(await page.locator('#resultsSection').getAttribute('class')).includes('result-hidden'),'No results displayed');
+              const resultText=await page.locator('#resultSummary').innerText();
+              assert(resultText.includes('270 days'),'Expected illustrative 270-day GCT for 60 months');
+              assert(resultText.includes('200 days'),'Entered FTC amount missing from results');
+              assert(resultText.includes('Sep 3, 2030'),'Full-term date mismatch');
+              assert(resultText.includes('Dec 7, 2029'),'Approximate GCT date mismatch');
               const resultEn=await page.locator('#resultSummary').innerText();
               assert(resultEn.length>50,'Result summary unexpectedly empty');
               const warningEn=await page.locator('#resultWarnings').innerText();
