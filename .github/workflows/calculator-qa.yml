@@ -37,5 +37,14 @@ jobs:
             '15-day earning scenario · date ladder'
           ]) assert(lang.includes(key), 'Missing translation: '+key);
           assert(lang.includes('input.placeholder=lang==="es"'), 'FSA placeholder language toggle missing');
+          for (const key of [
+            'const dynamicPrefixes=',
+            'key.startsWith(en)',
+            'prefix[1]+key.slice(prefix[0].length)',
+            'Start date entered: ',
+            'FTC toward supervised release in this scenario: ',
+            'Modeled FSA prerelease threshold: ',
+            'Separate RDAP scenario: '
+          ]) assert(lang.includes(key), 'Missing variable-text translation support: '+key);
           console.log('Static bilingual wiring checks passed; browser behavior and legal accuracy still require separate review.');
           NODE
