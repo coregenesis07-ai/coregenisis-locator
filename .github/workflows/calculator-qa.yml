@@ -49,6 +49,29 @@ jobs:
               assert.equal(await page.locator('html').getAttribute('lang'),'es');
               await page.locator('#calcLangEn').click();
               assert.equal(await page.locator('html').getAttribute('lang'),'en');
+              // Fictional 60-month case: verify wizard, results, and language persistence.
+              await page.locator('#sentenceLength').fill('5');
+              await page.locator('#sentenceStart').fill('2025-09-03');
+              await page.locator('[data-next="2"]').click();
+              await page.locator('#fsaEligibility').selectOption('yes');
+              await page.locator('#patternRisk').selectOption('medium');
+              await page.locator('#participationMode').selectOption('known');
+              await page.locator('#knownPeriods').fill('20');
+              await page.locator('[data-next="3"]').click();
+              await page.locator('#knownFtc').fill('200');
+              await page.locator('button[type="submit"]').first().click();
+              assert(!(await page.locator('#resultsSection').getAttribute('class')).includes('result-hidden'),'No results displayed');
+              const resultEn=await page.locator('#resultSummary').innerText();
+              assert(resultEn.length>50,'Result summary unexpectedly empty');
+              await page.locator('#calcLangEs').click();
+              assert.equal(await page.locator('#sentenceStart').inputValue(),'2025-09-03');
+              assert.equal(await page.locator('#knownFtc').inputValue(),'200');
+              assert.equal(await page.locator('#patternRisk').inputValue(),'medium');
+              assert((await page.locator('#resultSummary').innerText()).length>50,'Spanish result missing');
+              await page.locator('#calcLangEn').click();
+              assert.equal(await page.locator('#sentenceLength').inputValue(),'5');
+              assert.equal(await page.locator('#knownPeriods').inputValue(),'20');
+              assert.equal(await page.locator('#resultSummary').innerText(),resultEn,'English results changed after toggle');
               assert.deepEqual(errors,[],'Browser JavaScript errors: '+errors.join('; '));
               console.log('Chromium mobile-viewport EN/ES smoke test passed');
             }finally{await browser.close()}
