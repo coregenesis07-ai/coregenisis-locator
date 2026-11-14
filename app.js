@@ -481,6 +481,23 @@ function fsaPage(){
    </div>
 
    <div style="height:1.4rem"></div>
+   <section class="card" aria-labelledby="credit-comparison-title" id="credit-comparison">
+     <h3 id="credit-comparison-title">${es?'Comparación: Buena Conducta (GCT) y créditos FSA':'Comparison: Good Conduct Time (GCT) and FSA Time Credits'}</h3>
+     <div class="grid grid-2">
+       <div><h4>${es?'Tiempo por buena conducta (GCT)':'Good Conduct Time (GCT)'}</h4>
+         <p>${es?'Es un crédito legal separado, generalmente de hasta 54 días por año de sentencia impuesta para personas elegibles, sujeto a las reglas del BOP. Puede afectar la fecha proyectada de liberación.':'A separate statutory credit, generally up to 54 days per year of the sentence imposed for eligible people, subject to BOP rules. It can affect the projected release date.'}</p>
+       </div>
+       <div><h4>${es?'Créditos de tiempo First Step Act (FSA)':'First Step Act (FSA) Time Credits'}</h4>
+         <p>${es?'Los participantes elegibles pueden ganar 10 días por cada 30 días de actividades calificadas, o 15 días por cada 30 días cuando cumplen los criterios adicionales. Su aplicación a custodia previa a liberación o libertad supervisada depende de requisitos legales y evaluación individual.':'Eligible participants may earn 10 days per 30 days of qualifying activities, or 15 days per 30 days when additional criteria are met. Application toward prerelease custody or supervised release depends on statutory requirements and individual assessment.'}</p>
+       </div>
+     </div>
+     <p class="notice">${es?'No sume automáticamente GCT y FSA para prometer una fecha. La elegibilidad, los créditos aplicados y las fechas condicionales deben confirmarse con el BOP.':'Do not simply add GCT and FSA to promise a date. Eligibility, applied credits, and conditional dates must be confirmed with BOP.'}</p>
+     <div class="hero-buttons">
+       <a class="btn btn-light" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener">BOP FSA FAQ ↗</a>
+       <a class="btn btn-light" href="https://www.ecfr.gov/current/title-28/chapter-V/subchapter-B/part-523" target="_blank" rel="noopener">28 CFR Part 523 ↗</a>
+     </div>
+   </section>
+   <div style="height:1.4rem"></div>
    <div class="grid grid-2">
      <div class="card"><h3>${es?'Cómo leer las fechas':'How to read the dates'}</h3>
        <p><b>FSA Conditional Placement Date.</b> ${es?'Una fecha de planificación basada en créditos FSA proyectados/aplicables; no es por sí sola una orden de liberación.':'A planning date based on projected/applicable FSA credits; it is not itself a release order.'}</p>
