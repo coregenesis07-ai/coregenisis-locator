@@ -512,6 +512,19 @@ function fsaPage(){
      <a class="btn btn-light" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener">BOP FSA FAQ ↗</a>
    </section>
    <div style="height:1.4rem"></div>
+   <section class="card" id="sca-placement-estimator">
+    <h3>${es?'Estimador de colocación Second Chance Act':'Second Chance Act placement planning estimator'}</h3>
+    <p>${es?'Calcule una fecha hipotética para considerar colocación residencial (RRC), no una fecha de traslado aprobada.':'Calculate a hypothetical residential reentry center (RRC) consideration date, not an approved transfer date.'}</p>
+    <form id="scaEstimatorForm" class="grid grid-2">
+      <label>${es?'Fecha proyectada de liberación del BOP':'BOP projected release date'} <input id="scaReleaseDate" type="date" required></label>
+      <label>${es?'Meses hipotéticos de RRC (1–12)':'Hypothetical RRC months (1–12)'} <input id="scaMonths" type="number" min="1" max="12" step="1" value="6" required></label>
+      <button class="btn btn-primary" type="submit">${es?'Calcular fecha ilustrativa':'Calculate illustrative date'}</button>
+    </form>
+    <p id="scaEstimatorResult" class="notice" role="status" aria-live="polite"></p>
+    <p>${es?'La ley permite considerar hasta 12 meses en un RRC, pero BOP decide individualmente y no garantiza ninguna duración. El confinamiento domiciliario tiene límites distintos, generalmente el menor entre 10% del término de prisión y seis meses, salvo otra autoridad aplicable. No añada automáticamente créditos FSA o buena conducta.':'The law permits consideration of up to 12 months in an RRC, but BOP decides individually and guarantees no duration. Home confinement has separate limits, generally the shorter of 10% of the imprisonment term and six months, absent other applicable authority. Do not automatically add FSA or good-conduct credits.'}</p>
+    <a href="https://www.law.cornell.edu/uscode/text/18/3624" target="_blank" rel="noopener">18 U.S.C. § 3624(c) ↗</a>
+   </section>
+   <div style="height:1.4rem"></div>
    <div class="grid grid-2">
      <div class="card"><h3>${es?'Cómo leer las fechas':'How to read the dates'}</h3>
        <p><b>FSA Conditional Placement Date.</b> ${es?'Una fecha de planificación basada en créditos FSA proyectados/aplicables; no es por sí sola una orden de liberación.':'A planning date based on projected/applicable FSA credits; it is not itself a release order.'}</p>
@@ -849,6 +862,7 @@ function bind(){
  $$('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route;const m=$('#mobileNav');if(m)m.classList.add('hidden');const tgl=$('#menuToggle');if(tgl)tgl.setAttribute('aria-expanded','false')});
  $$('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
  const mt=$('#menuToggle'); if(mt) mt.addEventListener('click',()=>{const m=$('#mobileNav');if(!m)return;const opening=m.classList.contains('hidden');m.classList.toggle('hidden');mt.setAttribute('aria-expanded',String(opening));});
+ const scaForm=$('#scaEstimatorForm'); if(scaForm) scaForm.addEventListener('submit',calculateScaEstimate);
  const sf=$('#searchForm'); if(sf) sf.addEventListener('submit',doSearch);
  const kf=$('#knowledgeForm'); if(kf) kf.addEventListener('submit',doKnowledgeSearch);
  const af=$('#alertForm'); if(af) af.addEventListener('submit',saveAlert);
@@ -1217,6 +1231,18 @@ async function saveAlert(e){
  catch(err){
    out.textContent=err.message||'Tracking could not be activated. Your information was not submitted.';
  }
+}
+function calculateScaEstimate(e){
+ e.preventDefault();
+ const out=$('#scaEstimatorResult'), es=state.lang==='es', raw=$('#scaReleaseDate').value, months=Number($('#scaMonths').value);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(raw)||!Number.isInteger(months)||months<1||months>12){out.textContent=es?'Ingrese fecha válida y de 1 a 12 meses.':'Enter a valid date and 1–12 whole months.';return;}
+ const [y,m,d]=raw.split('-').map(Number), date=new Date(Date.UTC(y,m-1,d));
+ if(date.getUTCFullYear()!==y||date.getUTCMonth()!==m-1||date.getUTCDate()!==d){out.textContent=es?'Fecha no válida.':'Invalid date.';return;}
+ const first=new Date(Date.UTC(y,m-1-months,1));
+ const maxDay=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+1,0)).getUTCDate();
+ const start=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth(),Math.min(d,maxDay)));
+ const fmt=v=>v.toLocaleDateString(es?'es-US':'en-US',{timeZone:'UTC',year:'numeric',month:'long',day:'numeric'});
+ out.textContent=(es?'Inicio hipotético de consideración RRC: ':'Hypothetical RRC consideration start: ')+fmt(start)+(es?'. Fecha de liberación proyectada: ':'. Projected release: ')+fmt(date)+(es?'. No es una aprobación ni garantía.':'. Not an approval or guarantee.');
 }
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 window.addEventListener('hashchange',()=>{state.route=location.hash.replace('#/','')||'home';app();scrollTo({top:0,behavior:'smooth'})});
