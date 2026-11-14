@@ -498,6 +498,20 @@ function fsaPage(){
      </div>
    </section>
    <div style="height:1.4rem"></div>
+   <section class="card" id="release-planning-milestones" aria-labelledby="release-milestones-title">
+     <h3 id="release-milestones-title">${es?'Guía de hitos para planificar la transición':'Release-planning milestone guide'}</h3>
+     <p>${es?'Esta secuencia explica qué fechas conviene verificar. No calcula una fecha personal de liberación ni confirma elegibilidad.':'This sequence explains which dates to verify. It does not calculate an individual release date or confirm eligibility.'}</p>
+     <ol class="milestone-list">
+       <li><strong>${es?'Inicio del término de prisión':'Term of imprisonment begins'}</strong><p>${es?'Verifique con los registros oficiales cuándo comenzó el término aplicable; la detención previa y los créditos de custodia son asuntos distintos.':'Confirm when the applicable imprisonment term began in official records; prior custody credit is a separate issue.'}</p></li>
+       <li><strong>${es?'Fecha proyectada y buena conducta (GCT)':'Projected release and Good Conduct Time (GCT)'}</strong><p>${es?'Revise la fecha proyectada informada por el BOP y cualquier ajuste de GCT; la fecha puede cambiar.':'Review the BOP-reported projected release date and any GCT adjustment; the date can change.'}</p></li>
+       <li><strong>${es?'Créditos FSA y fecha condicional':'FSA credits and conditional placement date'}</strong><p>${es?'Si corresponde, revise elegibilidad, créditos ganados y aplicados, y la fecha condicional FSA que informe el BOP. Ganar créditos no garantiza su aplicación inmediata.':'Where applicable, review eligibility, earned and applied credits, and any BOP-reported FSA conditional placement date. Earning credits does not guarantee immediate application.'}</p></li>
+       <li><strong>${es?'Planificación Second Chance Act (SCA)':'Second Chance Act (SCA) planning'}</strong><p>${es?'La colocación en centro residencial o confinamiento domiciliario depende de evaluación individual y disponibilidad; una fecha condicional no es una aprobación.':'Residential reentry or home-confinement placement depends on individual assessment and availability; a conditional date is not approval.'}</p></li>
+       <li><strong>${es?'Confirmación de transición o liberación':'Transition or release confirmation'}</strong><p>${es?'Confirme cualquier decisión final, lugar y fecha directamente con el equipo de la institución y el BOP.':'Confirm any final decision, location, and date directly with the facility team and BOP.'}</p></li>
+     </ol>
+     <p class="notice">${es?'Solo información educativa. No use esta guía como orden de liberación, cálculo oficial o promesa de traslado.':'Educational information only. This guide is not a release order, official calculation, or promise of transfer.'}</p>
+     <a class="btn btn-light" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener">BOP FSA FAQ ↗</a>
+   </section>
+   <div style="height:1.4rem"></div>
    <div class="grid grid-2">
      <div class="card"><h3>${es?'Cómo leer las fechas':'How to read the dates'}</h3>
        <p><b>FSA Conditional Placement Date.</b> ${es?'Una fecha de planificación basada en créditos FSA proyectados/aplicables; no es por sí sola una orden de liberación.':'A planning date based on projected/applicable FSA credits; it is not itself a release order.'}</p>
