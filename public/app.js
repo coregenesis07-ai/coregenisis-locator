@@ -1235,7 +1235,7 @@ async function saveAlert(e){
 function calculateScaEstimate(e){
  e.preventDefault();
  const out=$('#scaEstimatorResult'), es=state.lang==='es', raw=$('#scaReleaseDate').value, months=Number($('#scaMonths').value);
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(raw)||!Number.isInteger(months)||months<1||months>12){out.textContent=es?'Ingrese fecha válida y de 1 a 12 meses.':'Enter a valid date and 1–12 whole months.';return;}
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(raw)||!Number.isInteger(months)||months<1||months>12){out.textContent=es?'Ingrese fecha válida y de 1 a 12 meses.':'Enter a valid date and 1–12 whole months.';return;}
  const [y,m,d]=raw.split('-').map(Number), date=new Date(Date.UTC(y,m-1,d));
  if(date.getUTCFullYear()!==y||date.getUTCMonth()!==m-1||date.getUTCDate()!==d){out.textContent=es?'Fecha no válida.':'Invalid date.';return;}
  const first=new Date(Date.UTC(y,m-1-months,1));
