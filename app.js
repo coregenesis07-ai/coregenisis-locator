@@ -319,7 +319,7 @@ function home(){
 
 function searchPage(){
   return `<main id="main">${pageHeader(t('searchTitle'),t('searchDesc'))}<section class="section"><div class="container">
-  <div class="search-shell"><form id="searchForm"><label><b>${t('searchTitle')}</b><div class="search-row" style="margin-top:.55rem"><input id="searchQuery" class="field" placeholder="${t('searchPlaceholder')}" autocomplete="off" required><button class="btn btn-dark" type="submit">${t('search')}</button></div></label><div class="helper">Examples: 12345-067 or John Smith. Public results should always be verified at BOP.gov.</div></form><div id="searchStatus" class="helper" role="status" aria-live="polite"></div><div id="results" class="results"></div></div>
+  <div class="search-shell"><form id="searchForm"><label><b>${t('searchTitle')}</b><div class="search-row" style="margin-top:.55rem"><input id="searchQuery" class="field" placeholder="${t('searchPlaceholder')}" autocomplete="off" required><button class="btn btn-dark" type="submit">${t('search')}</button></div></label><div class="helper">${state.lang==='es'?'Ejemplos: 12345-067 o Juan Pérez. Verifique siempre los resultados públicos con el localizador oficial del BOP.':'Examples: 12345-067 or John Smith. Always verify public results with the official BOP locator.'}</div></form><div id="searchStatus" class="helper" role="status" aria-live="polite"></div><div id="results" class="results"></div></div>
   <div style="height:1rem"></div><div class="banner">${t('unofficial')} ${t('verify')}</div>
   </div></section></main>`;
 }
@@ -1168,7 +1168,7 @@ function normalizeResults(data){
 }
 function renderResults(rows){
  const el=$('#results'); if(!rows.length){el.innerHTML='<div class="empty-state">'+t('noResults')+'</div>';return;}
- el.innerHTML=rows.map(r=>`<div class="result-card"><div><b>${esc(r.name)}</b><div class="result-meta">BOP # ${esc(r.bop)}</div></div><div><b>${esc(r.facility)}</b><div class="result-meta">Release: ${esc(r.release)}</div></div><a class="btn btn-light" href="https://www.bop.gov/inmateloc/" target="_blank" rel="noopener">Verify ↗</a></div>`).join('');
+ el.innerHTML=rows.map(r=>`<div class="result-card"><div><b>${esc(r.name)}</b><div class="result-meta">BOP # ${esc(r.bop)}</div></div><div><b>${esc(r.facility)}</b><div class="result-meta">${state.lang==='es'?'Fecha de liberación indicada':'Reported release date'}: ${esc(r.release)}</div><div class="helper">${state.lang==='es'?'La fecha puede cambiar. No es una determinación oficial de elegibilidad o créditos.':'Dates can change. This is not an official credit or eligibility determination.'}</div></div><a class="btn btn-light" href="https://www.bop.gov/inmateloc/" target="_blank" rel="noopener">${state.lang==='es'?'Verificar en BOP.gov':'Verify at BOP.gov'} ↗</a></div>`).join('');
 }
 async function saveAlert(e){
  e.preventDefault();
