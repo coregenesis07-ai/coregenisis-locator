@@ -481,6 +481,50 @@ function fsaPage(){
    </div>
 
    <div style="height:1.4rem"></div>
+   <section class="card" aria-labelledby="credit-comparison-title" id="credit-comparison">
+     <h3 id="credit-comparison-title">${es?'Comparación: Buena Conducta (GCT) y créditos FSA':'Comparison: Good Conduct Time (GCT) and FSA Time Credits'}</h3>
+     <div class="grid grid-2">
+       <div><h4>${es?'Tiempo por buena conducta (GCT)':'Good Conduct Time (GCT)'}</h4>
+         <p>${es?'Es un crédito legal separado, generalmente de hasta 54 días por año de sentencia impuesta para personas elegibles, sujeto a las reglas del BOP. Puede afectar la fecha proyectada de liberación.':'A separate statutory credit, generally up to 54 days per year of the sentence imposed for eligible people, subject to BOP rules. It can affect the projected release date.'}</p>
+       </div>
+       <div><h4>${es?'Créditos de tiempo First Step Act (FSA)':'First Step Act (FSA) Time Credits'}</h4>
+         <p>${es?'Los participantes elegibles pueden ganar 10 días por cada 30 días de actividades calificadas, o 15 días por cada 30 días cuando cumplen los criterios adicionales. Su aplicación a custodia previa a liberación o libertad supervisada depende de requisitos legales y evaluación individual.':'Eligible participants may earn 10 days per 30 days of qualifying activities, or 15 days per 30 days when additional criteria are met. Application toward prerelease custody or supervised release depends on statutory requirements and individual assessment.'}</p>
+       </div>
+     </div>
+     <p class="notice">${es?'No sume automáticamente GCT y FSA para prometer una fecha. La elegibilidad, los créditos aplicados y las fechas condicionales deben confirmarse con el BOP.':'Do not simply add GCT and FSA to promise a date. Eligibility, applied credits, and conditional dates must be confirmed with BOP.'}</p>
+     <div class="hero-buttons">
+       <a class="btn btn-light" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener">BOP FSA FAQ ↗</a>
+       <a class="btn btn-light" href="https://www.ecfr.gov/current/title-28/chapter-V/subchapter-B/part-523" target="_blank" rel="noopener">28 CFR Part 523 ↗</a>
+     </div>
+   </section>
+   <div style="height:1.4rem"></div>
+   <section class="card" id="release-planning-milestones" aria-labelledby="release-milestones-title">
+     <h3 id="release-milestones-title">${es?'Guía de hitos para planificar la transición':'Release-planning milestone guide'}</h3>
+     <p>${es?'Esta secuencia explica qué fechas conviene verificar. No calcula una fecha personal de liberación ni confirma elegibilidad.':'This sequence explains which dates to verify. It does not calculate an individual release date or confirm eligibility.'}</p>
+     <ol class="milestone-list">
+       <li><strong>${es?'Inicio del término de prisión':'Term of imprisonment begins'}</strong><p>${es?'Verifique con los registros oficiales cuándo comenzó el término aplicable; la detención previa y los créditos de custodia son asuntos distintos.':'Confirm when the applicable imprisonment term began in official records; prior custody credit is a separate issue.'}</p></li>
+       <li><strong>${es?'Fecha proyectada y buena conducta (GCT)':'Projected release and Good Conduct Time (GCT)'}</strong><p>${es?'Revise la fecha proyectada informada por el BOP y cualquier ajuste de GCT; la fecha puede cambiar.':'Review the BOP-reported projected release date and any GCT adjustment; the date can change.'}</p></li>
+       <li><strong>${es?'Créditos FSA y fecha condicional':'FSA credits and conditional placement date'}</strong><p>${es?'Si corresponde, revise elegibilidad, créditos ganados y aplicados, y la fecha condicional FSA que informe el BOP. Ganar créditos no garantiza su aplicación inmediata.':'Where applicable, review eligibility, earned and applied credits, and any BOP-reported FSA conditional placement date. Earning credits does not guarantee immediate application.'}</p></li>
+       <li><strong>${es?'Planificación Second Chance Act (SCA)':'Second Chance Act (SCA) planning'}</strong><p>${es?'La colocación en centro residencial o confinamiento domiciliario depende de evaluación individual y disponibilidad; una fecha condicional no es una aprobación.':'Residential reentry or home-confinement placement depends on individual assessment and availability; a conditional date is not approval.'}</p></li>
+       <li><strong>${es?'Confirmación de transición o liberación':'Transition or release confirmation'}</strong><p>${es?'Confirme cualquier decisión final, lugar y fecha directamente con el equipo de la institución y el BOP.':'Confirm any final decision, location, and date directly with the facility team and BOP.'}</p></li>
+     </ol>
+     <p class="notice">${es?'Solo información educativa. No use esta guía como orden de liberación, cálculo oficial o promesa de traslado.':'Educational information only. This guide is not a release order, official calculation, or promise of transfer.'}</p>
+     <a class="btn btn-light" href="https://www.bop.gov/inmates/fsa/faq.jsp" target="_blank" rel="noopener">BOP FSA FAQ ↗</a>
+   </section>
+   <div style="height:1.4rem"></div>
+   <section class="card" id="sca-placement-estimator">
+    <h3>${es?'Estimador de colocación Second Chance Act':'Second Chance Act placement planning estimator'}</h3>
+    <p>${es?'Calcule una fecha hipotética para considerar colocación residencial (RRC), no una fecha de traslado aprobada.':'Calculate a hypothetical residential reentry center (RRC) consideration date, not an approved transfer date.'}</p>
+    <form id="scaEstimatorForm" class="grid grid-2">
+      <label>${es?'Fecha proyectada de liberación del BOP':'BOP projected release date'} <input id="scaReleaseDate" type="date" required></label>
+      <label>${es?'Meses hipotéticos de RRC (1–12)':'Hypothetical RRC months (1–12)'} <input id="scaMonths" type="number" min="1" max="12" step="1" value="6" required></label>
+      <button class="btn btn-primary" type="submit">${es?'Calcular fecha ilustrativa':'Calculate illustrative date'}</button>
+    </form>
+    <p id="scaEstimatorResult" class="notice" role="status" aria-live="polite"></p>
+    <p>${es?'La ley permite considerar hasta 12 meses en un RRC, pero BOP decide individualmente y no garantiza ninguna duración. El confinamiento domiciliario tiene límites distintos, generalmente el menor entre 10% del término de prisión y seis meses, salvo otra autoridad aplicable. No añada automáticamente créditos FSA o buena conducta.':'The law permits consideration of up to 12 months in an RRC, but BOP decides individually and guarantees no duration. Home confinement has separate limits, generally the shorter of 10% of the imprisonment term and six months, absent other applicable authority. Do not automatically add FSA or good-conduct credits.'}</p>
+    <a href="https://www.law.cornell.edu/uscode/text/18/3624" target="_blank" rel="noopener">18 U.S.C. § 3624(c) ↗</a>
+   </section>
+   <div style="height:1.4rem"></div>
    <div class="grid grid-2">
      <div class="card"><h3>${es?'Cómo leer las fechas':'How to read the dates'}</h3>
        <p><b>FSA Conditional Placement Date.</b> ${es?'Una fecha de planificación basada en créditos FSA proyectados/aplicables; no es por sí sola una orden de liberación.':'A planning date based on projected/applicable FSA credits; it is not itself a release order.'}</p>
@@ -818,6 +862,7 @@ function bind(){
  $$('[data-route]').forEach(b=>b.onclick=()=>{location.hash='#/'+b.dataset.route;const m=$('#mobileNav');if(m)m.classList.add('hidden');const tgl=$('#menuToggle');if(tgl)tgl.setAttribute('aria-expanded','false')});
  $$('[data-lang]').forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem('cg_lang',state.lang);app()});
  const mt=$('#menuToggle'); if(mt) mt.addEventListener('click',()=>{const m=$('#mobileNav');if(!m)return;const opening=m.classList.contains('hidden');m.classList.toggle('hidden');mt.setAttribute('aria-expanded',String(opening));});
+ const scaForm=$('#scaEstimatorForm'); if(scaForm) scaForm.addEventListener('submit',calculateScaEstimate);
  const sf=$('#searchForm'); if(sf) sf.addEventListener('submit',doSearch);
  const kf=$('#knowledgeForm'); if(kf) kf.addEventListener('submit',doKnowledgeSearch);
  const af=$('#alertForm'); if(af) af.addEventListener('submit',saveAlert);
@@ -1186,6 +1231,18 @@ async function saveAlert(e){
  catch(err){
    out.textContent=err.message||'Tracking could not be activated. Your information was not submitted.';
  }
+}
+function calculateScaEstimate(e){
+ e.preventDefault();
+ const out=$('#scaEstimatorResult'), es=state.lang==='es', raw=$('#scaReleaseDate').value, months=Number($('#scaMonths').value);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(raw)||!Number.isInteger(months)||months<1||months>12){out.textContent=es?'Ingrese fecha válida y de 1 a 12 meses.':'Enter a valid date and 1–12 whole months.';return;}
+ const [y,m,d]=raw.split('-').map(Number), date=new Date(Date.UTC(y,m-1,d));
+ if(date.getUTCFullYear()!==y||date.getUTCMonth()!==m-1||date.getUTCDate()!==d){out.textContent=es?'Fecha no válida.':'Invalid date.';return;}
+ const first=new Date(Date.UTC(y,m-1-months,1));
+ const maxDay=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+1,0)).getUTCDate();
+ const start=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth(),Math.min(d,maxDay)));
+ const fmt=v=>v.toLocaleDateString(es?'es-US':'en-US',{timeZone:'UTC',year:'numeric',month:'long',day:'numeric'});
+ out.textContent=(es?'Inicio hipotético de consideración RRC: ':'Hypothetical RRC consideration start: ')+fmt(start)+(es?'. Fecha de liberación proyectada: ':'. Projected release: ')+fmt(date)+(es?'. No es una aprobación ni garantía.':'. Not an approval or guarantee.');
 }
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 window.addEventListener('hashchange',()=>{state.route=location.hash.replace('#/','')||'home';app();scrollTo({top:0,behavior:'smooth'})});
