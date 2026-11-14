@@ -148,6 +148,7 @@ function home(){
           <a class="btn btn-primary" href="#/search">${es?'Buscar un recluso':'Search an Inmate'}</a>
           <a class="btn btn-secondary" href="/federal-prison-directory/">${es?'Directorio de prisiones':'Prison Directory'}</a>
           <a class="btn btn-secondary" href="/first-step-act-calculator/">${es?'Calculadora FSA':'FSA Calculator'}</a>
+          <a class="btn btn-secondary" href="#/fsa">${es?'Second Chance Act: calcular RRC':'Second Chance Act: RRC Estimator'}</a>
         </div>
         <div class="hero-trust-row">
           <span>✓ ${es?'Recursos de búsqueda gratuitos':'Free search resources'}</span>
@@ -170,7 +171,10 @@ function home(){
         <span class="section-kicker">${es?'ACTUALIZACIONES OFICIALES':'OFFICIAL UPDATES'}</span>
         <h2>${es?'Últimas actualizaciones del BOP y First Step Act':'Latest BOP & First Step Act Updates'}</h2>
         <p>${es?'Cambios recientes verificados con fuentes oficiales. Revise siempre el documento original para la aplicación individual.':'Recent developments verified against official sources. Always review the controlling source for individual application.'}</p>
-      </div><a class="btn btn-light" href="#/fsa">${es?'Centro FSA':'FSA Center'}</a></div>
+      </div><div class="home-fsa-links" style="display:flex;flex-wrap:wrap;gap:.65rem;align-items:center">
+        <a class="btn btn-primary" href="#/fsa">${es?'Second Chance Act: estimador RRC':'Second Chance Act: RRC Estimator'}</a>
+        <a class="btn btn-light" href="#/fsa">${es?'Centro FSA':'FSA Center'}</a>
+      </div></div>
 
       <div class="grid grid-3">
         <article class="card">
