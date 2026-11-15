@@ -1,0 +1,20 @@
+name: Scoped FSA Mobile Copy QA
+on:
+  pull_request:
+    paths:
+      - 'public/first-step-act-calculator/index.html'
+      - 'tests/fsa-mobile-copy-qa.cjs'
+      - '.github/workflows/fsa-mobile-copy-qa.yml'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check scoped FSA mobile HTML regression
+        run: node tests/fsa-mobile-copy-qa.cjs
