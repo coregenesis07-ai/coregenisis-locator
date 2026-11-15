@@ -16,6 +16,10 @@ function sentenceMonths(){
  return unit==='years'?Math.round(v*12):Math.round(v);
 }
 function validStep1(){
+ const extraDaysInput=$('#sentenceExtraDays');
+ const extraDays=Number(extraDaysInput?.value||0);
+ if(!Number.isInteger(extraDays)||extraDays<0||extraDays>30){alert('Additional days must be a whole number between 0 and 30.');return false;}
+ if(extraDays>0){alert('Day-specific sentence estimates are paused pending independent GCT/legal validation. Please verify your exact sentence with BOP.');return false;}
  if(sentenceMonths()<=0 || !$('#sentenceStart')?.value){alert('Enter the sentence length and federal sentence start date.');return false;}
  return true;
 }
@@ -207,6 +211,7 @@ function renderScenario(r,label,ctx){
 
 $('#guidedCalc')?.addEventListener('submit',e=>{
  e.preventDefault();
+ if(!validStep1()){showStep(1);return;}
  const months=sentenceMonths();
  const startVal=$('#sentenceStart').value;
  if(!startVal||months<=0){showStep(1);return;}
