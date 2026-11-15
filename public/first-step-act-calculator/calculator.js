@@ -54,7 +54,9 @@ $('#participationMode')?.addEventListener('change',e=>$('#knownPeriodsWrap')?.cl
 
 const addMonths=(d,m)=>{const x=new Date(d.getTime());const day=x.getDate();x.setDate(1);x.setMonth(x.getMonth()+m);const last=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();x.setDate(Math.min(day,last));return x;};
 const addDays=(d,n)=>{const x=new Date(d.getTime());x.setDate(x.getDate()+n);return x;};
-const diffDays=(a,b)=>Math.max(0,Math.floor((b-a)/86400000));
+// Count calendar days, not elapsed 24-hour blocks (DST can make a day 23 or 25 hours).
+const calendarDayUtc=d=>Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());
+const diffDays=(a,b)=>Math.max(0,Math.round((calendarDayUtc(b)-calendarDayUtc(a))/86400000));
 const fmt=d=>!d||Number.isNaN(d.getTime())?'—':d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
 const daysLabel=n=>Math.max(0,Math.round(n))+' days';
 const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
