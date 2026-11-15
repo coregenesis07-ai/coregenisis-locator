@@ -265,6 +265,7 @@ $('#guidedCalc')?.addEventListener('submit',e=>{
  if(rdapMonths>0)warnings.push('RDAP is displayed as a separate user-selected scenario. The calculator does not establish RDAP eligibility or the actual reduction BOP may grant.');
  if(months<=12)warnings.push('No GCT was modeled because 18 U.S.C. § 3624(b) applies the GCT provision to a term of imprisonment of more than one year.');
  if(!Number.isFinite(knownFtc) && participationMode==='best' && eligibility!=='no')warnings.push('Future FTC shown under continuous participation is projected, not earned. BOP states that conditional FSA calculations are planning tools and must not be confused with the actual Projected Release Date.');
+ if(!Number.isFinite(knownFtc) && participationMode==='best' && eligibility!=='no')warnings.push('This best-case scenario assumes qualifying participation continuously from the entered federal sentence start date. The 2026 BOP rule permits eligible earning after the term commences, but does not establish that you participated in qualifying activities on every day. Verify your actual qualifying participation start date, exclusions, and earned balance with BOP.');
  $('#resultSummary').innerHTML=html;
  $('#resultWarnings').innerHTML=warnings.length?'<div class="banner" style="margin-top:1rem"><strong>Verify these items:</strong><ul>'+warnings.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>':'';
  lastCopyText=copyParts.join('\n\n')+(warnings.length?'\n\nVerify: '+warnings.join(' | '):'');
