@@ -33,6 +33,8 @@ assert.match(html, /estimates with additional days are paused/);
 assert.match(translations, /Días adicionales de condena/);
 assert.match(translations, /The current calculation model supports whole-month sentences only/);
 assert.match(src, /if\(extraDays>0\)/);
+assert.match(src, /Some of those credits may not yet have been earned/);
+assert.match(translations, /Es posible que algunos de esos créditos todavía no se hayan obtenido/);
 assert.match(src, /This best-case scenario assumes qualifying participation continuously/);
 assert.match(translations, /Este escenario optimista supone participación continua/);
 assert.match(src, /window\.FCG_CALC_LANG\?\.\(\)==='es'/);
