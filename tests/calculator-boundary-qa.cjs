@@ -35,6 +35,9 @@ assert.match(translations, /The current calculation model supports whole-month s
 assert.match(src, /if\(extraDays>0\)/);
 assert.match(src, /Number\.isInteger\(exactMonths\)/);
 assert.match(src, /Number\.isSafeInteger\(knownFtc\)/);
+assert.match(src, /if\(!officialDate\)return/);
+assert.match(src, /The calculator will not anchor this window to an unverified modeled release date/);
+assert.match(src, /Withheld for projected or unverified credits/);
 assert.match(src, /knownFtc<0/);
 assert.match(src, /Ingrese un número entero de créditos FTC obtenidos/);
 assert.match(src, /Fractional months are not automatically converted into days/);
