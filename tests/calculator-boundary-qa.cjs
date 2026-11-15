@@ -13,13 +13,33 @@ vm.runInContext(src.slice(start, end), context);
 const gct = (months, lost=0) => vm.runInContext(`gctForMonths(${months},${lost})`,context);
 const ftc = (periods, rate) => vm.runInContext(`estimateFtc(${periods},${rate})`,context);
 assert.equal(gct(12), 0, 'Current 12-month boundary changed; review statutory threshold');
-assert.equal(gct(13), 58, 'Current 13-month estimate changed; review partial-year rounding');
+assert.equal(gct(13), 59, 'Current 13-month Math.round estimate changed; NOT a validated BOP partial-year calculation');
 assert.equal(gct(24), 108);
 assert.equal(gct(60), 270);
 assert.equal(gct(60,30), 240);
 assert.equal(ftc(20,10), 200);
 assert.equal(ftc(20,15), 300);
 assert.equal(ftc(-1,10), 0);
+
+// Test calendar-day counting in a DST-observing timezone; elapsed milliseconds/86400000
+// would undercount the spring-forward interval. No real inmate dates are used.
+const {execFileSync} = require('node:child_process');
+const dstProbe = [
+  "const assert=require('node:assert/strict');",
+  "const fs=require('node:fs');",
+  "const vm=require('node:vm');",
+  "const source=fs.readFileSync('public/first-step-act-calculator/calculator.js','utf8');",
+  "const begin=source.indexOf('const calendarDayUtc=');",
+  "const finish=source.indexOf('const fmt=',begin);",
+  "assert(begin>=0 && finish>begin);",
+  "const context={Date,Math};vm.createContext(context);",
+  "vm.runInContext(source.slice(begin,finish),context);",
+  "const diff=(a,b)=>vm.runInContext('diffDays(new Date('+JSON.stringify(a)+'),new Date('+JSON.stringify(b)+'))',context);",
+  "assert.equal(diff('2026-03-07T12:00:00','2026-03-10T12:00:00'),3);",
+  "assert.equal(diff('2026-10-31T12:00:00','2026-11-03T12:00:00'),3);",
+  "assert.equal(diff('2026-03-10T12:00:00','2026-03-07T12:00:00'),0);",
+].join('\n');
+execFileSync(process.execPath,['-e',dstProbe],{env:{...process.env,TZ:'America/New_York'},stdio:'inherit'});
 
 // Safety notice must remain visible in both supported languages until day-precision modeling is validated.
 const html = fs.readFileSync('public/first-step-act-calculator/index.html', 'utf8');
