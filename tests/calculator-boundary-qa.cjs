@@ -33,4 +33,7 @@ assert.match(html, /estimates with additional days are paused/);
 assert.match(translations, /Días adicionales de condena/);
 assert.match(translations, /The current calculation model supports whole-month sentences only/);
 assert.match(src, /if\(extraDays>0\)/);
+assert.match(src, /window\.FCG_CALC_LANG\?\.\(\)==='es'/);
+assert.match(src, /Las estimaciones de condenas con días adicionales están suspendidas/);
+assert.match(src, /Los días adicionales deben ser un número entero/);
 console.log('Baseline boundary probes passed. REVIEW REQUIRED: month-only input cannot express 12 months + 1 day; partial-year GCT rounding and FTC application eligibility are not validated by these tests.');
