@@ -1,5 +1,6 @@
 (()=> {
 const map=new Map([
+["Sentence lengths are rounded to whole months in this planning calculator. It cannot model a sentence of 12 months and 1 day or other day-specific terms. Do not use this estimate for those sentences; verify the exact term and Good Conduct Time with BOP.","Este calculador orientativo redondea las condenas a meses completos. No puede representar una condena de 12 meses y 1 día ni otros plazos expresados en días. No utilice esta estimación para esas condenas; verifique el plazo exacto y el crédito por buena conducta con el BOP."],
 ["Sentence unit","Unidad de sentencia"],
 ["3 months","3 meses"],
 ["6 months","6 meses"],
