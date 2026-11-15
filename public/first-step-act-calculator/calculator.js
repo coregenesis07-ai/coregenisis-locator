@@ -27,6 +27,12 @@ function validStep1(){
    alert(spanish?'Las estimaciones de condenas con días adicionales están suspendidas hasta validar el cálculo de GCT y los requisitos legales. Verifique la condena exacta con el BOP.':'Day-specific sentence estimates are paused pending independent GCT/legal validation. Please verify your exact sentence with BOP.');
    return false;
  }
+ const lengthValue=Number($('#sentenceLength')?.value);
+ const exactMonths=unit==='years'?lengthValue*12:lengthValue;
+ if(!Number.isFinite(lengthValue)||lengthValue<=0||!Number.isInteger(exactMonths)){
+   alert(spanish?'Ingrese una condena positiva en meses completos. Las fracciones de mes no se convierten automáticamente en días.':'Enter a positive sentence length in whole months. Fractional months are not automatically converted into days.');
+   return false;
+ }
  if(sentenceMonths()<=0 || !$('#sentenceStart')?.value){alert('Enter the sentence length and federal sentence start date.');return false;}
  return true;
 }
