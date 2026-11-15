@@ -26,6 +26,9 @@ const html = fs.readFileSync('public/first-step-act-calculator/index.html', 'utf
 const translations = fs.readFileSync('public/first-step-act-calculator/calculator-lang.js', 'utf8');
 assert.match(html, /id="sentencePrecisionNotice"/);
 assert.match(html, /id="sentenceExtraDays"/);
+assert.match(html, /id="fsa2026RuleNotice"/);
+assert.match(html, /2026-08-31\/html\/2026-17752\.htm/);
+assert.match(translations, /Regla del BOP de 2026/);
 assert.match(html, /estimates with additional days are paused/);
 assert.match(translations, /Días adicionales de condena/);
 assert.match(translations, /The current calculation model supports whole-month sentences only/);
