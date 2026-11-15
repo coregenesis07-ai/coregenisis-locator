@@ -147,7 +147,7 @@ function confidenceHtml(r,officialDate,eligibility,risk,detainer,rdapMonths){
    ['Sentence start & length','Entered by user', 'entered'],
    ['Full-term date','Calendar calculation','calculated'],
    ['Approximate GCT date','Calculator estimate','calculated'],
-   ['FSA dates','Future-credit scenario','modeled']
+   ['FSA transfer dates',r.ftcSource==='entered'?'Illustrative from entered balance; BOP confirmation required':'Withheld for projected or unverified credits','reference']
  ];
  if(rdapMonths>0)rows.push(['RDAP date','User-selected reduction scenario','modeled']);
  if(officialDate)rows.push(['BOP projected date','Entered from BOP record by user','entered']);
@@ -162,7 +162,8 @@ function confidenceHtml(r,officialDate,eligibility,risk,detainer,rdapMonths){
    '</div></section>';
 }
 function nextMoveHtml(r,officialDate){
- const base=officialDate||r.afterGct;
+ if(!officialDate)return '<section class="result-panel full-only next-move"><span class="status-chip status-amber">Planning reference</span><h3>RRC referral planning</h3><p>Enter a current BOP projected release date to view an approximate 17–19 month referral-planning window. The calculator will not anchor this window to an unverified modeled release date. Ask your Unit Team for your actual referral and placement status.</p></section>';
+ const base=officialDate;
  const open=addMonths(base,-19), close=addMonths(base,-17);
  const baseLabel=officialDate?'the BOP projected date you entered':'the calculator\'s approximate GCT date';
  return '<section class="result-panel full-only next-move"><span class="status-chip status-amber">Planning reference</span><h3>Your next move: prepare before the RRC referral window</h3>'+
