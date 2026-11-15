@@ -88,6 +88,8 @@ jobs:
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exitCode=1});
           NODE
+      - name: Run GCT and FTC boundary regression probes
+        run: node tests/calculator-boundary-qa.cjs
       - name: Check calculator JavaScript syntax
         run: |
           node --check public/first-step-act-calculator/calculator.js
