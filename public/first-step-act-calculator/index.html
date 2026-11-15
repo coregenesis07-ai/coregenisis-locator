@@ -90,7 +90,8 @@
   <div class="field-group">
     <div><b>Sentence length</b><div class="unit-toggle" role="group" aria-label="Sentence unit"><button id="unitYears" type="button" class="active">Years</button><button id="unitMonths" type="button">Months</button></div></div>
     <label><b id="lengthLabel">Sentence length in years</b><input id="sentenceLength" class="field" type="number" min="0.1" step="0.1" value="5" required></label>
-    <p class="subtle" id="sentencePrecisionNotice">Sentence lengths are rounded to whole months in this planning calculator. It cannot model a sentence of 12 months and 1 day or other day-specific terms. Do not use this estimate for those sentences; verify the exact term and Good Conduct Time with BOP.</p>
+    <label><b>Additional sentence days (0–30)</b><input id="sentenceExtraDays" class="field" type="number" min="0" max="30" step="1" value="0"></label>
+    <p class="subtle" id="sentencePrecisionNotice">The current calculation model supports whole-month sentences only. You may enter additional days above, but estimates with additional days are paused pending legal and mathematical validation. Verify the exact term and Good Conduct Time with BOP.</p>
     <label><b>Federal sentence start date</b><input id="sentenceStart" class="field" type="date" required></label>
   </div>
   <div class="wizard-actions"><span></span><button class="btn btn-dark" type="button" data-next="2">Next: Programs →</button></div>
