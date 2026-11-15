@@ -236,6 +236,11 @@ $('#guidedCalc')?.addEventListener('submit',e=>{
  const knownPeriods=Number($('#knownPeriods').value||0);
  const knownFtcRaw=$('#knownFtc').value.trim();
  const knownFtc=knownFtcRaw===''?NaN:Number(knownFtcRaw);
+ if(knownFtcRaw!=='' && (!Number.isSafeInteger(knownFtc)||knownFtc<0)){
+   alert(window.FCG_CALC_LANG?.()==='es'?'Ingrese un número entero de créditos FTC obtenidos igual o mayor que cero.':'Enter a whole-number earned FTC balance of zero or more days.');
+   showStep(2);
+   return;
+ }
  const gctLost=Number($('#gctLost').value||0);
  const rdapMonths=Number($('#rdapMonths').value||0);
  const officialRaw=$('#bopProjectedDate').value;
