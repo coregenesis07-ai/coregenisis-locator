@@ -2,6 +2,8 @@
 const map=new Map([
 ["Sentence lengths are rounded to whole months in this planning calculator. It cannot model a sentence of 12 months and 1 day or other day-specific terms. Do not use this estimate for those sentences; verify the exact term and Good Conduct Time with BOP.","Este calculador orientativo redondea las condenas a meses completos. No puede representar una condena de 12 meses y 1 día ni otros plazos expresados en días. No utilice esta estimación para esas condenas; verifique el plazo exacto y el crédito por buena conducta con el BOP."],
 ["Sentence unit","Unidad de sentencia"],
+["Additional sentence days (0–30)","Días adicionales de condena (0–30)"],
+["The current calculation model supports whole-month sentences only. You may enter additional days above, but estimates with additional days are paused pending legal and mathematical validation. Verify the exact term and Good Conduct Time with BOP.","El modelo de cálculo actual solo admite condenas expresadas en meses completos. Puede introducir días adicionales arriba, pero las estimaciones con días adicionales están suspendidas hasta completar la validación legal y matemática. Verifique la duración exacta de la condena y el crédito por buena conducta con el BOP."],
 ["3 months","3 meses"],
 ["6 months","6 meses"],
 ["9 months","9 meses"],
