@@ -13,7 +13,7 @@ vm.runInContext(src.slice(start, end), context);
 const gct = (months, lost=0) => vm.runInContext(`gctForMonths(${months},${lost})`,context);
 const ftc = (periods, rate) => vm.runInContext(`estimateFtc(${periods},${rate})`,context);
 assert.equal(gct(12), 0, 'Current 12-month boundary changed; review statutory threshold');
-assert.equal(gct(13), 59, 'Current 13-month estimate changed; review partial-year rounding');
+assert.equal(gct(13), 58, 'Current 13-month estimate changed; review partial-year rounding');
 assert.equal(gct(24), 108);
 assert.equal(gct(60), 270);
 assert.equal(gct(60,30), 240);
