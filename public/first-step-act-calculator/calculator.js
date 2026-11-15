@@ -188,12 +188,8 @@ function statutoryReferenceHtml(r){
 function renderScenario(r,label,ctx){
  const ladder=[];
  ladder.push({date:ctx.start,title:'Federal sentence start',note:'Date entered in the calculator.',kind:'entered',math:['Start date entered: '+fmt(ctx.start)]});
- if(r.ftc>0 && ctx.eligibility!=='no' && r.ftcSource==='entered'){
-   ladder.push({date:r.fsaPrereleaseDate,title:'Modeled FSA prerelease-custody threshold',note:'Illustrative date if the modeled/entered FTC amount were earned and applied under applicable FSA rules.',kind:'modeled',
-     math:['Approximate GCT date: '+fmt(r.afterGct),'FTC used in this scenario: '+daysLabel(r.ftc),'Calculation: approximate GCT date minus FTC scenario.']});
-   ladder.push({date:r.fsaSupervisedDate,title:'Modeled FSA transfer-to-supervised-release threshold',note:'Illustrative date using no more than 365 FTC days toward supervised release.',kind:'modeled',
-     math:['Approximate GCT date: '+fmt(r.afterGct),'FTC toward supervised release in this scenario: '+daysLabel(r.supervised),'Calculation: approximate GCT date minus up to 365 FTC days.']});
- }
+ // Even an entered FTC balance does not establish BOP authorization to apply credits.
+ // Suppress FTC transfer dates until the tool can verify application eligibility.
  if(r.rdapDays>0){
    ladder.push({date:r.rdapStandaloneDate,title:'Separate RDAP reduction scenario',note:'Shown separately so it is not silently combined with FSA credit assumptions.',kind:'modeled',
      math:['Approximate GCT date: '+fmt(r.afterGct),'User-selected RDAP reduction: '+daysLabel(r.rdapDays)]});
@@ -207,15 +203,15 @@ function renderScenario(r,label,ctx){
  const officialBlock=ctx.officialDate?'<div class="analysis-card summary-only"><h3>BOP date entered for comparison</h3><div class="timeline-row"><span>Current BOP projected release date entered</span><b>'+fmt(ctx.officialDate)+' '+statusTag('entered','Entered')+'</b></div><p class="notice">This calculator does not alter that BOP date. It uses it only for comparison and the optional RRC planning reference.</p></div>':'';
  const summary='<section class="result-panel summary-only"><h3>'+label+' scenario · date ladder</h3><div class="date-ladder">'+ladder.map(x=>ladderItem(x.date,x.title,x.note,x.kind,x.math)).join('')+'</div></section>';
  const knownEntered=r.ftcSource==='entered';
- const projectedDateNotice=!knownEntered && r.ftc>0?'<p class="notice">Projected FTC transfer dates are intentionally withheld: future credits may not have been earned by the earlier date. Verify earned and applicable FTC with BOP.</p>':'';
+ const projectedDateNotice=r.ftc>0?'<p class="notice">FTC transfer dates are withheld: entered or projected credits do not establish BOP authorization to apply them. Verify earned and applicable FTC with BOP.</p>':'';
  const copyLines=[
    'Federal Custody Guide — planning estimate',
    'Sentence start: '+fmt(ctx.start),
    'Full term: '+fmt(r.rawEnd),
    'Approximate GCT: '+daysLabel(r.gct)+' → '+fmt(r.afterGct),
    'FTC scenario: '+daysLabel(r.ftc)+' ('+r.rate+' days per qualifying 30-day period scenario where applicable)',
-   'Modeled FSA prerelease threshold: '+(r.ftc>0 && knownEntered?fmt(r.fsaPrereleaseDate):'withheld pending earned-credit validation'),
-   'Modeled supervised-release threshold: '+(r.ftc>0 && knownEntered?fmt(r.fsaSupervisedDate):'withheld pending earned-credit validation'),
+   'Modeled FSA prerelease threshold: withheld pending BOP application authorization',
+   'Modeled supervised-release threshold: withheld pending BOP application authorization',
    r.rdapDays>0?'Separate RDAP scenario: '+daysLabel(r.rdapDays)+' → '+fmt(r.rdapStandaloneDate):'RDAP scenario: none',
    ctx.officialDate?'BOP projected date entered: '+fmt(ctx.officialDate):'BOP projected date entered: none',
    'Planning estimate only — BOP records and determinations control.'
@@ -270,10 +266,7 @@ $('#guidedCalc')?.addEventListener('submit',e=>{
    const r=calcScenario({...base,rate});
    const p=renderScenario(r,rate+'-day earning',ctx);
    html=p.html; copyParts=[p.copy];
-   if(officialDate && r.ftcSource==='entered'){
-     const gap=Math.round((officialDate-r.fsaSupervisedDate)/86400000);
-     html+='<section class="result-panel full-only analysis-card comparison '+(Math.abs(gap)<=30?'good':'attn')+'"><h3>Comparison with the BOP projected date you entered</h3><div class="timeline-row"><span>Entered BOP date</span><b>'+fmt(officialDate)+'</b></div><div class="timeline-row"><span>Difference from modeled FSA supervised-release threshold</span><b>'+Math.abs(gap)+' days '+(gap>0?'later':'earlier')+'</b></div><p class="notice">A difference does not establish a BOP error. The public calculator cannot see the complete sentence computation, earned/applied credits, detainers, or individual administrative determinations.</p></section>';
-   }
+
  }
  if(eligibility!=='no')warnings.push('Earning FSA Time Credits does not automatically authorize their application. BOP must verify offense eligibility, applicable PATTERN assessments, qualifying participation, available supervised release, and any removal or placement restrictions. The displayed thresholds are not approved transfer dates.');
  if((risk==='medium'||risk==='high') && eligibility!=='no')warnings.push('Medium/high PATTERN risk does not establish eligibility to apply credits. Prerelease placement may require an individual Warden petition and approval; the modeled date is not a placement determination.');
