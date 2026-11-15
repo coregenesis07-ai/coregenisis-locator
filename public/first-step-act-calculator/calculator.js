@@ -18,8 +18,15 @@ function sentenceMonths(){
 function validStep1(){
  const extraDaysInput=$('#sentenceExtraDays');
  const extraDays=Number(extraDaysInput?.value||0);
- if(!Number.isInteger(extraDays)||extraDays<0||extraDays>30){alert('Additional days must be a whole number between 0 and 30.');return false;}
- if(extraDays>0){alert('Day-specific sentence estimates are paused pending independent GCT/legal validation. Please verify your exact sentence with BOP.');return false;}
+ const spanish=window.FCG_CALC_LANG?.()==='es';
+ if(!Number.isInteger(extraDays)||extraDays<0||extraDays>30){
+   alert(spanish?'Los días adicionales deben ser un número entero entre 0 y 30.':'Additional days must be a whole number between 0 and 30.');
+   return false;
+ }
+ if(extraDays>0){
+   alert(spanish?'Las estimaciones de condenas con días adicionales están suspendidas hasta validar el cálculo de GCT y los requisitos legales. Verifique la condena exacta con el BOP.':'Day-specific sentence estimates are paused pending independent GCT/legal validation. Please verify your exact sentence with BOP.');
+   return false;
+ }
  if(sentenceMonths()<=0 || !$('#sentenceStart')?.value){alert('Enter the sentence length and federal sentence start date.');return false;}
  return true;
 }
