@@ -133,8 +133,8 @@ function creditsHtml(r,knownFtcEntered){
  return '<section class="result-panel full-only analysis-card"><h3>FSA Time Credits</h3>'+
    '<div class="credit-meter"><span style="width:'+pct.toFixed(1)+'%"></span></div>'+
    '<div class="timeline-row"><span>'+(knownFtcEntered?'Known/entered FTC balance':'Modeled FTC total')+'</span><b>'+daysLabel(r.ftc)+'</b></div>'+
-   '<div class="timeline-row"><span>Potentially relevant to earlier supervised release</span><b>'+daysLabel(r.supervised)+'</b></div>'+
-   '<div class="timeline-row"><span>Additional FTC potentially relevant to prerelease custody</span><b>'+daysLabel(r.prerelease)+'</b></div>'+
+   '<div class="timeline-row"><span>Hypothetical FTC allocation toward supervised release (not BOP-approved)</span><b>'+daysLabel(r.supervised)+'</b></div>'+
+   '<div class="timeline-row"><span>Hypothetical remaining FTC allocation toward prerelease custody (not BOP-approved)</span><b>'+daysLabel(r.prerelease)+'</b></div>'+
    '<p class="notice">'+sourceText+'. Earned and projected credits are intentionally not described as the same thing.</p>'+
  '</section>';
 }
@@ -263,7 +263,10 @@ $('#guidedCalc')?.addEventListener('submit',e=>{
    copyParts=[p10.copy,'',p15.copy];
    warnings.push('PATTERN/risk earning rate is unknown, so both 10-day and 15-day scenarios are shown. A 15-day earning rate depends on the applicable statutory and BOP criteria being met.');
  }else{
-   const rate=(risk==='minimum'||risk==='low')?15:10;
+   // A single selected PATTERN category cannot establish two consecutive BOP assessments.
+   // Default to the 10-day rate; 15-day eligibility requires separate BOP verification.
+   const rate=10;
+   if(risk==='minimum'||risk==='low') warnings.push('The 15-day earning rate is NOT automatically applied from one PATTERN selection. BOP must confirm minimum/low risk over the two most recent consecutive assessments and qualifying participation. This tool uses 10 days per 30-day period unless independently verified.');
    const r=calcScenario({...base,rate});
    const p=renderScenario(r,rate+'-day earning',ctx);
    html=p.html; copyParts=[p.copy];
