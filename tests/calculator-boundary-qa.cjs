@@ -20,4 +20,12 @@ assert.equal(gct(60,30), 240);
 assert.equal(ftc(20,10), 200);
 assert.equal(ftc(20,15), 300);
 assert.equal(ftc(-1,10), 0);
+
+// Safety notice must remain visible in both supported languages until day-precision modeling is validated.
+const html = fs.readFileSync('public/first-step-act-calculator/index.html', 'utf8');
+const translations = fs.readFileSync('public/first-step-act-calculator/calculator-lang.js', 'utf8');
+assert.match(html, /id="sentencePrecisionNotice"/);
+assert.match(html, /12 months and 1 day/);
+assert.match(translations, /12 meses y 1 día/);
+assert.match(translations, /Sentence lengths are rounded to whole months/);
 console.log('Baseline boundary probes passed. REVIEW REQUIRED: month-only input cannot express 12 months + 1 day; partial-year GCT rounding and FTC application eligibility are not validated by these tests.');
