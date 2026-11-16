@@ -16,6 +16,23 @@ function sentenceMonths(){
  return unit==='years'?Math.round(v*12):Math.round(v);
 }
 function validStep1(){
+ const extraDaysInput=$('#sentenceExtraDays');
+ const extraDays=Number(extraDaysInput?.value||0);
+ const spanish=window.FCG_CALC_LANG?.()==='es';
+ if(!Number.isInteger(extraDays)||extraDays<0||extraDays>30){
+   alert(spanish?'Los días adicionales deben ser un número entero entre 0 y 30.':'Additional days must be a whole number between 0 and 30.');
+   return false;
+ }
+ if(extraDays>0){
+   alert(spanish?'Las estimaciones de condenas con días adicionales están suspendidas hasta validar el cálculo de GCT y los requisitos legales. Verifique la condena exacta con el BOP.':'Day-specific sentence estimates are paused pending independent GCT/legal validation. Please verify your exact sentence with BOP.');
+   return false;
+ }
+ const lengthValue=Number($('#sentenceLength')?.value);
+ const exactMonths=unit==='years'?lengthValue*12:lengthValue;
+ if(!Number.isFinite(lengthValue)||lengthValue<=0||!Number.isInteger(exactMonths)){
+   alert(spanish?'Ingrese una condena positiva en meses completos. Las fracciones de mes no se convierten automáticamente en días.':'Enter a positive sentence length in whole months. Fractional months are not automatically converted into days.');
+   return false;
+ }
  if(sentenceMonths()<=0 || !$('#sentenceStart')?.value){alert('Enter the sentence length and federal sentence start date.');return false;}
  return true;
 }
@@ -37,7 +54,9 @@ $('#participationMode')?.addEventListener('change',e=>$('#knownPeriodsWrap')?.cl
 
 const addMonths=(d,m)=>{const x=new Date(d.getTime());const day=x.getDate();x.setDate(1);x.setMonth(x.getMonth()+m);const last=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();x.setDate(Math.min(day,last));return x;};
 const addDays=(d,n)=>{const x=new Date(d.getTime());x.setDate(x.getDate()+n);return x;};
-const diffDays=(a,b)=>Math.max(0,Math.floor((b-a)/86400000));
+// Count calendar days, not elapsed 24-hour blocks (DST can make a day 23 or 25 hours).
+const calendarDayUtc=d=>Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());
+const diffDays=(a,b)=>Math.max(0,Math.round((calendarDayUtc(b)-calendarDayUtc(a))/86400000));
 const fmt=d=>!d||Number.isNaN(d.getTime())?'—':d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
 const daysLabel=n=>Math.max(0,Math.round(n))+' days';
 const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
@@ -114,8 +133,8 @@ function creditsHtml(r,knownFtcEntered){
  return '<section class="result-panel full-only analysis-card"><h3>FSA Time Credits</h3>'+
    '<div class="credit-meter"><span style="width:'+pct.toFixed(1)+'%"></span></div>'+
    '<div class="timeline-row"><span>'+(knownFtcEntered?'Known/entered FTC balance':'Modeled FTC total')+'</span><b>'+daysLabel(r.ftc)+'</b></div>'+
-   '<div class="timeline-row"><span>Potentially relevant to earlier supervised release</span><b>'+daysLabel(r.supervised)+'</b></div>'+
-   '<div class="timeline-row"><span>Additional FTC potentially relevant to prerelease custody</span><b>'+daysLabel(r.prerelease)+'</b></div>'+
+   '<div class="timeline-row"><span>Hypothetical FTC allocation toward supervised release (not BOP-approved)</span><b>'+daysLabel(r.supervised)+'</b></div>'+
+   '<div class="timeline-row"><span>Hypothetical remaining FTC allocation toward prerelease custody (not BOP-approved)</span><b>'+daysLabel(r.prerelease)+'</b></div>'+
    '<p class="notice">'+sourceText+'. Earned and projected credits are intentionally not described as the same thing.</p>'+
  '</section>';
 }
@@ -130,7 +149,7 @@ function confidenceHtml(r,officialDate,eligibility,risk,detainer,rdapMonths){
    ['Sentence start & length','Entered by user', 'entered'],
    ['Full-term date','Calendar calculation','calculated'],
    ['Approximate GCT date','Calculator estimate','calculated'],
-   ['FSA dates','Future-credit scenario','modeled']
+   ['FSA transfer dates',r.ftcSource==='entered'?'Illustrative from entered balance; BOP confirmation required':'Withheld for projected or unverified credits','reference']
  ];
  if(rdapMonths>0)rows.push(['RDAP date','User-selected reduction scenario','modeled']);
  if(officialDate)rows.push(['BOP projected date','Entered from BOP record by user','entered']);
@@ -145,7 +164,8 @@ function confidenceHtml(r,officialDate,eligibility,risk,detainer,rdapMonths){
    '</div></section>';
 }
 function nextMoveHtml(r,officialDate){
- const base=officialDate||r.afterGct;
+ if(!officialDate)return '<section class="result-panel full-only next-move"><span class="status-chip status-amber">Planning reference</span><h3>RRC referral planning</h3><p>Enter a current BOP projected release date to view an approximate 17–19 month referral-planning window. The calculator will not anchor this window to an unverified modeled release date. Ask your Unit Team for your actual referral and placement status.</p></section>';
+ const base=officialDate;
  const open=addMonths(base,-19), close=addMonths(base,-17);
  const baseLabel=officialDate?'the BOP projected date you entered':'the calculator\'s approximate GCT date';
  return '<section class="result-panel full-only next-move"><span class="status-chip status-amber">Planning reference</span><h3>Your next move: prepare before the RRC referral window</h3>'+
@@ -168,12 +188,8 @@ function statutoryReferenceHtml(r){
 function renderScenario(r,label,ctx){
  const ladder=[];
  ladder.push({date:ctx.start,title:'Federal sentence start',note:'Date entered in the calculator.',kind:'entered',math:['Start date entered: '+fmt(ctx.start)]});
- if(r.ftc>0 && ctx.eligibility!=='no'){
-   ladder.push({date:r.fsaPrereleaseDate,title:'Modeled FSA prerelease-custody threshold',note:'Illustrative date if the modeled/entered FTC amount were earned and applied under applicable FSA rules.',kind:'modeled',
-     math:['Approximate GCT date: '+fmt(r.afterGct),'FTC used in this scenario: '+daysLabel(r.ftc),'Calculation: approximate GCT date minus FTC scenario.']});
-   ladder.push({date:r.fsaSupervisedDate,title:'Modeled FSA transfer-to-supervised-release threshold',note:'Illustrative date using no more than 365 FTC days toward supervised release.',kind:'modeled',
-     math:['Approximate GCT date: '+fmt(r.afterGct),'FTC toward supervised release in this scenario: '+daysLabel(r.supervised),'Calculation: approximate GCT date minus up to 365 FTC days.']});
- }
+ // Even an entered FTC balance does not establish BOP authorization to apply credits.
+ // Suppress FTC transfer dates until the tool can verify application eligibility.
  if(r.rdapDays>0){
    ladder.push({date:r.rdapStandaloneDate,title:'Separate RDAP reduction scenario',note:'Shown separately so it is not silently combined with FSA credit assumptions.',kind:'modeled',
      math:['Approximate GCT date: '+fmt(r.afterGct),'User-selected RDAP reduction: '+daysLabel(r.rdapDays)]});
@@ -187,26 +203,28 @@ function renderScenario(r,label,ctx){
  const officialBlock=ctx.officialDate?'<div class="analysis-card summary-only"><h3>BOP date entered for comparison</h3><div class="timeline-row"><span>Current BOP projected release date entered</span><b>'+fmt(ctx.officialDate)+' '+statusTag('entered','Entered')+'</b></div><p class="notice">This calculator does not alter that BOP date. It uses it only for comparison and the optional RRC planning reference.</p></div>':'';
  const summary='<section class="result-panel summary-only"><h3>'+label+' scenario · date ladder</h3><div class="date-ladder">'+ladder.map(x=>ladderItem(x.date,x.title,x.note,x.kind,x.math)).join('')+'</div></section>';
  const knownEntered=r.ftcSource==='entered';
+ const projectedDateNotice=r.ftc>0?'<p class="notice">FTC transfer dates are withheld: entered or projected credits do not establish BOP authorization to apply them. Verify earned and applicable FTC with BOP.</p>':'';
  const copyLines=[
    'Federal Custody Guide — planning estimate',
    'Sentence start: '+fmt(ctx.start),
    'Full term: '+fmt(r.rawEnd),
    'Approximate GCT: '+daysLabel(r.gct)+' → '+fmt(r.afterGct),
    'FTC scenario: '+daysLabel(r.ftc)+' ('+r.rate+' days per qualifying 30-day period scenario where applicable)',
-   'Modeled FSA prerelease threshold: '+(r.ftc>0?fmt(r.fsaPrereleaseDate):'not modeled'),
-   'Modeled supervised-release threshold: '+(r.ftc>0?fmt(r.fsaSupervisedDate):'not modeled'),
+   'Modeled FSA prerelease threshold: withheld pending BOP application authorization',
+   'Modeled supervised-release threshold: withheld pending BOP application authorization',
    r.rdapDays>0?'Separate RDAP scenario: '+daysLabel(r.rdapDays)+' → '+fmt(r.rdapStandaloneDate):'RDAP scenario: none',
    ctx.officialDate?'BOP projected date entered: '+fmt(ctx.officialDate):'BOP projected date entered: none',
    'Planning estimate only — BOP records and determinations control.'
  ];
  return {
-   html:scaleHtml(r,ctx.start)+officialBlock+summary+creditsHtml(r,knownEntered)+gctHtml(r)+statutoryReferenceHtml(r)+confidenceHtml(r,ctx.officialDate,ctx.eligibilityLabel,ctx.riskLabel,ctx.detainerLabel,ctx.rdapMonths)+nextMoveHtml(r,ctx.officialDate),
+   html:scaleHtml(r,ctx.start)+officialBlock+summary+projectedDateNotice+creditsHtml(r,knownEntered)+gctHtml(r)+statutoryReferenceHtml(r)+confidenceHtml(r,ctx.officialDate,ctx.eligibilityLabel,ctx.riskLabel,ctx.detainerLabel,ctx.rdapMonths)+nextMoveHtml(r,ctx.officialDate),
    copy:copyLines.join('\n')
  };
 }
 
 $('#guidedCalc')?.addEventListener('submit',e=>{
  e.preventDefault();
+ if(!validStep1()){showStep(1);return;}
  const months=sentenceMonths();
  const startVal=$('#sentenceStart').value;
  if(!startVal||months<=0){showStep(1);return;}
@@ -217,6 +235,11 @@ $('#guidedCalc')?.addEventListener('submit',e=>{
  const knownPeriods=Number($('#knownPeriods').value||0);
  const knownFtcRaw=$('#knownFtc').value.trim();
  const knownFtc=knownFtcRaw===''?NaN:Number(knownFtcRaw);
+ if(knownFtcRaw!=='' && (!Number.isSafeInteger(knownFtc)||knownFtc<0)){
+   alert(window.FCG_CALC_LANG?.()==='es'?'Ingrese un número entero de créditos FTC obtenidos igual o mayor que cero.':'Enter a whole-number earned FTC balance of zero or more days.');
+   showStep(2);
+   return;
+ }
  const gctLost=Number($('#gctLost').value||0);
  const rdapMonths=Number($('#rdapMonths').value||0);
  const officialRaw=$('#bopProjectedDate').value;
@@ -236,20 +259,25 @@ $('#guidedCalc')?.addEventListener('submit',e=>{
    copyParts=[p10.copy,'',p15.copy];
    warnings.push('PATTERN/risk earning rate is unknown, so both 10-day and 15-day scenarios are shown. A 15-day earning rate depends on the applicable statutory and BOP criteria being met.');
  }else{
-   const rate=(risk==='minimum'||risk==='low')?15:10;
+   // A single selected PATTERN category cannot establish two consecutive BOP assessments.
+   // Default to the 10-day rate; 15-day eligibility requires separate BOP verification.
+   const rate=10;
+   if(risk==='minimum'||risk==='low') warnings.push('The 15-day earning rate is NOT automatically applied from one PATTERN selection. BOP must confirm minimum/low risk over the two most recent consecutive assessments and qualifying participation. This tool uses 10 days per 30-day period unless independently verified.');
    const r=calcScenario({...base,rate});
    const p=renderScenario(r,rate+'-day earning',ctx);
    html=p.html; copyParts=[p.copy];
-   if(officialDate){
-     const gap=Math.round((officialDate-r.fsaSupervisedDate)/86400000);
-     html+='<section class="result-panel full-only analysis-card comparison '+(Math.abs(gap)<=30?'good':'attn')+'"><h3>Comparison with the BOP projected date you entered</h3><div class="timeline-row"><span>Entered BOP date</span><b>'+fmt(officialDate)+'</b></div><div class="timeline-row"><span>Difference from modeled FSA supervised-release threshold</span><b>'+Math.abs(gap)+' days '+(gap>0?'later':'earlier')+'</b></div><p class="notice">A difference does not establish a BOP error. The public calculator cannot see the complete sentence computation, earned/applied credits, detainers, or individual administrative determinations.</p></section>';
-   }
+
  }
+ if(eligibility!=='no')warnings.push('Earning FSA Time Credits does not automatically authorize their application. BOP must verify offense eligibility, applicable PATTERN assessments, qualifying participation, available supervised release, and any removal or placement restrictions. The displayed thresholds are not approved transfer dates.');
+ if((risk==='medium'||risk==='high') && eligibility!=='no')warnings.push('Medium/high PATTERN risk does not establish eligibility to apply credits. Prerelease placement may require an individual Warden petition and approval; the modeled date is not a placement determination.');
+ if((risk==='minimum'||risk==='low') && eligibility!=='no')warnings.push('The 15-day earning scenario requires qualifying minimum/low risk assessments under BOP rules; a single selected risk level does not verify the required consecutive assessments.');
  if(eligibility==='unknown')warnings.push('FSA eligibility is not confirmed. FSA dates are scenarios only.');
  if(detainer==='yes')warnings.push('You indicated a detainer/hold may exist. It can affect release or placement planning and is not incorporated into the date math.');
  if(rdapMonths>0)warnings.push('RDAP is displayed as a separate user-selected scenario. The calculator does not establish RDAP eligibility or the actual reduction BOP may grant.');
  if(months<=12)warnings.push('No GCT was modeled because 18 U.S.C. § 3624(b) applies the GCT provision to a term of imprisonment of more than one year.');
  if(!Number.isFinite(knownFtc) && participationMode==='best' && eligibility!=='no')warnings.push('Future FTC shown under continuous participation is projected, not earned. BOP states that conditional FSA calculations are planning tools and must not be confused with the actual Projected Release Date.');
+ if(!Number.isFinite(knownFtc) && participationMode==='best' && eligibility!=='no')warnings.push('This best-case scenario assumes qualifying participation continuously from the entered federal sentence start date. The 2026 BOP rule permits eligible earning after the term commences, but does not establish that you participated in qualifying activities on every day. Verify your actual qualifying participation start date, exclusions, and earned balance with BOP.');
+ if(!Number.isFinite(knownFtc) && eligibility!=='no')warnings.push('IMPORTANT: Modeled FSA transfer dates subtract projected credits from the approximate GCT date. Some of those credits may not yet have been earned by the earlier displayed transfer date. These dates are hypothetical planning thresholds, NOT validated earliest transfer dates. Confirm earned credits, application eligibility, and actual dates with BOP.');
  $('#resultSummary').innerHTML=html;
  $('#resultWarnings').innerHTML=warnings.length?'<div class="banner" style="margin-top:1rem"><strong>Verify these items:</strong><ul>'+warnings.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>':'';
  lastCopyText=copyParts.join('\n\n')+(warnings.length?'\n\nVerify: '+warnings.join(' | '):'');
