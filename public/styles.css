@@ -500,3 +500,18 @@ main{min-height:70vh}.container{max-width:1180px;margin:auto;padding:0 1rem}
   .family-pathway-grid .core-tool-card h3{font-size:1.08rem}
   .family-pathway-grid .core-tool-card p{font-size:.92rem;line-height:1.55}
 }
+
+/* Accessible keyboard focus and narrow-screen navigation for FSA/SCA tools. */
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+}
+.home-fsa-links .btn { max-width: 100%; white-space: normal; text-align: center; }
+@media (max-width: 480px) {
+  .hero-buttons { flex-direction: column; align-items: stretch; }
+  .hero-buttons .btn, .home-fsa-links .btn { width: 100%; min-height: 44px; white-space: normal; overflow-wrap: anywhere; }
+  .home-fsa-links { width: 100%; }
+  #scaEstimatorForm { grid-template-columns: minmax(0, 1fr); }
+  #scaEstimatorForm input { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
+  #scaEstimatorForm .btn { min-height: 44px; white-space: normal; }
+}
